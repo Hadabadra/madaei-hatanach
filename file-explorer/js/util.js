@@ -205,8 +205,9 @@
       timeout: 'הפעולה ארכה זמן רב מדי',
       permission_denied: 'חסרה הרשאה מתאימה לתוסף'
     };
-    if (err.message && !/^[a-z_.]+$/.test(err.message)) return err.message;
     var code = String(err.code || '').replace(/^error\./, '');
+    var en = window.I18N && window.I18N.isEn() && map[code];
+    if (err.message && !/^[a-z_.]+$/.test(err.message) && !en) return err.message;
     return map[code] || err.message || 'שגיאה לא ידועה';
   };
 

@@ -4,6 +4,7 @@
   var FX = window.FX = window.FX || {};
   var ui = window.SS.ui;
   FX.ui = ui;
+  FX.t = window.I18N ? window.I18N.t : function (x) { return x; };
   FX.VERSION = '1.0.0';
   FX.BRIDGE_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases?q=bridge-v&expanded=true';
 
@@ -505,10 +506,10 @@
     return '';
   }
   async function newItem(isDir) {
-    var base = isDir ? 'תיקייה חדשה' : 'מסמך חדש.txt';
+    var base = FX.t(isDir ? 'תיקייה חדשה' : 'מסמך חדש.txt');
     var names = {}; S.entries.forEach(function (e) { names[e.name.toLowerCase()] = 1; });
     var name = base, n = 2;
-    while (names[name.toLowerCase()]) name = isDir ? base + ' (' + (n++) + ')' : 'מסמך חדש (' + (n++) + ').txt';
+    while (names[name.toLowerCase()]) name = isDir ? base + ' (' + (n++) + ')' : base.replace(/\.txt$/, '') + ' (' + (n++) + ').txt';
     var made = null;
     var r = await ui.dialog({
       title: isDir ? 'תיקייה חדשה' : 'קובץ טקסט חדש', icon: 'info',
@@ -667,7 +668,10 @@
     if (!e) return;
     if (e.type === 'dir' || e.type === 'drive') { go(e.path); return; }
     var ext = FX.extOf(e.name);
-    if (FX.isTextExt(ext) || FX.isImageExt(ext)) { preview(e); return; }
+    if (ext === 'pdf' && window.pdfjsLib) { FX.viewPdf(S.prov, e); return; }
+    if ((ext === 'docx' || ext === 'doc') && window.JSZip) { FX.viewDocx(S.prov, e); return; }
+    if (FX.isTextExt(ext)) { FX.viewText(S.prov, e); return; }
+    if (FX.isImageExt(ext)) { preview(e); return; }
     if (S.prov.caps.open) {
       S.prov.open(e.path).catch(function (err) { opError(err, 'הפתיחה נכשלה'); });
       return;
@@ -993,12 +997,62 @@
     } catch (e) { opError(e, 'ההסרה נכשלה'); }
   }
 
+  /* ---------- מסמך חדש מכפתור + בסרגל הקורא ---------- */
+  var NEW_DOC_ID = 'chadbedera-fx-new-doc';
+  async function newDocFromReader() {
+    if (!S.prov || S.prov.kind !== 'bridge') {
+      ui.toast('יצירת מסמך חדש דורשת את גשר אוצריא', 'info');
+      return;
+    }
+    var dir = '';
+    try { dir = localStorage.getItem('fx.newDocDir') || ''; } catch (e) { dir = ''; }
+    if (!dir) {
+      var docs = (S.known || []).find(function (k) { return k.id === 'documents'; });
+      dir = docs ? docs.path : (S.isRoot ? '' : S.path);
+    }
+    var made = null;
+    var r = await ui.dialog({
+      title: 'מסמך חדש', icon: 'info',
+      fields: [
+        { name: 'name', label: 'שם הקובץ', value: FX.t('מסמך חדש.txt') },
+        { name: 'dir', label: 'תיקייה', value: dir, dir: 'ltr' }
+      ],
+      validate: function (v) { return validName(v.name) || (String(v.dir || '').trim() ? '' : 'יש לבחור תיקייה'); },
+      onSubmit: async function (v) {
+        var nm = v.name.trim();
+        if (!/\.[^.]+$/.test(nm)) nm += '.txt';
+        var d = S.prov.normalizeInput(v.dir);
+        made = await S.prov.newTextFile(d, nm);
+        try { localStorage.setItem('fx.newDocDir', d); } catch (e) { /* כלום */ }
+        return { dir: d, name: nm };
+      }
+    });
+    if (!r) return;
+    ui.toast('המסמך נוצר', 'success');
+    if (S.search) exitSearch();
+    if (!S.prov.same(S.path, r.dir)) await go(r.dir);
+    await reloadSelect([made && made.path ? made.path : S.prov.join(r.dir, r.name)]);
+  }
+  function onToolbarItem(ev) {
+    var id = ev && (ev.id || ev.itemId || (ev.item && ev.item.id));
+    if (id && id !== NEW_DOC_ID) return;
+    var start = Date.now();
+    (function wait() {
+      if (S.prov) { newDocFromReader(); return; }
+      if (Date.now() - start < 8000) setTimeout(wait, 150);
+    })();
+  }
+
   /* ---------- אתחול ---------- */
-  function boot(payload) {
+  async function boot(payload) {
     if (S.booted) return;
     S.booted = true;
     if (payload && payload.theme) ui.applyTheme(payload.theme);
     if (payload && payload.plugin && payload.plugin.version) FX.VERSION = payload.plugin.version;
+    try { await window.I18N.init(payload); } catch (e) { /* נשארים בעברית */ }
+    var lb = $('fx-lang');
+    lb.textContent = window.I18N.toggleLabel();
+    lb.addEventListener('click', function () { window.I18N.toggle(); });
     loadPrefs();
     $('fx-hidden').classList.toggle('on', S.showHidden);
     $('fx-hidden').setAttribute('aria-pressed', S.showHidden ? 'true' : 'false');
@@ -1010,6 +1064,7 @@
     if (window.Otzaria) {
       window.Otzaria.on('plugin.boot', boot);
       window.Otzaria.on('theme.changed', ui.applyTheme);
+      window.Otzaria.on('reader.toolbar_item_clicked', onToolbarItem);
       window.Otzaria.on('plugin.suspended', function () { S.suspended = true; clearTimeout(S.probeTimer); cancelSearch(); });
       window.Otzaria.on('plugin.resumed', function () {
         S.suspended = false;

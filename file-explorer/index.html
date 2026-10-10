@@ -13,6 +13,7 @@
       <h1>סייר קבצים</h1>
       <span id="fx-chip" class="topbar-chip"><i class="dot"></i>מתחבר…</span>
       <span class="topbar-spacer"></span>
+      <button class="topbar-btn fx-lang" id="fx-lang" data-noi18n title="Language / שפה" aria-label="Language / שפה">English</button>
       <button class="topbar-btn" id="fx-add-folder" title="הוספת תיקייה" aria-label="הוספת תיקייה" hidden></button>
       <button class="topbar-btn" id="fx-hidden" title="הצגת קבצים מוסתרים" aria-label="הצגת קבצים מוסתרים" aria-pressed="false" hidden></button>
     </header>
@@ -49,11 +50,14 @@
   <div id="dialogs"></div>
   <div id="toasts" class="toasts" aria-live="polite"></div>
 
+  <script src="js/i18n.js"></script>
+  <script src="js/lang-en.js"></script>
   <script src="js/util.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/bridge.js"></script>
   <script src="js/fallback.js"></script>
+  <script src="js/viewers.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
