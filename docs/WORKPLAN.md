@@ -1,0 +1,60 @@
+# תוכנית עבודה חסכונית — כלי מערכת (נכון ל-10.10.2026)
+
+מטרת הקובץ: שכל סשן יתחיל מכאן בלי לסרוק את הריפו. **לקרוא רק את הקובץ הזה** ואת הקבצים שמצוינים בשלב הנוכחי.
+
+## כללי חיסכון (לכל סשן)
+- בלי סוכנים, בלי צילומי מסך, בלי playwright. כותבים קוד ישירות.
+- לא לקרוא קבצים שלמים: `grep -n` לשמות פונקציות, ואז `sed -n 'A,Bp'` לטווח הדרוש בלבד.
+- קבצים גדולים/ספריות (pdf.js, jszip) מעתיקים ב-`cp`, לא קוראים.
+- בדיקות: רק `node --check` על קבצי JS, וקומפילציה ב-CI. לא יותר מ-2 סבבי תיקון CI לסשן; אם עדיין אדום — לעצור ולרשום כאן.
+- בסוף כל שלב: קומיט (author/committer = `Claude <noreply@anthropic.com>`), דחיפה לענף `כלי-מערכת` בלבד, סימון ✅ בקובץ הזה.
+- בלי גרש ASCII בודד בהערות JS. לא נוגעים ב-`main` וב-`.github/workflows` של main. לא מפרסמים לחנות.
+
+## מה כבר קיים (מעודכן — STATUS.md ישן בנקודה זו)
+| רכיב | מצב |
+|---|---|
+| `system-settings/` | גמור (נבדק רק מול גשר מדומה) |
+| `file-explorer/` | קיימים: `manifest.json`, `css/app.css`, `js/ui.js`, `js/util.js` (FX.win), `js/icons.js`, `js/bridge.js` (Bridge + ספק קבצים מלא לפי החוזה, כולל חיפוש זורם), `js/fallback.js` (מצב בלי גשר). **חסרים: `index.html`, `js/app.js`** |
+| גשר | לא נכתב. חוזה: `docs/BRIDGE_API.md` (37 נקודות קצה) |
+| צופה PDF | ריפו נפרד `e0548433917-gif/pdf-viewer`: `index.html` (1649 שורות) + `vendor/` (pdf.js, jszip, tesseract, UTIF) |
+
+## עובדות מה-SDK (נמצאו בצופה ה-PDF — לא לחפש שוב)
+- כפתור בסרגל הקורא: `contributes.startup.toolbarItems[{id,type:"button",title,icon,contexts:[...],openPlugin}]` + הרשאות `reader.toolbar`, `app.startup_contributions`, `app.run_on_startup`; אירוע `Otzaria.on('reader.toolbar_item_clicked', fn)`.
+  ה-context שידוע: `reader-pdf`. לספרי טקסט — לנסות `reader-text` (לא אומת).
+- קריאות: `Otzaria.call('storage.get'|'storage.set'|'notifications.showInApp'|'library.getBookContent'|'reader.addContextMenuItem')`.
+- **לא ידוע:** קריאה שפותחת קובץ חיצוני (txt/docx) בתוך אוצריא או פותחת תוסף אחר עם פרמטר. → שאלה פתוחה 1.
+
+## שלבים
+
+### שלב 1 — הגשר (סשן 1)  ⬜
+קבצים: `bridge/OtzariaBridge.csproj`, `bridge/Program.cs`, `bridge/Server.cs` (Kestrel + middleware כותרות/Origin + מעטפת תשובה), `bridge/FsApi.cs`, `bridge/SysApi.cs`, `bridge/Kiosk.cs`, `bridge/Installer.cs`, `bridge/Tray.cs`, `.github/workflows/bridge.yml` (בענף הזה בלבד, `windows-latest`, `dotnet publish -r win-x64 --self-contained -p:PublishSingleFile=true`, העלאת artifact + Release עם תג `bridge-v*`).
+- לקרוא מהחוזה רק את הטבלה של הקבוצה שכותבים כרגע (`grep -n '^## '` ואז `sed`).
+- **התקנה (`--install`)**: מעתיק את עצמו ל-`%LOCALAPPDATA%\OtzariaBridge`, HKCU Run, **קיצור דרך בשולחן העבודה** "גשר אוצריא" (WScript.Shell דרך COM), ומתקין את שני התוספים ששמורים כמשאבים מוטמעים (`.otzplugin` שנארזים ב-CI מ-`system-settings/` ו-`file-explorer/`) — ראו שאלה פתוחה 2.
+- מערכת (`/sys/*`): שמע דרך Core Audio COM, בהירות WMI, Wi-Fi דרך `netsh wlan`, רדיו/בלוטות׳ דרך `Windows.Devices.Radios` (TFM `net8.0-windows10.0.19041.0`). מה שלא נתמך מחזיר `unsupported`.
+- נעילה קפדנית (החלפת Shell): **כבויה כברירת מחדל**, מאחורי הגדרה מפורשת.
+- הערכה: פלט ~25–35K, + סבב/שניים של CI ~10–15K.
+
+### שלב 2 — סייר הקבצים, ליבה (סשן 2)  ⬜
+- `file-explorer/index.html` + `js/app.js`: עץ/נתיב, רשימה, בחירה מרובה, העתק/גזור/הדבק, מחיקה, שינוי שם, תיקייה/קובץ חדש, חיפוש זורם, מעבר אוטומטי למצב חלופי (`fallback.js`) כשאין גשר.
+- לפני כתיבה: `grep -n` על `bridge.js`/`fallback.js`/`ui.js` כדי לראות את ממשק הספקים (לא לקרוא אותם במלואם).
+- **קישור להורדת הגשר** בשני התוספים (באנר כשאין גשר): כפתור "פתח בדפדפן" (`app.open_url`) + "העתק קישור". קישור: עמוד ה-Releases של הענף (`bridge-v*`).
+- הערכה: פלט ~12–18K.
+
+### שלב 3 — פתיחת קבצים + כפתור + בקורא (סשן 3)  ⬜
+- **PDF**: להעתיק `vendor/pdf.min.js`, `pdf.worker.min.js` מהריפו pdf-viewer ל-`file-explorer/vendor/`, ולכתוב צופה מינימלי (`js/viewer-pdf.js`, ~150 שורות) — **לא** להעתיק את כל ה-1649 שורות; OCR לא נכלל (מי שרוצה OCR — כפתור "פתח בצופה PDF+OCR"). קריאת הקובץ: `/fs/read` (base64).
+- **טקסט**: פתיחה באוצריא — תלוי בשאלה 1. גיבוי: תצוגה פנימית פשוטה.
+- **Word**: ברירת מחדל = תוסף וורד לאוצריא (תלוי בשאלה 1), חלופה בהגדרות = תצוגה פנימית בשני טורים (`js/viewer-docx.js`, jszip + המרת `document.xml` לפסקאות, ~150 שורות). הגדרה ב-`storage` במפתח `fx.wordMode`.
+- **כפתור + בקורא**: `toolbarItems` ב-manifest של הסייר (`id: chadbedera-fx-new-doc`, `icon: add_24_regular`, `openPlugin: true`), והאזנה ב-`app.js` שפותחת דיאלוג "מסמך חדש" (שם + תיקייה → `/fs/write-text`).
+- הערכה: קלט ~10K, פלט ~10–15K.
+
+### שלב 4 — סיום (סשן 3, בסוף)  ⬜
+- עדכון `docs/STATUS.md` (ושורה ב-WIP.md / מחיקתו), גרסאות ב-manifest.
+- **לא** לפרסם לחנות עד אישור.
+
+## שאלות פתוחות (לשאול את המשתמשת לפני השלב הרלוונטי)
+1. איזו קריאת SDK פותחת קובץ מקומי באוצריא, ואיך מפעילים את "וורד לאוצריא" עם קובץ? (אם אין — תצוגה פנימית בלבד בגרסה 1.)
+2. איך הגשר מתקין תוספים: יש תיקיית תוספים קבועה של אוצריא שמספיק לפרוס אליה, או רק דרך התקנת `.otzplugin` מתוך אוצריא? (חלופה בטוחה: הגשר שומר את הקבצים ופותח אותם, והמשתמש מאשר באוצריא.)
+3. האם `reader-text` הוא שם ה-context הנכון לספרי טקסט?
+
+## סיכום הערכה
+סה״כ פלט ~60–80K טוקנים בשלושה סשנים. הסיכון העיקרי בעלות: סבבי תיקון בקומפילציית C# (ללא Windows מקומי).
