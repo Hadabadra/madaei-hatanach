@@ -441,3 +441,6 @@ code { font-family: var(--font-mono); }
 }
 
 .ss-lang { font-size: 0.8125em; padding: 0 0.75em; width: auto; }
+
+/* אנגלית: כיוון משמאל לימין */
+html[dir=ltr] body { direction: ltr; }

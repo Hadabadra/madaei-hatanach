@@ -439,3 +439,6 @@ code { font-family: var(--font-mono); }
   .form-grid { grid-template-columns: 1fr; }
   .status-card { flex-wrap: wrap; }
 }
+
+/* אנגלית: כיוון משמאל לימין */
+html[dir=ltr] body { direction: ltr; }
