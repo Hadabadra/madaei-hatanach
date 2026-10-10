@@ -10,7 +10,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>OtzariaBridge</AssemblyName>
     <RootNamespace>OtzariaBridge</RootNamespace>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Product>גשר אוצריא</Product>
     <Company>חד בדרא</Company>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>

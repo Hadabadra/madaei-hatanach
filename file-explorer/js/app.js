@@ -5,7 +5,7 @@
   var ui = window.SS.ui;
   FX.ui = ui;
   FX.t = window.I18N ? window.I18N.t : function (x) { return x; };
-  FX.VERSION = '0.0.1';
+  FX.VERSION = '0.0.2';
   FX.CHANGELOG_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/blob/%D7%9B%D7%9C%D7%99-%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA/CHANGELOG-SYSTEM-TOOLS.md';
   FX.BRIDGE_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases?q=bridge-v&expanded=true';
 

@@ -5,6 +5,16 @@
 
 ---
 
+## 0.0.2 — 11.10.2026 (גרסת ניסיון)
+
+### סייר קבצים
+- תיקון: נוספה ההרשאה `fs.user_files.write`, שבלעדיה "שמירת עותק" במצב בלי גשר נכשלה.
+
+### כללי
+- סריקת ה-SDK של אוצריא 0.9.97–0.9.98 ותוכנית שיפורים: `docs/SDK-998-OPPORTUNITIES.md`.
+
+---
+
 ## 0.0.1 — 11.10.2026 (גרסת ניסיון)
 
 גרסה ראשונה לבדיקה. עדיין לא נבדקה על מחשבי Windows אמיתיים — נשמח לדיווחים (כפתור "שליחת הערה" בשני התוספים).
@@ -35,6 +45,9 @@
 ---
 
 # Changelog — Otzaria system tools
+
+## 0.0.2 — 2026-10-11 (trial release)
+File Explorer: added the missing `fs.user_files.write` permission ("save a copy" without the bridge).
 
 ## 0.0.1 — 2026-10-11 (trial release)
 First test release of Otzaria Bridge, File Explorer and System Settings. Not yet tested on real Windows machines — please report issues with the "Send feedback" button in either plugin.
