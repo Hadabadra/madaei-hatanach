@@ -64,7 +64,7 @@
 ### שלב 4 — סיום (סשן 3, בסוף)  ✅ (חוץ מפרסום לחנות)
 - עדכון `docs/STATUS.md` (ושורה ב-WIP.md / מחיקתו), גרסאות ב-manifest.
 - **לא** לפרסם לחנות עד אישור.
-- **בוצע (11.10)**: WIP.md נמחק, הגדרות מערכת 1.1.0, סייר 1.0.0. ‏CI: ולידציה של שני התוספים (0 שגיאות), צילומי מסך לסייר נוצרים ב-CI (`tools/screens/fx-demo.js`), Release בטא בתג `bridge-v*` עם ה-exe ושני ה-`.otzplugin`.
+- **בוצע (11.10)**: WIP.md נמחק. כל הרכיבים בגרסה **0.0.1 (ניסיון)**, Release ‏`bridge-v0.0.1`. שליחת הערות דרך `feedback.report` (בלי הצהרת הרשאה), README לכל תוסף, `CHANGELOG-SYSTEM-TOOLS.md`. ‏CI: ולידציה של שני התוספים (0 שגיאות), צילומי מסך לסייר נוצרים ב-CI (`tools/screens/fx-demo.js`), Release נוצר אוטומטית מהענף כשמספר `<Version>` ב-`bridge/OtzariaBridge.csproj` עולה (דחיפת תגים חסומה מסביבת Claude). לגרסה חדשה: להעלות את הגרסה ב-csproj, ב-`Program.Version`, בשני ה-manifest וב-`SS.VERSION`/`FX.VERSION`, ולהוסיף סעיף ל-CHANGELOG.
   - פרסום לחנות: מוכן אבל **ידני** (Actions → Run workflow → store) — הוחלט לא לפרסם אוטומטית לפני בדיקה על Windows אמיתי ובדיקת אבטחה לנעילה, כפי שהתבקש בפורום (נושא 2673).
 
 ## החלטות (נבדקו מול docs/תאימות-SDK-אוצריא.md בענף main)
