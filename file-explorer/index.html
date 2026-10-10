@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>סייר קבצים</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/fx.css">
+</head>
+<body>
+  <div class="app-shell fx-shell">
+    <header class="topbar">
+      <h1>סייר קבצים</h1>
+      <span id="fx-chip" class="topbar-chip"><i class="dot"></i>מתחבר…</span>
+      <span class="topbar-spacer"></span>
+      <button class="topbar-btn" id="fx-add-folder" title="הוספת תיקייה" aria-label="הוספת תיקייה" hidden></button>
+      <button class="topbar-btn" id="fx-hidden" title="הצגת קבצים מוסתרים" aria-label="הצגת קבצים מוסתרים" aria-pressed="false" hidden></button>
+    </header>
+
+    <div class="fx-banner" id="fx-banner" hidden></div>
+
+    <div class="fx-nav" role="toolbar" aria-label="ניווט">
+      <button class="icon-btn" id="fx-back" title="אחורה (Alt+ימינה)" aria-label="אחורה"></button>
+      <button class="icon-btn" id="fx-fwd" title="קדימה (Alt+שמאלה)" aria-label="קדימה"></button>
+      <button class="icon-btn" id="fx-up" title="תיקייה מעל (Backspace)" aria-label="תיקייה מעל"></button>
+      <button class="icon-btn" id="fx-refresh" title="רענון (F5)" aria-label="רענון"></button>
+      <div class="fx-crumbs" id="fx-crumbs" title="לחיצה כפולה לעריכת הנתיב"></div>
+      <form class="fx-search" id="fx-search-form" role="search">
+        <span class="fx-search-ic" id="fx-search-ic"></span>
+        <input class="input" id="fx-search" type="search" placeholder="חיפוש בתיקייה (אפשר * ו-?)" autocomplete="off" aria-label="חיפוש">
+        <label class="fx-content-q" id="fx-content-wrap" hidden><input type="checkbox" id="fx-content"> גם בתוכן</label>
+      </form>
+    </div>
+
+    <div class="fx-cmds" role="toolbar" aria-label="פעולות" id="fx-cmds"></div>
+
+    <div class="fx-body">
+      <nav class="fx-side" id="fx-side" aria-label="מיקומים"></nav>
+      <main class="fx-main" id="fx-main" tabindex="0" aria-label="רשימת קבצים">
+        <div class="fx-head" id="fx-head"></div>
+        <div class="fx-list" id="fx-list" role="listbox" aria-multiselectable="true"></div>
+      </main>
+    </div>
+
+    <footer class="fx-status" id="fx-status"></footer>
+  </div>
+
+  <div class="fx-menu" id="fx-menu" role="menu" hidden></div>
+  <div id="dialogs"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="js/util.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bridge.js"></script>
+  <script src="js/fallback.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

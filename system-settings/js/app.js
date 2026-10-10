@@ -5,7 +5,7 @@
   var ui = SS.ui;
   SS.sections = SS.sections || [];
   SS.VERSION = '1.0.0';
-  SS.BRIDGE_URL = "https://github.com/e0548433917-gif/madaei-hatanach/tree/%D7%9B%D7%9C%D7%99-%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA";
+  SS.BRIDGE_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases?q=bridge-v&expanded=true';
 
   var state = { current: null, connected: false, probeTimer: null, suspended: false, booted: false };
 
@@ -18,6 +18,19 @@
     } else {
       ui.toast('בתוך אוצריא הקישור ייפתח בדפדפן', 'info');
     }
+  };
+
+  SS.copyText = async function (text) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); return true; }
+    } catch (e) { /* נעבור לשיטה הישנה */ }
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
   };
 
   function sectionById(id) {
@@ -90,10 +103,16 @@
         '<li>מפעילים אותו פעם אחת — הוא מתקין את עצמו ויעלה אוטומטית בכל הפעלה של Windows.</li>' +
         '<li>חוזרים לכאן — החיבור יזוהה מעצמו.</li></ol>' +
         '<div class="row-actions center">' +
-        '<button class="btn btn-primary btn-lg" id="off-dl">' + ui.icon('download') + 'הורדת הגשר</button>' +
+        '<button class="btn btn-primary btn-lg" id="off-dl">' + ui.icon('download') + 'פתח בדפדפן</button>' +
+        '<button class="btn btn-tonal btn-lg" id="off-copy">' + ui.icon('link') + 'העתק קישור</button>' +
         '<button class="btn btn-tonal btn-lg" id="off-retry">' + ui.icon('refresh') + 'נסה שוב</button></div>' +
         '<p class="muted small" id="off-note">בודק שוב אוטומטית כל 10 שניות…</p></div>';
       off.querySelector('#off-dl').addEventListener('click', function () { SS.openUrl(SS.BRIDGE_URL); });
+      off.querySelector('#off-copy').addEventListener('click', function () {
+        SS.copyText(SS.BRIDGE_URL).then(function (ok) {
+          ui.toast(ok ? 'הקישור הועתק' : 'ההעתקה נכשלה: ' + SS.BRIDGE_URL, ok ? 'success' : 'error');
+        });
+      });
       off.querySelector('#off-retry').addEventListener('click', function () {
         var b = this; b.disabled = true;
         var note = off.querySelector('#off-note'); note.textContent = 'מחפש את הגשר…';

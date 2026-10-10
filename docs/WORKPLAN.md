@@ -15,7 +15,7 @@
 | רכיב | מצב |
 |---|---|
 | `system-settings/` | גמור (נבדק רק מול גשר מדומה) |
-| `file-explorer/` | קיימים: `manifest.json`, `css/app.css`, `js/ui.js`, `js/util.js` (FX.win), `js/icons.js`, `js/bridge.js` (Bridge + ספק קבצים מלא לפי החוזה, כולל חיפוש זורם), `js/fallback.js` (מצב בלי גשר). **חסרים: `index.html`, `js/app.js`** |
+| `file-explorer/` | ליבה גמורה (שלב 2): `index.html`, `js/app.js`, `css/fx.css` + הקבצים הקודמים |
 | גשר | נכתב ב-`bridge/` (שלב 1). חוזה: `docs/BRIDGE_API.md` |
 | צופה PDF | ריפו נפרד `e0548433917-gif/pdf-viewer`: `index.html` (1649 שורות) + `vendor/` (pdf.js, jszip, tesseract, UTIF) |
 
@@ -40,11 +40,16 @@
   - ה-exe דחוס, כ-89MB (ASP.NET + WinForms + WinRT). Release נוצר רק בדחיפת תג `bridge-v*`; עדיין לא נדחף תג.
   - לא נבדק על Windows אמיתי: Wi-Fi דרך netsh, IPolicyConfig (החלפת התקן שמע), בלוטות׳, hook מקלדת.
 
-### שלב 2 — סייר הקבצים, ליבה (סשן 2)  ⬜
+### שלב 2 — סייר הקבצים, ליבה (סשן 2)  ✅
 - `file-explorer/index.html` + `js/app.js`: עץ/נתיב, רשימה, בחירה מרובה, העתק/גזור/הדבק, מחיקה, שינוי שם, תיקייה/קובץ חדש, חיפוש זורם, מעבר אוטומטי למצב חלופי (`fallback.js`) כשאין גשר.
 - לפני כתיבה: `grep -n` על `bridge.js`/`fallback.js`/`ui.js` כדי לראות את ממשק הספקים (לא לקרוא אותם במלואם).
 - **קישור להורדת הגשר** בשני התוספים (באנר כשאין גשר): כפתור "פתח בדפדפן" (`app.open_url`) + "העתק קישור". קישור: עמוד ה-Releases של הענף (`bridge-v*`).
 - הערכה: פלט ~12–18K.
+- **בוצע (11.10)**: `index.html`, `js/app.js`, `css/fx.css` (רק טוקנים ו-em). הערות לשלב 3:
+  - `ui.js` בסייר הוא עותק של הגדרות מערכת ומוגדר כ-`SS.ui`; `app.js` מציב `FX.ui = SS.ui`. אייקונים בסייר — `FX.icon`.
+  - פתיחה (`openEntry` ב-`app.js`): תיקייה → ניווט; טקסט/תמונה → `preview()`; אחר → `/fs/open`. בשלב 3 להוסיף כאן PDF ו-Word לפני ה-`open`.
+  - הקישור לגשר: `FX.BRIDGE_URL` / `SS.BRIDGE_URL` = עמוד Releases מסונן ל-`bridge-v`. בהגדרות מערכת נוסף "העתק קישור" במסך שאין בו גשר.
+  - לא אומת: שמות ההרשאות למצב החלופי (שינוי שם/מחיקה/`storage`) — במניפסט יש רק `fs.user_files.read`.
 
 ### שלב 3 — פתיחת קבצים + כפתור + בקורא (סשן 3)  ⬜
 - **PDF**: להעתיק `vendor/pdf.min.js`, `pdf.worker.min.js` מהריפו pdf-viewer ל-`file-explorer/vendor/`, ולכתוב צופה מינימלי (`js/viewer-pdf.js`, ~150 שורות) — **לא** להעתיק את כל ה-1649 שורות; OCR לא נכלל (מי שרוצה OCR — כפתור "פתח בצופה PDF+OCR"). קריאת הקובץ: `/fs/read` (base64).
