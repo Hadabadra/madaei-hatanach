@@ -15,7 +15,7 @@
 |---|---|
 | `system-settings/` | גמור (נבדק רק מול גשר מדומה) |
 | `file-explorer/` | קיימים: `manifest.json`, `css/app.css`, `js/ui.js`, `js/util.js` (FX.win), `js/icons.js`, `js/bridge.js` (Bridge + ספק קבצים מלא לפי החוזה, כולל חיפוש זורם), `js/fallback.js` (מצב בלי גשר). **חסרים: `index.html`, `js/app.js`** |
-| גשר | לא נכתב. חוזה: `docs/BRIDGE_API.md` (37 נקודות קצה) |
+| גשר | נכתב ב-`bridge/` (שלב 1). חוזה: `docs/BRIDGE_API.md` |
 | צופה PDF | ריפו נפרד `e0548433917-gif/pdf-viewer`: `index.html` (1649 שורות) + `vendor/` (pdf.js, jszip, tesseract, UTIF) |
 
 ## עובדות מה-SDK (נמצאו בצופה ה-PDF — לא לחפש שוב)
@@ -26,13 +26,18 @@
 
 ## שלבים
 
-### שלב 1 — הגשר (סשן 1)  ⬜
+### שלב 1 — הגשר (סשן 1)  ✅
 קבצים: `bridge/OtzariaBridge.csproj`, `bridge/Program.cs`, `bridge/Server.cs` (Kestrel + middleware כותרות/Origin + מעטפת תשובה), `bridge/FsApi.cs`, `bridge/SysApi.cs`, `bridge/Kiosk.cs`, `bridge/Installer.cs`, `bridge/Tray.cs`, `.github/workflows/bridge.yml` (בענף הזה בלבד, `windows-latest`, `dotnet publish -r win-x64 --self-contained -p:PublishSingleFile=true`, העלאת artifact + Release עם תג `bridge-v*`).
 - לקרוא מהחוזה רק את הטבלה של הקבוצה שכותבים כרגע (`grep -n '^## '` ואז `sed`).
 - **התקנה (`--install`)**: מעתיק את עצמו ל-`%LOCALAPPDATA%\OtzariaBridge`, HKCU Run, **קיצור דרך בשולחן העבודה** "גשר אוצריא" (WScript.Shell דרך COM), ומתקין את שני התוספים ששמורים כמשאבים מוטמעים (`.otzplugin` שנארזים ב-CI מ-`system-settings/` ו-`file-explorer/`) — ראו שאלה פתוחה 2.
 - מערכת (`/sys/*`): שמע דרך Core Audio COM, בהירות WMI, Wi-Fi דרך `netsh wlan`, רדיו/בלוטות׳ דרך `Windows.Devices.Radios` (TFM `net8.0-windows10.0.19041.0`). מה שלא נתמך מחזיר `unsupported`.
 - נעילה קפדנית (החלפת Shell): **כבויה כברירת מחדל**, מאחורי הגדרה מפורשת.
 - הערכה: פלט ~25–35K, + סבב/שניים של CI ~10–15K.
+- **בוצע (11.10)**: CI ירוק בסבב הראשון (קומפילציה מקומית עם ‎.NET 8‏ + `EnableWindowsTargeting`). הערות לשלבים הבאים:
+  - שורת hit בחיפוש: `{type:"hit", entryType:"dir"|"file", ...}` — תואם ל-`bridge.js`.
+  - נעילה קפדנית: המעטפת (HKCU Winlogon Shell) היא הגשר עצמו עם `--background`, והוא מפעיל את אוצריא. נדרש `strict:true` מפורש ב-`/kiosk/enable`.
+  - ה-exe דחוס, כ-89MB (ASP.NET + WinForms + WinRT). Release נוצר רק בדחיפת תג `bridge-v*`; עדיין לא נדחף תג.
+  - לא נבדק על Windows אמיתי: Wi-Fi דרך netsh, IPolicyConfig (החלפת התקן שמע), בלוטות׳, hook מקלדת.
 
 ### שלב 2 — סייר הקבצים, ליבה (סשן 2)  ⬜
 - `file-explorer/index.html` + `js/app.js`: עץ/נתיב, רשימה, בחירה מרובה, העתק/גזור/הדבק, מחיקה, שינוי שם, תיקייה/קובץ חדש, חיפוש זורם, מעבר אוטומטי למצב חלופי (`fallback.js`) כשאין גשר.
