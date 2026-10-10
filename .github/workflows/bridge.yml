@@ -1,0 +1,54 @@
+name: גשר אוצריא (bridge)
+
+on:
+  push:
+    branches: ["כלי-מערכת"]
+    tags: ["bridge-v*"]
+    paths:
+      - "bridge/**"
+      - "system-settings/**"
+      - "file-explorer/**"
+      - ".github/workflows/bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: אריזת התוספים כמשאב מוטמע
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force bridge/plugins | Out-Null
+          Compress-Archive -Path system-settings/* -DestinationPath bridge/plugins/system-settings.zip -Force
+          Get-ChildItem file-explorer -Exclude WIP.md | Compress-Archive -DestinationPath bridge/plugins/file-explorer.zip -Force
+          Move-Item bridge/plugins/system-settings.zip bridge/plugins/system-settings.otzplugin -Force
+          Move-Item bridge/plugins/file-explorer.zip bridge/plugins/file-explorer.otzplugin -Force
+          Get-ChildItem bridge/plugins
+
+      - name: Publish
+        run: dotnet publish bridge/OtzariaBridge.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OtzariaBridge
+          path: out/OtzariaBridge.exe
+          if-no-files-found: error
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/bridge-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/OtzariaBridge.exe
+          name: גשר אוצריא ${{ github.ref_name }}
+          body: |
+            הורדה: OtzariaBridge.exe — הפעלה ראשונה מתקינה את הגשר ופותחת את תיקיית התוספים.
+            ביטול נעילה בחירום: `OtzariaBridge.exe --unlock <קוד שחזור>`
