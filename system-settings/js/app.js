@@ -4,7 +4,7 @@
   var SS = (window.SS = window.SS || {});
   var ui = SS.ui;
   SS.sections = SS.sections || [];
-  SS.VERSION = '1.0.0';
+  SS.VERSION = '1.1.0';
   SS.BRIDGE_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases?q=bridge-v&expanded=true';
 
   var state = { current: null, connected: false, probeTimer: null, suspended: false, booted: false };

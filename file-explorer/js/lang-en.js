@@ -206,7 +206,14 @@
     'שני טורים': 'Two columns',
     'קובצי doc ישנים אינם נתמכים בתצוגה הפנימית. אפשר לפתוח אותם ביישום חיצוני.': 'Old .doc files are not supported in the built-in viewer. You can open them in an external app.',
     'המסמך ריק': 'The document is empty',
-    'מסמך חדש.txt': 'New document.txt'
+    'מסמך חדש.txt': 'New document.txt',
+    'שולחן העבודה': 'Desktop',
+    'מסמכים': 'Documents',
+    'הורדות': 'Downloads',
+    'תמונות': 'Pictures',
+    'מוזיקה': 'Music',
+    'סרטונים': 'Videos',
+    'תיקיית הבית': 'Home'
   }, [
     [/^([\d,.]+) בתים$/, '$1 bytes'],
     [/^([\d,.]+) פריטים$/, '$1 items'],

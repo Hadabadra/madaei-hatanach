@@ -4,7 +4,8 @@ namespace OtzariaBridge;
 public static class Tray
 {
     private static NotifyIcon _icon;
-    private static ToolStripMenuItem _status, _exit;
+    private static ToolStripMenuItem _status, _exit, _plugins, _lang;
+    private static ContextMenuStrip _menu;
     private static Control _invoker;
 
     public static void Init()
@@ -13,16 +14,17 @@ public static class Tray
         _invoker.CreateControl();
         _ = _invoker.Handle;
 
-        var menu = new ContextMenuStrip { RightToLeft = RightToLeft.Yes };
-        _status = new ToolStripMenuItem("גשר אוצריא") { Enabled = false };
-        var plugins = new ToolStripMenuItem("פתח את תיקיית התוספים", null, (_, _) => Installer.OpenPluginsFolder());
-        _exit = new ToolStripMenuItem("יציאה", null, (_, _) => Application.ExitThread());
-        menu.Items.AddRange(new ToolStripItem[] { _status, plugins, new ToolStripSeparator(), _exit });
+        var menu = _menu = new ContextMenuStrip();
+        _status = new ToolStripMenuItem("") { Enabled = false };
+        _plugins = new ToolStripMenuItem("", null, (_, _) => Installer.OpenPluginsFolder());
+        _lang = new ToolStripMenuItem("", null, (_, _) => { Lang.Set(Lang.En ? "he" : "en"); ApplyTexts(); });
+        _exit = new ToolStripMenuItem("", null, (_, _) => Application.ExitThread());
+        menu.Items.AddRange(new ToolStripItem[] { _status, _plugins, _lang, new ToolStripSeparator(), _exit });
 
         _icon = new NotifyIcon
         {
             Icon = LoadIcon(),
-            Text = "גשר אוצריא",
+            Text = Lang.T("גשר אוצריא", "Otzaria Bridge"),
             ContextMenuStrip = menu,
             Visible = true,
         };
@@ -33,6 +35,16 @@ public static class Tray
         };
     }
 
+    private static void ApplyTexts()
+    {
+        if (_menu == null) return;
+        _menu.RightToLeft = Lang.En ? RightToLeft.No : RightToLeft.Yes;
+        _plugins.Text = Lang.T("פתח את תיקיית התוספים", "Open the plugins folder");
+        _lang.Text = Lang.T("English", "עברית");
+        _exit.Text = Lang.T("יציאה", "Exit");
+        UpdateStatus();
+    }
+
     private static Icon LoadIcon()
     {
         try { return Icon.ExtractAssociatedIcon(Environment.ProcessPath!) ?? SystemIcons.Application; }
@@ -41,7 +53,7 @@ public static class Tray
 
     public static void Run()
     {
-        UpdateStatus();
+        ApplyTexts();
         Application.Run();
     }
 
@@ -61,8 +73,8 @@ public static class Tray
     private static void UpdateStatus()
     {
         if (_status == null) return;
-        string text = "גשר אוצריא " + Program.Version + " — פורט " + Program.Port;
-        if (Kiosk.IsActive) text += " (נעילה פעילה)";
+        string text = Lang.T("גשר אוצריא ", "Otzaria Bridge ") + Program.Version + Lang.T(" — פורט ", " — port ") + Program.Port;
+        if (Kiosk.IsActive) text += Lang.T(" (נעילה פעילה)", " (lock mode on)");
         _status.Text = text;
         if (_icon != null) _icon.Text = text.Length > 63 ? text[..63] : text;
     }

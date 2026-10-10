@@ -157,7 +157,7 @@
         };
       });
       var known = (d && d.known || []).map(function (k) {
-        return { id: k.id, name: k.name, path: k.path, icon: KNOWN_ICON[k.id] || 'folder' };
+        return { id: k.id, name: FX.t ? FX.t(k.name) : k.name, path: k.path, icon: KNOWN_ICON[k.id] || 'folder' };
       });
       return { drives: drives, known: known };
     },

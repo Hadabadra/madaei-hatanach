@@ -24,18 +24,19 @@ public static class Program
 
         try
         {
+            Lang.FromArgs(args);
             if (Has("--unlock"))
             {
                 AttachConsole(-1);
                 bool ok = Kiosk.EmergencyUnlock(Arg("--unlock") ?? "");
-                Console.WriteLine(ok ? "הנעילה בוטלה." : "קוד שחזור שגוי.");
+                Console.WriteLine(ok ? Lang.T("הנעילה בוטלה.", "Lock mode turned off.") : Lang.T("קוד שחזור שגוי.", "Wrong recovery code."));
                 return ok ? 0 : 2;
             }
             if (Has("--uninstall"))
             {
                 AttachConsole(-1);
                 string err = Installer.Uninstall(Arg("--password"));
-                Console.WriteLine(err ?? "הגשר הוסר.");
+                Console.WriteLine(err ?? Lang.T("הגשר הוסר.", "The bridge was removed."));
                 return err == null ? 0 : 2;
             }
             if (Has("--install") || (!Installer.IsRunningFromInstallDir() && !Has("--portable")))

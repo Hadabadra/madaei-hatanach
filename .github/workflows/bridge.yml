@@ -1,5 +1,9 @@
 name: גשר אוצריא (bridge)
 
+# דחיפה לענף: בניית הגשר + ולידציה של שני התוספים + צילומי מסך (artifacts בלבד).
+# דחיפת תג bridge-v*: גם Release עם ה-exe ושני קובצי .otzplugin, ופרסום שני התוספים לחנות אוצריא.
+# פרסום ידני: Actions → Run workflow → store = true.
+
 on:
   push:
     branches: ["כלי-מערכת"]
@@ -8,8 +12,15 @@ on:
       - "bridge/**"
       - "system-settings/**"
       - "file-explorer/**"
+      - "system-settings-screenshots/**"
+      - "tools/screens/**"
       - ".github/workflows/bridge.yml"
   workflow_dispatch:
+    inputs:
+      store:
+        description: "לפרסם את שני התוספים לחנות אוצריא"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -40,15 +51,83 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: OtzariaBridge
-          path: out/OtzariaBridge.exe
+          path: |
+            out/OtzariaBridge.exe
+            bridge/plugins/*.otzplugin
           if-no-files-found: error
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/bridge-v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/OtzariaBridge.exe
+          files: |
+            out/OtzariaBridge.exe
+            bridge/plugins/system-settings.otzplugin
+            bridge/plugins/file-explorer.otzplugin
           name: גשר אוצריא ${{ github.ref_name }}
           body: |
-            הורדה: OtzariaBridge.exe — הפעלה ראשונה מתקינה את הגשר ופותחת את תיקיית התוספים.
-            ביטול נעילה בחירום: `OtzariaBridge.exe --unlock <קוד שחזור>`
+            **גשר אוצריא** — תוכנה קטנה שרצה ברקע ב-Windows ומאפשרת לתוספי אוצריא לנהל קבצים ולשלוט בהגדרות המחשב.
+
+            הורדה: `OtzariaBridge.exe` — הפעלה ראשונה מתקינה את הגשר (הפעלה אוטומטית עם Windows, קיצור דרך בשולחן העבודה) ופותחת את תיקיית התוספים.
+            התוספים "סייר קבצים" ו"הגדרות מערכת" מצורפים גם כאן כקובצי `.otzplugin`, וזמינים בחנות אוצריא.
+
+            * אנגלית: תפריט המגש → English, או `OtzariaBridge.exe --lang en`.
+            * ביטול נעילה בחירום: `OtzariaBridge.exe --unlock <קוד שחזור>`
+            * הסרה: `OtzariaBridge.exe --uninstall`
+
+            ---
+            **Otzaria Bridge** — a small background program for Windows that lets Otzaria plugins manage files and computer settings.
+            Download `OtzariaBridge.exe` and run it once. The "File Explorer" and "System Settings" plugins are attached as `.otzplugin` files and are available in the Otzaria store.
+
+  plugins:
+    name: ולידציה, צילומים ופרסום לחנות
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+    env:
+      STORE: ${{ startsWith(github.ref, 'refs/tags/bridge-v') || github.event.inputs.store == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: צילומי מסך לסייר הקבצים
+        run: |
+          set -e
+          mkdir -p file-explorer-screenshots /tmp/shot
+          cp -r file-explorer/. /tmp/shot/
+          cp tools/screens/fx-demo.js /tmp/shot/
+          sed -i '0,/<script src="js\/i18n.js"><\/script>/s//<script src="fx-demo.js"><\/script>\n  &/' /tmp/shot/index.html
+          grep -c fx-demo /tmp/shot/index.html
+          CHROME=$(command -v google-chrome || command -v chromium || command -v chromium-browser)
+          for L in he en; do
+            N=$([ "$L" = he ] && echo 01 || echo 02)
+            "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
+              --window-size=1280,800 --virtual-time-budget=6000 --allow-file-access-from-files \
+              --screenshot="$PWD/file-explorer-screenshots/$N.png" "file:///tmp/shot/index.html?lang=$L"
+          done
+          ls -la file-explorer-screenshots
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: file-explorer-screenshots
+          path: file-explorer-screenshots/*.png
+
+      - name: הגדרות מערכת — ולידציה ופרסום
+        uses: Otzaria/otzaria-plugin-validator@v1
+        with:
+          path: system-settings
+          publish: ${{ env.STORE == 'true' && 'auto' || 'false' }}
+          otzaria-user: ${{ env.STORE == 'true' && secrets.OTZARIA_USER || '' }}
+          otzaria-password: ${{ env.STORE == 'true' && secrets.OTZARIA_PASSWORD || '' }}
+          screenshots: 'system-settings-screenshots/01.png,system-settings-screenshots/02.png'
+          reports-consent: 'true'
+
+      - name: סייר קבצים — ולידציה ופרסום
+        if: always()
+        uses: Otzaria/otzaria-plugin-validator@v1
+        with:
+          path: file-explorer
+          publish: ${{ env.STORE == 'true' && 'auto' || 'false' }}
+          otzaria-user: ${{ env.STORE == 'true' && secrets.OTZARIA_USER || '' }}
+          otzaria-password: ${{ env.STORE == 'true' && secrets.OTZARIA_PASSWORD || '' }}
+          screenshots: 'file-explorer-screenshots/01.png,file-explorer-screenshots/02.png'
+          reports-consent: 'true'

@@ -47,12 +47,18 @@ public static class Installer
 
         if (showMessage)
         {
-            string msg = "גשר אוצריא הותקן ויעלה אוטומטית עם כניסה ל-Windows.";
+            string msg = Lang.T("גשר אוצריא הותקן ויעלה אוטומטית עם כניסה ל-Windows.",
+                "Otzaria Bridge is installed and will start automatically when you sign in to Windows.");
             if (plugins > 0)
-                msg += "\n\nבתיקייה שנפתחה נמצאים התוספים \"סייר קבצים\" ו\"הגדרות מערכת\". " +
-                       "יש להתקין אותם מתוך אוצריא (התקנת תוסף מקובץ).";
-            MessageBox.Show(msg, "גשר אוצריא", MessageBoxButtons.OK, MessageBoxIcon.Information,
-                MessageBoxDefaultButton.Button1, MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign);
+                msg += Lang.T("\n\nבתיקייה שנפתחה נמצאים התוספים \"סייר קבצים\" ו\"הגדרות מערכת\". " +
+                       "יש להתקין אותם מתוך אוצריא (התקנת תוסף מקובץ).",
+                       "\n\nThe folder that opened contains the \"File Explorer\" and \"System Settings\" plugins. " +
+                       "Install them from inside Otzaria (install plugin from file).");
+            if (Lang.En)
+                MessageBox.Show(msg, "Otzaria Bridge", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            else
+                MessageBox.Show(msg, "גשר אוצריא", MessageBoxButtons.OK, MessageBoxIcon.Information,
+                    MessageBoxDefaultButton.Button1, MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign);
             if (plugins > 0) OpenPluginsFolder();
         }
     }
