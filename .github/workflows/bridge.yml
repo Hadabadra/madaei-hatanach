@@ -1,7 +1,7 @@
 name: גשר אוצריא (bridge)
 
 # דחיפה לענף: בניית הגשר + ולידציה של שני התוספים + צילומי מסך (artifacts בלבד).
-# דחיפת תג bridge-v*: גם Release (גרסת בטא) עם ה-exe ושני קובצי .otzplugin.
+# שינוי <Version> ב-bridge/OtzariaBridge.csproj לגרסה שאין לה עדיין Release = Release (ניסיון) עם ה-exe ושני קובצי .otzplugin.
 # פרסום לחנות אוצריא — ידני בלבד, אחרי בדיקה על Windows אמיתי: Actions → Run workflow → store = true.
 
 on:
@@ -57,15 +57,34 @@ jobs:
             bridge/plugins/*.otzplugin
           if-no-files-found: error
 
+      - name: האם לשחרר גרסה?
+        id: rel
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ver = ([xml](Get-Content bridge/OtzariaBridge.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          $tag = "bridge-v$ver"
+          gh release view $tag -R ${{ github.repository }} *> $null
+          $exists = $LASTEXITCODE -eq 0
+          $global:LASTEXITCODE = 0
+          $do = ("${{ github.ref }}" -like "refs/tags/bridge-v*") -or (-not $exists)
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "do=$($do.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+          Write-Host "version=$ver tag=$tag exists=$exists release=$do"
+
+      # גרסה חדשה ב-OtzariaBridge.csproj (תג שעוד לא קיים) = Release אוטומטי מהענף
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/bridge-v')
+        if: steps.rel.outputs.do == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.rel.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: |
             out/OtzariaBridge.exe
             bridge/plugins/system-settings.otzplugin
             bridge/plugins/file-explorer.otzplugin
-          name: כלי מערכת לאוצריא ${{ github.ref_name }} (ניסיון)
+          name: כלי מערכת לאוצריא ${{ steps.rel.outputs.tag }} (ניסיון)
           prerelease: true
           body: |
             **גשר אוצריא** — תוכנה קטנה שרצה ברקע ב-Windows ומאפשרת לתוספי אוצריא לנהל קבצים ולשלוט בהגדרות המחשב.
