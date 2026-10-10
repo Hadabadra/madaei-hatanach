@@ -1,8 +1,8 @@
 name: גשר אוצריא (bridge)
 
 # דחיפה לענף: בניית הגשר + ולידציה של שני התוספים + צילומי מסך (artifacts בלבד).
-# דחיפת תג bridge-v*: גם Release עם ה-exe ושני קובצי .otzplugin, ופרסום שני התוספים לחנות אוצריא.
-# פרסום ידני: Actions → Run workflow → store = true.
+# דחיפת תג bridge-v*: גם Release (גרסת בטא) עם ה-exe ושני קובצי .otzplugin.
+# פרסום לחנות אוצריא — ידני בלבד, אחרי בדיקה על Windows אמיתי: Actions → Run workflow → store = true.
 
 on:
   push:
@@ -64,12 +64,15 @@ jobs:
             out/OtzariaBridge.exe
             bridge/plugins/system-settings.otzplugin
             bridge/plugins/file-explorer.otzplugin
-          name: גשר אוצריא ${{ github.ref_name }}
+          name: גשר אוצריא ${{ github.ref_name }} (בטא)
+          prerelease: true
           body: |
             **גשר אוצריא** — תוכנה קטנה שרצה ברקע ב-Windows ומאפשרת לתוספי אוצריא לנהל קבצים ולשלוט בהגדרות המחשב.
 
             הורדה: `OtzariaBridge.exe` — הפעלה ראשונה מתקינה את הגשר (הפעלה אוטומטית עם Windows, קיצור דרך בשולחן העבודה) ופותחת את תיקיית התוספים.
-            התוספים "סייר קבצים" ו"הגדרות מערכת" מצורפים גם כאן כקובצי `.otzplugin`, וזמינים בחנות אוצריא.
+            התוספים "סייר קבצים" ו"הגדרות מערכת" מצורפים כקובצי `.otzplugin` — מתקינים מתוך אוצריא (התקנת תוסף מקובץ).
+
+            ⚠️ גרסת בטא: עדיין לא נבדקה על מחשבי Windows אמיתיים. מומלץ לא להפעיל "נעילה קפדנית" לפני שרושמים את קוד השחזור.
 
             * אנגלית: תפריט המגש → English, או `OtzariaBridge.exe --lang en`.
             * ביטול נעילה בחירום: `OtzariaBridge.exe --unlock <קוד שחזור>`
@@ -77,7 +80,7 @@ jobs:
 
             ---
             **Otzaria Bridge** — a small background program for Windows that lets Otzaria plugins manage files and computer settings.
-            Download `OtzariaBridge.exe` and run it once. The "File Explorer" and "System Settings" plugins are attached as `.otzplugin` files and are available in the Otzaria store.
+            Download `OtzariaBridge.exe` and run it once. The "File Explorer" and "System Settings" plugins are attached as `.otzplugin` files (install from inside Otzaria). Beta: not yet tested on real Windows machines.
 
   plugins:
     name: ולידציה, צילומים ופרסום לחנות
@@ -85,7 +88,7 @@ jobs:
     needs: build
     timeout-minutes: 20
     env:
-      STORE: ${{ startsWith(github.ref, 'refs/tags/bridge-v') || github.event.inputs.store == 'true' }}
+      STORE: ${{ github.event.inputs.store == 'true' }}
     steps:
       - uses: actions/checkout@v4
 

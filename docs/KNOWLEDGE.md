@@ -19,6 +19,9 @@
 - **תקשורת עם תוכנה מקומית:** דרך `network.fetchStream` עם ההרשאה `network.localhost`, ובמניפסט `network.allowlist: ["127.0.0.1","localhost"]`.
 - **מקור מלא לתאימות:** `docs/תאימות-SDK-אוצריא.md` בענף main.
 
+- **ולידטור החנות (`Otzaria/otzaria-plugin-validator@v1`):** `toolTab.iconName` חייב להיות שם FluentUI בלי קידומת (`folder_24_regular`, לא `fluent:...`). `font-family: inherit` או גופן מקודד = "הערת עיצוב" — רק `var(--font-*)`. פרסום ראשון של תוסף מחייב צילום מסך. פרטי החנות בסודות הריפו (`OTZARIA_USER`/`OTZARIA_PASSWORD`).
+- **`app.openUrl`** (לא `app.open_url`) הוא שם הקריאה; `app.open_url` הוא שם ההרשאה.
+
 ## הגשר (bridge/)
 - **טכנולוגיה:**
   - C#/.NET 8 עם TFM ‏`net8.0-windows10.0.19041.0`;

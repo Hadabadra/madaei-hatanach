@@ -217,3 +217,17 @@ body.fx-busy .fx-list { pointer-events: none; opacity: 0.7; }
 .fx-doc-tbl { border-collapse: collapse; width: 100%; margin: 0.5em 0 1em; break-inside: avoid; }
 .fx-doc-tbl td { border: 0.0625em solid var(--fx-line); padding: 0.25em 0.5em; vertical-align: top; }
 @media (max-width: 45em) { .fx-doc.two { column-count: 1; } .fx-doc { padding: 1em; } }
+
+/* אייקוני הקו של הסייר */
+svg.ic { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+svg.ic .fill { fill: currentColor; fill-opacity: 0.16; }
+/* נתיבי Windows נקראים משמאל לימין גם בממשק עברי */
+.fx-crumbs { direction: ltr; }
+.fx-crumb, .fx-crumb-static { unicode-bidi: isolate; }
+.fx-crumb-static { direction: rtl; }
+[dir=ltr] .fx-crumb-static { direction: ltr; }
+.fx-crumb-sep .ic { transform: scaleX(-1); }
+[dir=ltr] #fx-back .ic, [dir=ltr] #fx-fwd .ic { transform: scaleX(-1); }
+.fx-cmds { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.fx-cmds::-webkit-scrollbar { display: none; }
+.fx-cmd { white-space: nowrap; flex: 0 0 auto; }
