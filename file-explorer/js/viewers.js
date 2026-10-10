@@ -267,9 +267,8 @@
     return blocks(body);
   };
 
-  FX.viewDocx = async function (prov, entry) {
-    var cols = 2;
-    try { var v = localStorage.getItem('fx.docCols'); if (v === '1' || v === '2') cols = +v; } catch (e) { /* כלום */ }
+  FX.viewDocx = async function (prov, entry, startCols) {
+    var cols = startCols === 1 ? 1 : 2;
     var st = openShell(entry, {
       tools: '<button class="btn btn-text" data-c="1">' + FX.t('טור אחד') + '</button><button class="btn btn-text" data-c="2">' + FX.t('שני טורים') + '</button>',
       canOpen: prov.caps.open,

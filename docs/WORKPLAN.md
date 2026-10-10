@@ -51,14 +51,14 @@
   - הקישור לגשר: `FX.BRIDGE_URL` / `SS.BRIDGE_URL` = עמוד Releases מסונן ל-`bridge-v`. בהגדרות מערכת נוסף "העתק קישור" במסך שאין בו גשר.
   - לא אומת: שמות ההרשאות למצב החלופי (שינוי שם/מחיקה/`storage`) — במניפסט יש רק `fs.user_files.read`.
 
-### שלב 3 — פתיחת קבצים + כפתור + בקורא (סשן 3)  ✅ (חוץ מחיבור pdf.js/jszip)
+### שלב 3 — פתיחת קבצים + כפתור + בקורא (סשן 3)  ✅
 - **PDF**: להעתיק `vendor/pdf.min.js`, `pdf.worker.min.js` מהריפו pdf-viewer ל-`file-explorer/vendor/`, ולכתוב צופה מינימלי (`js/viewer-pdf.js`, ~150 שורות) — **לא** להעתיק את כל ה-1649 שורות; OCR לא נכלל (מי שרוצה OCR — כפתור "פתח בצופה PDF+OCR"). קריאת הקובץ: `/fs/read` (base64).
 - **טקסט**: פתיחה באוצריא — תלוי בשאלה 1. גיבוי: תצוגה פנימית פשוטה.
 - **Word**: ברירת מחדל = תוסף וורד לאוצריא (תלוי בשאלה 1), חלופה בהגדרות = תצוגה פנימית בשני טורים (`js/viewer-docx.js`, jszip + המרת `document.xml` לפסקאות, ~150 שורות). הגדרה ב-`storage` במפתח `fx.wordMode`.
 - **כפתור + בקורא**: `toolbarItems` ב-manifest של הסייר (`id: chadbedera-fx-new-doc`, `icon: add_24_regular`, `openPlugin: true`), והאזנה ב-`app.js` שפותחת דיאלוג "מסמך חדש" (שם + תיקייה → `/fs/write-text`).
 - הערכה: קלט ~10K, פלט ~10–15K.
 - **בוצע (11.10)**: `js/viewers.js` — צופה טקסט פנימי (פעיל), צופה PDF מינימלי ותצוגת Word בטור/שני טורים (כתובים, מופעלים רק אם `pdfjsLib`/`JSZip` קיימים). כפתור + בקורא (`chadbedera-fx-new-doc`) → דיאלוג מסמך חדש. הרשאות נוספו במניפסט.
-  - **נשאר פתוח:** העתקת `pdf.min.js`, `pdf.worker.min.js`, `jszip.min.js` מ-pdf-viewer ל-`file-explorer/vendor/` ושתי שורות `<script>` לפני `js/viewers.js` — נחסם בסשן הזה על ידי מנגנון ההרשאות של Claude (שילוב קוד צד-שלישי), ממתין לאישור מפורש. עד אז PDF/Word נפתחים ביישום חיצוני דרך הגשר.
+  - pdf.js 3.11.174 ו-jszip הועתקו מ-pdf-viewer ל-`file-explorer/vendor/` (באישור). מסך הגדרות (⚙ בסרגל העליון, `fx.options` ב-localStorage): לכל סוג — צופה פנימי או יישום חיצוני; Word בטור/שני טורים; שפה.
   - נוספה תמיכה באנגלית: `js/i18n.js` (משותף) + `js/lang-en.js` בכל תוסף; מתג בסרגל העליון, זיהוי `app.getLocale`. בגשר: `bridge/Lang.cs`, מגש → English, `--lang en`.
 
 ### שלב 4 — סיום (סשן 3, בסוף)  ✅ (חוץ מפרסום לחנות)

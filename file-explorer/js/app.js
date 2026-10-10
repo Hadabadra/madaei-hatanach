@@ -664,18 +664,65 @@
     } else refresh();
   }
 
+  /* ---------- הגדרות פתיחה (לכל צופה, נשמרות בדפדפן) ---------- */
+  var OPT_KEY = 'fx.options';
+  var OPT_DEF = { pdf: 'internal', word: 'two', text: 'internal', image: 'internal' };
+  function opts() {
+    var o = {};
+    try { o = JSON.parse(localStorage.getItem(OPT_KEY) || '{}') || {}; } catch (e) { o = {}; }
+    try { var wm = localStorage.getItem('fx.docCols'); if (!o.word && (wm === '1' || wm === '2')) o.word = wm === '1' ? 'one' : 'two'; } catch (e) { /* כלום */ }
+    return Object.assign({}, OPT_DEF, o);
+  }
+  function saveOpts(o) {
+    try { localStorage.setItem(OPT_KEY, JSON.stringify(o)); localStorage.setItem('fx.docCols', o.word === 'one' ? '1' : '2'); } catch (e) { /* כלום */ }
+  }
+  function sel(name, label, cur, choices) {
+    return '<label class="field"><span class="field-label">' + label + '</span><select class="input fx-select" name="' + name + '">' +
+      choices.map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === cur ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') +
+      '</select></label>';
+  }
+  async function settingsDialog() {
+    var o = opts();
+    var pref = window.I18N ? window.I18N.pref() : 'auto';
+    var ext = [['external', 'ביישום חיצוני (דרך הגשר)']];
+    var form = null;
+    var body = '<div class="fx-settings">' +
+      sel('pdf', 'קובצי PDF', o.pdf, [['internal', 'בצופה הפנימי']].concat(ext)) +
+      sel('word', 'מסמכי Word', o.word, [['two', 'בצופה הפנימי — שני טורים'], ['one', 'בצופה הפנימי — טור אחד']].concat(ext)) +
+      sel('text', 'קובצי טקסט', o.text, [['internal', 'בצופה הפנימי']].concat(ext)) +
+      sel('image', 'תמונות', o.image, [['internal', 'בתצוגה מקדימה']].concat(ext)) +
+      sel('lang', 'שפה', pref, [['auto', 'אוטומטי (לפי אוצריא)'], ['he', 'עברית'], ['en', 'English']]) +
+      '<p class="muted small">ההגדרות נשמרות במחשב הזה. פתיחה חיצונית דורשת את גשר אוצריא; בלעדיו נפתח בצופה הפנימי.</p></div>';
+    var r = await ui.dialog({
+      title: 'הגדרות', icon: 'info', body: body,
+      actions: [{ label: 'ביטול', value: false }, { label: 'שמירה', value: true, kind: 'primary' }],
+      onOpen: function (f) { form = f; }
+    });
+    if (!r || !form) return;
+    var v = {};
+    Array.prototype.forEach.call(form.querySelectorAll('select'), function (x) { v[x.name] = x.value; });
+    saveOpts({ pdf: v.pdf, word: v.word, text: v.text, image: v.image });
+    ui.toast('ההגדרות נשמרו', 'success');
+    if (window.I18N && v.lang !== pref) window.I18N.set(v.lang);
+  }
+
+  function openExternal(e) {
+    S.prov.open(e.path).catch(function (err) { opError(err, 'הפתיחה נכשלה'); });
+  }
   async function openEntry(e) {
     if (!e) return;
     if (e.type === 'dir' || e.type === 'drive') { go(e.path); return; }
     var ext = FX.extOf(e.name);
-    if (ext === 'pdf' && window.pdfjsLib) { FX.viewPdf(S.prov, e); return; }
-    if ((ext === 'docx' || ext === 'doc') && window.JSZip) { FX.viewDocx(S.prov, e); return; }
-    if (FX.isTextExt(ext)) { FX.viewText(S.prov, e); return; }
-    if (FX.isImageExt(ext)) { preview(e); return; }
-    if (S.prov.caps.open) {
-      S.prov.open(e.path).catch(function (err) { opError(err, 'הפתיחה נכשלה'); });
-      return;
-    }
+    var o = opts();
+    var canExt = !!S.prov.caps.open;
+    var kind = ext === 'pdf' ? 'pdf' : (ext === 'docx' || ext === 'doc') ? 'word' : FX.isTextExt(ext) ? 'text' : FX.isImageExt(ext) ? 'image' : '';
+    if (kind && o[kind] === 'external' && canExt) { openExternal(e); return; }
+    if (kind === 'pdf' && window.pdfjsLib) { FX.viewPdf(S.prov, e); return; }
+    if (kind === 'word' && window.JSZip && ext === 'docx') { FX.viewDocx(S.prov, e, o.word === 'one' ? 1 : 2); return; }
+    if (kind === 'text') { FX.viewText(S.prov, e); return; }
+    if (kind === 'image') { preview(e); return; }
+    if (canExt) { openExternal(e); return; }
+    if (kind === 'word') { FX.viewDocx(S.prov, e, 2); return; }
     ui.toast(S.prov.capReasons && S.prov.capReasons.open || 'אין אפשרות לפתוח קובץ זה', 'info');
   }
 
@@ -820,6 +867,7 @@
     $('fx-refresh').innerHTML = ic('refresh');
     $('fx-hidden').innerHTML = ic('hidden');
     $('fx-add-folder').innerHTML = ic('plus');
+    $('fx-settings').innerHTML = ic('settings');
     $('fx-search-ic').innerHTML = ic('search');
 
     $('fx-back').addEventListener('click', goBack);
@@ -833,6 +881,7 @@
       savePrefs(); refresh();
     });
     $('fx-add-folder').addEventListener('click', addFolder);
+    $('fx-settings').addEventListener('click', settingsDialog);
 
     $('fx-crumbs').addEventListener('click', function (e) {
       var b = e.target.closest('.fx-crumb');
