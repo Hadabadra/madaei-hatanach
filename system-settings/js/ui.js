@@ -114,7 +114,7 @@
   ui.errText = function (e) {
     if (!e) return 'שגיאה לא ידועה';
     var code = e.code || 'internal';
-    var msg = e.message && /[֐-׿]/.test(e.message) ? e.message : '';
+    var msg = e.message && /[֐-׿]/.test(e.message) && !(window.I18N && window.I18N.isEn() && ERR[e.code]) ? e.message : '';
     if (code === 'wrong_password' || code === 'unsupported' || code === 'locked') {
       if (msg && msg !== ERR[code] && /שני|נסו|המתן|המתינו/.test(msg)) return msg;
       return ERR[code];

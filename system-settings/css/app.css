@@ -438,3 +438,5 @@ code { font-family: Consolas, 'Cascadia Mono', monospace; }
   .form-grid { grid-template-columns: 1fr; }
   .status-card { flex-wrap: wrap; }
 }
+
+.ss-lang { font-size: 0.8125em; padding: 0 0.75em; width: auto; }

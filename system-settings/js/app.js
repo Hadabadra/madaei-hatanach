@@ -158,10 +158,14 @@
     SS.bridge.probe().then(function (h) { if (!h) showOffline(); else setStatus(true); });
   };
 
-  function boot(payload) {
+  async function boot(payload) {
     if (state.booted) return;
     state.booted = true;
     if (payload && payload.theme) ui.applyTheme(payload.theme);
+    try { await window.I18N.init(payload); } catch (e) { /* נשארים בעברית */ }
+    var lb = document.getElementById('top-lang');
+    lb.textContent = window.I18N.toggleLabel();
+    lb.addEventListener('click', function () { window.I18N.toggle(); });
     if (payload && payload.plugin && payload.plugin.version) SS.VERSION = payload.plugin.version;
     buildNav();
     document.getElementById('top-refresh').addEventListener('click', function () {
