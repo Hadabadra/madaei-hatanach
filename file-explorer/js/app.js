@@ -5,7 +5,8 @@
   var ui = window.SS.ui;
   FX.ui = ui;
   FX.t = window.I18N ? window.I18N.t : function (x) { return x; };
-  FX.VERSION = '1.0.0';
+  FX.VERSION = '0.0.1';
+  FX.CHANGELOG_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/blob/%D7%9B%D7%9C%D7%99-%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA/CHANGELOG-SYSTEM-TOOLS.md';
   FX.BRIDGE_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases?q=bridge-v&expanded=true';
 
   var LS = 'fx.view';
@@ -692,11 +693,18 @@
       sel('text', 'קובצי טקסט', o.text, [['internal', 'בצופה הפנימי']].concat(ext)) +
       sel('image', 'תמונות', o.image, [['internal', 'בתצוגה מקדימה']].concat(ext)) +
       sel('lang', 'שפה', pref, [['auto', 'אוטומטי (לפי אוצריא)'], ['he', 'עברית'], ['en', 'English']]) +
-      '<p class="muted small">ההגדרות נשמרות במחשב הזה. פתיחה חיצונית דורשת את גשר אוצריא; בלעדיו נפתח בצופה הפנימי.</p></div>';
+      '<p class="muted small">ההגדרות נשמרות במחשב הזה. פתיחה חיצונית דורשת את גשר אוצריא; בלעדיו נפתח בצופה הפנימי.</p>' +
+      '<div class="fx-about"><b>אודות</b> — סייר קבצים ' + FX.esc(FX.VERSION) + ' · חד בדרא' +
+      '<p class="small">עיון וניהול קבצים מתוך אוצריא: העתקה, העברה, מחיקה, שינוי שם, חיפוש, וצפייה ב-PDF, Word, טקסט ותמונות. עם גשר אוצריא — גישה לכל המחשב; בלעדיו — לתיקיות שאישרתם.</p>' +
+      '<button type="button" class="btn btn-text" data-act="changelog">יומן שינויים</button></div></div>';
     var r = await ui.dialog({
       title: 'הגדרות', icon: 'info', body: body,
       actions: [{ label: 'ביטול', value: false }, { label: 'שמירה', value: true, kind: 'primary' }],
-      onOpen: function (f) { form = f; }
+      onOpen: function (f) {
+        form = f;
+        var cl = f.querySelector('[data-act=changelog]');
+        if (cl) cl.addEventListener('click', function (ev) { ev.preventDefault(); openUrl(FX.CHANGELOG_URL); });
+      }
     });
     if (!r || !form) return;
     var v = {};
@@ -704,6 +712,16 @@
     saveOpts({ pdf: v.pdf, word: v.word, text: v.text, image: v.image });
     ui.toast('ההגדרות נשמרו', 'success');
     if (window.I18N && v.lang !== pref) window.I18N.set(v.lang);
+  }
+
+  function sendFeedback() {
+    window.Feedback.open({
+      ui: ui, plugin: 'סייר קבצים', version: FX.VERSION,
+      extra: function () {
+        var b = FX.Bridge && FX.Bridge.info;
+        return ['מצב: ' + (S.prov ? S.prov.kind : '?'), 'גשר: ' + (b ? (b.version || '?') : 'לא מחובר')];
+      }
+    });
   }
 
   function openExternal(e) {
@@ -882,6 +900,8 @@
     });
     $('fx-add-folder').addEventListener('click', addFolder);
     $('fx-settings').addEventListener('click', settingsDialog);
+    $('fx-feedback').innerHTML = window.Feedback.ICON;
+    $('fx-feedback').addEventListener('click', sendFeedback);
 
     $('fx-crumbs').addEventListener('click', function (e) {
       var b = e.target.closest('.fx-crumb');

@@ -4,6 +4,22 @@
   var I = window.I18N;
   var t = function (s) { return I.t(s); };
   I.add({
+    'עיון וניהול קבצים מתוך אוצריא: העתקה, העברה, מחיקה, שינוי שם, חיפוש, וצפייה ב-PDF, Word, טקסט ותמונות. עם גשר אוצריא — גישה לכל המחשב; בלעדיו — לתיקיות שאישרתם.': 'Browse and manage files from inside Otzaria: copy, move, delete, rename, search, and view PDF, Word, text and images. With Otzaria Bridge you can reach the whole computer; without it, only folders you approved.',
+    'שליחת הערות זמינה רק בתוך אוצריא': 'Sending feedback is available only inside Otzaria',
+    'ההערה נשלחת לצוות אוצריא ולמפתח התוסף דרך מערכת הדיווח של אוצריא. לפני השליחה תוצג בקשת אישור.': 'Your note is sent to the Otzaria team and the plugin developer through the Otzaria reporting system. You will be asked to confirm before it is sent.',
+    'תקלה': 'Problem',
+    'הצעה לשיפור': 'Suggestion',
+    'משוב כללי': 'General feedback',
+    'מה תרצו לספר?': 'What would you like to tell us?',
+    'שליחת הערה': 'Send feedback',
+    'שליחה': 'Send',
+    'לא נכתב תוכן — ההערה לא נשלחה': 'Nothing was written — feedback was not sent',
+    'ההערה נשלחה. תודה!': 'Feedback sent. Thank you!',
+    'ההערה תישלח כשיהיה חיבור. תודה!': 'Feedback will be sent when you are online. Thank you!',
+    'השליחה בוטלה': 'Sending was cancelled',
+    'השליחה נכשלה. אפשר לנסות שוב מאוחר יותר.': 'Sending failed. You can try again later.',
+    'אודות': 'About',
+    'יומן שינויים': 'Changelog',
     'סייר קבצים': 'File Explorer',
     'מתחבר…': 'Connecting…',
     'הוספת תיקייה': 'Add folder',
@@ -230,6 +246,7 @@
     'סרטונים': 'Videos',
     'תיקיית הבית': 'Home'
   }, [
+    [/^— סייר קבצים (.*) · חד בדרא$/, '— File Explorer $1 · by Chad Bedera'],
     [/^([\d,.]+) בתים$/, '$1 bytes'],
     [/^קובץ ([A-Z0-9]+)$/, '$1 file'],
     [/^(.+) \(([A-Z0-9]+)\)$/, function (m) { return t(m[1]) + ' (' + m[2] + ')'; }],

@@ -4,6 +4,21 @@
   var I = window.I18N;
   var t = function (s) { return I.t(s); };
   I.add({
+    'שליחת הערות זמינה רק בתוך אוצריא': 'Sending feedback is available only inside Otzaria',
+    'ההערה נשלחת לצוות אוצריא ולמפתח התוסף דרך מערכת הדיווח של אוצריא. לפני השליחה תוצג בקשת אישור.': 'Your note is sent to the Otzaria team and the plugin developer through the Otzaria reporting system. You will be asked to confirm before it is sent.',
+    'סוג': 'Type',
+    'תקלה': 'Problem',
+    'הצעה לשיפור': 'Suggestion',
+    'משוב כללי': 'General feedback',
+    'מה תרצו לספר?': 'What would you like to tell us?',
+    'שליחת הערה': 'Send feedback',
+    'שליחה': 'Send',
+    'לא נכתב תוכן — ההערה לא נשלחה': 'Nothing was written — feedback was not sent',
+    'ההערה נשלחה. תודה!': 'Feedback sent. Thank you!',
+    'ההערה תישלח כשיהיה חיבור. תודה!': 'Feedback will be sent when you are online. Thank you!',
+    'השליחה בוטלה': 'Sending was cancelled',
+    'השליחה נכשלה. אפשר לנסות שוב מאוחר יותר.': 'Sending failed. You can try again later.',
+    'יומן שינויים': 'Changelog',
     'הגדרות מערכת': 'System Settings',
     'קטגוריות': 'Categories',
     'מתחבר…': 'Connecting…',

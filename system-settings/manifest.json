@@ -1,7 +1,7 @@
 {
   "id": "com.chadbedera.systemsettings",
   "name": "הגדרות מערכת",
-  "version": "1.1.0",
+  "version": "0.0.1",
   "description": "שליטה במחשב מתוך אוצריא: עוצמת שמע, בהירות, בלוטות׳, Wi-Fi, כיבוי והפעלה מחדש, ומצב נעילה שמשאיר רק את אוצריא פתוחה. דורש את גשר אוצריא.",
   "author": "חד בדרא",
   "homepage": "https://github.com/e0548433917-gif/madaei-hatanach/tree/%D7%9B%D7%9C%D7%99-%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA",

@@ -14,6 +14,7 @@ on:
       - "file-explorer/**"
       - "system-settings-screenshots/**"
       - "tools/screens/**"
+      - "CHANGELOG-SYSTEM-TOOLS.md"
       - ".github/workflows/bridge.yml"
   workflow_dispatch:
     inputs:
@@ -64,7 +65,7 @@ jobs:
             out/OtzariaBridge.exe
             bridge/plugins/system-settings.otzplugin
             bridge/plugins/file-explorer.otzplugin
-          name: גשר אוצריא ${{ github.ref_name }} (בטא)
+          name: כלי מערכת לאוצריא ${{ github.ref_name }} (ניסיון)
           prerelease: true
           body: |
             **גשר אוצריא** — תוכנה קטנה שרצה ברקע ב-Windows ומאפשרת לתוספי אוצריא לנהל קבצים ולשלוט בהגדרות המחשב.
@@ -77,6 +78,8 @@ jobs:
             * אנגלית: תפריט המגש → English, או `OtzariaBridge.exe --lang en`.
             * ביטול נעילה בחירום: `OtzariaBridge.exe --unlock <קוד שחזור>`
             * הסרה: `OtzariaBridge.exe --uninstall`
+            * הערות ותקלות: כפתור "שליחת הערה" בשני התוספים.
+            * מה חדש: [CHANGELOG-SYSTEM-TOOLS.md](https://github.com/e0548433917-gif/madaei-hatanach/blob/${{ github.sha }}/CHANGELOG-SYSTEM-TOOLS.md)
 
             ---
             **Otzaria Bridge** — a small background program for Windows that lets Otzaria plugins manage files and computer settings.

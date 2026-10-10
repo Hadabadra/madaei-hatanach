@@ -20,7 +20,7 @@
   ].map(function (e) { e.path = docs + '\\' + e.name; return e; });
 
   function data(path, body) {
-    if (path === '/health') return { name: 'otzaria-bridge', version: '1.0.0', kioskActive: false };
+    if (path === '/health') return { name: 'otzaria-bridge', version: '0.0.1', kioskActive: false };
     if (path === '/fs/roots') {
       return {
         drives: [
@@ -64,7 +64,7 @@
 
   window.addEventListener('load', function () {
     setTimeout(function () {
-      (handlers['plugin.boot'] || []).forEach(function (fn) { fn({ plugin: { version: '1.0.0' } }); });
+      (handlers['plugin.boot'] || []).forEach(function (fn) { fn({ plugin: { version: '0.0.1' } }); });
       setTimeout(function () {
         if (window.FX && window.FX.app) window.FX.app.go(docs);
       }, 600);
