@@ -41,7 +41,7 @@
   background: var(--color-surface-container); border-radius: 0.625em; cursor: text;
 }
 .fx-crumb {
-  border: 0; background: none; color: var(--color-on-surface); font: inherit;
+  border: 0; background: none; color: var(--color-on-surface); font-family: var(--font-ui); font-size: inherit; font-weight: inherit;
   padding: 0.25em 0.5em; border-radius: 0.375em; cursor: pointer; max-width: 16em;
   overflow: hidden; text-overflow: ellipsis;
 }
@@ -93,7 +93,7 @@
 }
 .fx-head { border-bottom: 0.0625em solid var(--fx-line); }
 .fx-col {
-  border: 0; background: none; font: inherit; font-size: 0.8125em; color: var(--fx-muted);
+  border: 0; background: none; font-family: var(--font-ui); font-size: inherit; font-weight: inherit; font-size: 0.8125em; color: var(--fx-muted);
   text-align: start; padding: 0.625em 0.25em; cursor: pointer; display: flex; gap: 0.375em; align-items: center;
 }
 .fx-col:hover, .fx-col.on { color: var(--color-on-surface); }
@@ -148,14 +148,14 @@ body.fx-busy .fx-list { pointer-events: none; opacity: 0.7; }
 .fx-menu[hidden] { display: none; }
 .fx-menu-item {
   display: flex; align-items: center; gap: 0.625em; width: 100%;
-  border: 0; background: none; font: inherit; color: inherit; text-align: start;
+  border: 0; background: none; font-family: var(--font-ui); font-size: inherit; font-weight: inherit; color: inherit; text-align: start;
   padding: 0.5em 0.75em; border-radius: 0.5em; cursor: pointer;
 }
 .fx-menu-item:hover:not(:disabled), .fx-menu-item:focus-visible { background: var(--fx-hover); outline: none; }
 .fx-menu-item:disabled { opacity: 0.4; cursor: default; }
 .fx-menu-item .ic { width: 1.125em; height: 1.125em; }
 .fx-menu-item span { flex: 1 1 auto; }
-.fx-menu-item kbd { font: inherit; font-size: 0.75em; color: var(--fx-muted); direction: ltr; }
+.fx-menu-item kbd { font-family: var(--font-ui); font-size: inherit; font-weight: inherit; font-size: 0.75em; color: var(--fx-muted); direction: ltr; }
 
 /* תצוגה מקדימה */
 .dlg.fx-wide { width: min(56em, 94vw); max-width: none; }

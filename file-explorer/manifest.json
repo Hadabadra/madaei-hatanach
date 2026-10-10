@@ -13,7 +13,7 @@
   "permissions": ["network.localhost", "app.open_url", "fs.user_files.read", "reader.toolbar", "app.startup_contributions", "navigation.write"],
   "network": { "enabled": true, "allowlist": ["127.0.0.1", "localhost"] },
   "contributes": {
-    "toolTab": { "title": "סייר קבצים", "order": 910, "defaultPinned": false, "iconName": "fluent:folder_24_regular" },
+    "toolTab": { "title": "סייר קבצים", "order": 910, "defaultPinned": false, "iconName": "folder_24_regular" },
     "startup": {
       "toolbarItems": [
         { "id": "chadbedera-fx-new-doc", "type": "button", "title": "מסמך חדש", "icon": "add_24_regular", "openPlugin": true }

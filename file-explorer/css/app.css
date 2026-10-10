@@ -78,7 +78,7 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
-button, input { font-family: inherit; font-size: inherit; color: inherit; }
+button, input { font-family: var(--font-ui); font-size: inherit; color: inherit; }
 [hidden] { display: none !important; }
 
 .ic { width: 1.4em; height: 1.4em; flex-shrink: 0; }
