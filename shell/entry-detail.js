@@ -330,6 +330,28 @@ function catIdOfEntry(entry){
   return null;
 }
 
+// #73 (5.0.0): כרטיס מקום בלי תמונה — תצלום לוויין חי (Sentinel-2 cloudless של EOX, אותו מקור כמו
+// שכבת הלוויין במפה, כבר ב-network.allowlist). 0MB לחבילה; בלי רשת — האריחים פשוט לא מוצגים.
+// לא מוצג למיקום ״אזורי בלבד״ (נקודה משוערת, תצלום שלה יטעה).
+function satelliteThumbHTML(entry){
+  const m = entry.methods && entry.methods[0];
+  const g = m && m.geo;
+  if (!g || !isFinite(g[0]) || !isFinite(g[1]) || /אזורי/.test(m.confidence || '')) return '';
+  const z = 14, n = Math.pow(2, z), lat = g[0] * Math.PI / 180;
+  const fx = (g[1] + 180) / 360 * n, fy = (1 - Math.log(Math.tan(lat) + 1 / Math.cos(lat)) / Math.PI) / 2 * n;
+  const W = 480, H = 220, cx = Math.floor(fx), cy = Math.floor(fy);
+  const ox = W / 2 - (fx - cx) * 256, oy = H / 2 - (fy - cy) * 256;
+  let tiles = '';
+  for (let dx = -2; dx <= 2; dx++) for (let dy = -1; dy <= 1; dy++) {
+    const left = ox + dx * 256, top = oy + dy * 256;
+    if (left > W || top > H || left < -256 || top < -256) continue;
+    tiles += `<img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/${z}/${cy + dy}/${cx + dx}.jpg" alt="" loading="lazy" onerror="this.style.display='none'" style="position:absolute;left:${left}px;top:${top}px;width:256px;height:256px;">`;
+  }
+  return `<div class="sat-thumb" title="תצלום לוויין" style="position:relative;width:100%;max-width:${W}px;height:${H}px;overflow:hidden;border-radius:10px;margin-bottom:4px;background:var(--surface-2, #ddd);">${tiles}`
+    + `<span style="position:absolute;left:${W / 2 - 7}px;top:${H / 2 - 7}px;width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#d33;"></span></div>`
+    + `<div style="font-size:.75em;opacity:.7;margin-bottom:12px;">תצלום לוויין: Sentinel-2 cloudless 2024, EOX</div>`;
+}
+
 function renderEntryDetailHTML(entry, catIdOverride){
   const catId = catIdOverride || (currentGuideCat ? currentGuideCat.id : null) || catIdOfEntry(entry);
   const leadImg = catId ? lookupEntryImage(entry, catId) : null;
@@ -339,6 +361,7 @@ function renderEntryDetailHTML(entry, catIdOverride){
   if (leadImg) html += `<img src="${leadImg}" alt="${esc(entry.name)}" style="max-width:100%;border-radius:10px;margin-bottom:12px;display:block;">`;
   else if (entry.customImage) html += `<img src="${esc(entry.customImage)}" alt="${esc(entry.name)}" style="max-width:100%;border-radius:10px;margin-bottom:12px;display:block;">`;
   else if (wikiTitle) html += `<div data-wiki-lazy="${esc(wikiTitle)}" style="margin-bottom:12px;"></div>`;
+  else if (catId === 'places') html += satelliteThumbHTML(entry);
   const bmKey = bookmarkKeyOf(entry);
   const bmOn = !!catId && isBookmarked(catId, bmKey);
   html += `<h2>${esc(entry.name)}`
