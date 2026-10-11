@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl"><head><meta charset="UTF-8"></head>
+<body>
+<script src="archaeology-data-images.js"></script>
+<script>
+try {
+  parent.postMessage({ __madaeiHatanachImages: true, cat: 'archaeology', ok: true, images: (typeof CARD_IMAGES !== 'undefined') ? CARD_IMAGES : {} }, '*');
+} catch(e) {
+  parent.postMessage({ __madaeiHatanachImages: true, cat: 'archaeology', ok: false, error: String(e) }, '*');
+}
+</script>
+</body></html>

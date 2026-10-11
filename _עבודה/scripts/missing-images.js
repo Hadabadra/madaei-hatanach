@@ -4,7 +4,7 @@
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const ROOT = path.resolve(__dirname, '../..');
 const FILES = { sukkah:'guides/sukkah/data/sukkah-data.js', domem:'guides/domem/data/domem-data.js', places:'guides/places/data/places.js', beithamikdash:'guides/beithamikdash/data/beithamikdash-data.js', chullin:'guides/chullin/data/chullin-data.js', animal:'guides/animal/data/animal-data.js', archaeology:'guides/archaeology/data/archaeology-data.js', flora:'guides/flora/data/flora-data.js' };
-function load(g) { const ctx = {}; vm.createContext(ctx); vm.runInContext(fs.readFileSync(path.join(ROOT, FILES[g]), 'utf8') + ';this.D=DATA;this.I=CARD_IMAGES', ctx); return ctx; }
+function load(g) { const ctx = {}; vm.createContext(ctx); const f = path.join(ROOT, FILES[g]), fi = f.replace(/\.js$/, '-images.js'); vm.runInContext(fs.readFileSync(f, 'utf8') + ';this.D=DATA;this.I=CARD_IMAGES', ctx); if (fs.existsSync(fi)) { const c2 = {}; vm.createContext(c2); vm.runInContext(fs.readFileSync(fi, 'utf8') + ';this.I=CARD_IMAGES', c2); ctx.I = Object.assign({}, c2.I, ctx.I); } return ctx; }
 const has = (e, I) => (e.img && I[e.img]) || (e.methods && e.methods[0] && I[e.methods[0].wiki]);
 function missing(g) { const c = load(g); return c.D.filter((e) => !has(e, c.I)); }
 module.exports = { FILES, load, missing };

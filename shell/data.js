@@ -183,7 +183,7 @@ function loadGuideData(cat){
       // מחילים עריכות מקומיות שמורות *לפני* השמירה במטמון, כדי שגם מנוע הזיהוי
       // (שנבנה מאותם נתונים) יכיר את הכינויים/השמות שהמשתמש הוסיף.
       dataCache[cat.id] = applyStoredEdits(cat.id, data);
-      imagesCache[cat.id] = images || {};
+      imagesCache[cat.id] = Object.assign(imagesCache[cat.id] || {}, images || {});
       catsCache[cat.id] = cats || [];
       if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
       resolve(dataCache[cat.id]);
@@ -211,6 +211,42 @@ function loadGuideData(cat){
     document.body.appendChild(iframe);
   });
   return dataPromises[cat.id];
+}
+
+// #54 (5.0.0): התמונות המוטבעות (~80% מהמשקל) יושבות ב-<x>-images.js ונטענות רק כשמדריך נפתח
+// או כשכרטיס שלו מוצג — באותו דפוס iframe+postMessage של loadGuideData (לא fetch).
+// הטקסט (DATA) ממשיך להיטען מראש, כדי לא לשבור את קישורי המקומות ואת ״מוזכר יחד עם״.
+const IMAGE_GUIDES = new Set(['animal','archaeology','beithamikdash','chullin','domem','flora','places','sukkah']);
+const imagesLoaded = {}, imagesPromises = {};
+function guideImagesReady(catId){ return !IMAGE_GUIDES.has(catId) || !!imagesLoaded[catId]; }
+function loadGuideImages(cat){
+  if (!cat || guideImagesReady(cat.id)) return Promise.resolve(imagesCache[cat && cat.id] || {});
+  if (imagesPromises[cat.id]) return imagesPromises[cat.id];
+  imagesPromises[cat.id] = new Promise((resolve) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    let settled = false;
+    const done = (images, ok) => {
+      if (settled) return;
+      settled = true;
+      window.removeEventListener('message', onMessage);
+      clearTimeout(timer);
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      imagesCache[cat.id] = Object.assign(imagesCache[cat.id] || {}, images || {});
+      if (ok) imagesLoaded[cat.id] = true; else delete imagesPromises[cat.id]; // בכישלון — ניסיון חוזר בפעם הבאה
+      resolve(imagesCache[cat.id]);
+    };
+    function onMessage(ev){
+      const msg = ev.data;
+      if (!msg || !msg.__madaeiHatanachImages || msg.cat !== cat.id) return;
+      done(msg.ok ? msg.images : {}, !!msg.ok);
+    }
+    window.addEventListener('message', onMessage);
+    const timer = setTimeout(() => { console.warn('madaei-hatanach: timeout loading images for', cat.id); done({}, false); }, 45000);
+    iframe.src = cat.loaderPath.replace(/_loader\.html$/, '_images-loader.html');
+    document.body.appendChild(iframe);
+  });
+  return imagesPromises[cat.id];
 }
 
 // טעינה מוקדמת בטור ולא במקביל: שישה קבצי ענק שנטענים יחד מרעיבים זה את זה

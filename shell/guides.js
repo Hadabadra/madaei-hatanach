@@ -488,6 +488,10 @@ async function openGuide(catId, term){
   currentGuideCat = cat;
   currentGuideData = await loadGuideData(cat);
   renderGuideGrid('');
+  // #54: התמונות נטענות עכשיו (לא בפתיחת התוסף); כשהגיעו — מרנדרים שוב את אותו מדריך
+  if (!guideImagesReady(cat.id)) loadGuideImages(cat).then(() => {
+    if (currentGuideCat === cat && guideView.classList.contains('open') && guideViewMode === 'grid') renderGuideGrid(guideSearchBox.value);
+  });
   if (term){
     const norm = normalizeHeb(term);
     const match = currentGuideData.find(e => normalizeHeb(e.name) === norm) ||

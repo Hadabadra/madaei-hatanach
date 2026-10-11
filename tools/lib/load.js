@@ -22,7 +22,14 @@ function loadDataFile(relPath) {
   CATS:        typeof CATS        !== 'undefined' ? CATS        : null,
   CARD_IMAGES: typeof CARD_IMAGES !== 'undefined' ? CARD_IMAGES : null
 });`;
-  return vm.runInNewContext(src + tail, {}, { filename: relPath, timeout: 120000 });
+  const out = vm.runInNewContext(src + tail, {}, { filename: relPath, timeout: 120000 });
+  // #54: התמונות בקובץ נפרד <x>-images.js (tools/split-images.js) — מאחדים לכלים
+  const imgAbs = abs.replace(/\.js$/, '-images.js');
+  if (!/-images\.js$/.test(abs) && fs.existsSync(imgAbs)) {
+    const imgs = vm.runInNewContext(fs.readFileSync(imgAbs, 'utf8') + ';CARD_IMAGES', {}, { timeout: 120000 });
+    out.CARD_IMAGES = Object.assign({}, imgs, out.CARD_IMAGES || {});
+  }
+  return out;
 }
 
 // טוען את פונקציות פענוח מראי המקום מתוך shell/refs.js עצמו (לא עותק).

@@ -672,6 +672,7 @@ function wireEntryDetail(container, entry, onEdit){
     });
   });
   refreshEntryLinksWhenReady(container, entry, onEdit);
+  refreshEntryImagesWhenReady(container, entry, onEdit);
   // "הצג במפה הראשית" - סוגר את הכרטיס, גולל למפה שבסוף רשימת המקומות וממקד שם.
   container.querySelectorAll('.focus-main-map').forEach(el => {
     el.addEventListener('click', (ev) => {
@@ -714,6 +715,19 @@ function refreshEntryLinksWhenReady(container, entry, onEdit){
   chain(0).then(() => {
     if (!container.isConnected) return;
     if ((needPlaces && !placesNameIndex()) || (needCo && !coMentionsReady())) return;
+    container.innerHTML = renderEntryDetailHTML(entry);
+    wireEntryDetail(container, entry, onEdit);
+  });
+}
+
+// #54: כרטיס של מדריך שהתמונות שלו עוד לא נטענו — מציגים מיד בלי תמונה, טוענים ברקע
+// ומרנדרים פעם אחת. אחרי הטעינה guideImagesReady מחזיר ״מוכן״, ולכן אין לולאה.
+function refreshEntryImagesWhenReady(container, entry, onEdit){
+  const catId = (currentGuideCat ? currentGuideCat.id : null) || catIdOfEntry(entry);
+  if (!catId || guideImagesReady(catId)) return;
+  const cat = CATEGORIES.find(c => c.id === catId);
+  loadGuideImages(cat).then(() => {
+    if (!container.isConnected || !guideImagesReady(catId)) return;
     container.innerHTML = renderEntryDetailHTML(entry);
     wireEntryDetail(container, entry, onEdit);
   });

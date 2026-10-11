@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl"><head><meta charset="UTF-8"></head>
+<body>
+<script src="flora-data-images.js"></script>
+<script>
+try {
+  parent.postMessage({ __madaeiHatanachImages: true, cat: 'flora', ok: true, images: (typeof CARD_IMAGES !== 'undefined') ? CARD_IMAGES : {} }, '*');
+} catch(e) {
+  parent.postMessage({ __madaeiHatanachImages: true, cat: 'flora', ok: false, error: String(e) }, '*');
+}
+</script>
+</body></html>
