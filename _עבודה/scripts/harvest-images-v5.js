@@ -5,7 +5,7 @@
 //   2. רישיון: נחלת הכלל / CC0 / CC BY / CC BY-SA בלבד (בלי NC/ND). קרדיט: יוצר + רישיון.
 //   3. מסנן תוכן (כלל #77 / קהל היעד): מדלג על קבצים שבשמם/תיאורם/קטגוריותיהם יש
 //      כנסייה, מנזר, מסגד, ציור דמויות, נשים וכו׳ — ומפיק דוח לעין אנושית.
-//   4. מוריד ממוזער 520px, מכווץ ל-WebP q78 (כמו tools/compress-embedded-images.js),
+//   4. מוריד ממוזער 480px, מכווץ ל-WebP q60 (קל יותר מ-q78 של compress-embedded-images.js, עדיין ברור),
 //      ומטביע: CARD_IMAGES[key] + "img" + "credit" בערך.
 //   5. --wall: 10–15 תמונות היסטוריות של הכותל המערבי מנחלת הכלל (בונפיס, פרית, המושבה
 //      האמריקנית/מטסון, צילומים לפני 1958) לגלריה של ״האבן הגדולה שבכותל המערבי״.
@@ -63,7 +63,7 @@ async function leadImages(titles) {
 async function fileInfo(files) {
   const info = {};
   for (const ch of chunks([...new Set(files)], 50)) {
-    const j = await api('commons.wikimedia.org', { action: 'query', prop: 'imageinfo', iiprop: 'url|extmetadata|mime', iiurlwidth: '520', titles: ch.map((f) => 'File:' + f).join('|') });
+    const j = await api('commons.wikimedia.org', { action: 'query', prop: 'imageinfo', iiprop: 'url|extmetadata|mime', iiurlwidth: '480', titles: ch.map((f) => 'File:' + f).join('|') });
     for (const p of j.query.pages || []) {
       const ii = p.imageinfo && p.imageinfo[0];
       if (!ii || p.missing) continue;
@@ -87,7 +87,7 @@ async function getWebp(f, dest) {
   if (fs.existsSync(dest)) return fs.readFileSync(dest);
   const r = await fetch(f.url, { headers: { 'User-Agent': UA } });
   if (!r.ok) throw new Error('הורדה ' + r.status);
-  const buf = await sharp(Buffer.from(await r.arrayBuffer())).resize({ width: 520, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer();
+  const buf = await sharp(Buffer.from(await r.arrayBuffer())).resize({ width: 480, withoutEnlargement: true }).webp({ quality: 60, effort: 6 }).toBuffer();
   fs.writeFileSync(dest, buf);
   return buf;
 }
@@ -142,7 +142,7 @@ async function wall(review) {
   return { keys, images, credit: 'צילומים היסטוריים · נחלת הכלל · ויקישיתוף', found: files.length, pd: pd.length };
 }
 
-(async () => {
+async function main() {
   const review = ['# #71 — תמונות שהוטמעו (לסקירה בעין אנושית, כלל #77)', '', '| מדריך | ערך | קובץ | רישיון |', '|---|---|---|---|'];
   const skipped = {}; let total = 0, done = 0;
   if (!WALL_ONLY) for (const g of ONLY) {
@@ -177,4 +177,6 @@ async function wall(review) {
   }
   fs.writeFileSync(path.join(OUT, 'review.md'), review.join('\n') + '\n');
   console.log(`סה״כ: ${done}/${total} · דולגו: ${JSON.stringify(skipped)}${DRY ? ' (dry)' : ''}`);
-})().catch((e) => { console.error('שגיאה:', e.message); process.exit(1); });
+}
+module.exports = { embed, getWebp, REJ, OUT, sleep, UA };
+if (require.main === module) main().catch((e) => { console.error('שגיאה:', e.message); process.exit(1); });

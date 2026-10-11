@@ -22,3 +22,7 @@
 | כותל | כותל-היסטורי-11 | [105381 the western wall PikiWiki Israel.jpg](https://commons.wikimedia.org/wiki/File:105381_the_western_wall_PikiWiki_Israel.jpg) | Public domain |
 | כותל | כותל-היסטורי-12 | [הרב רפאל שלמה לניאדו.jpg](https://commons.wikimedia.org/wiki/File:%D7%94%D7%A8%D7%91_%D7%A8%D7%A4%D7%90%D7%9C_%D7%A9%D7%9C%D7%9E%D7%94_%D7%9C%D7%A0%D7%99%D7%90%D7%93%D7%95.jpg) | Public domain |
 | כותל | כותל-היסטורי-13 | [2123 Jerusalem - Jews at the Wailing Wall.jpg](https://commons.wikimedia.org/wiki/File:2123_Jerusalem_-_Jews_at_the_Wailing_Wall.jpg) | Public domain |
+
+## iNaturalist (זיהוי מוצע)
+
+| flora | אגושים / כופר | ר' הקרדיט בכרטיס | CC |
