@@ -1,7 +1,7 @@
 name: גשר אוצריא (bridge)
 
 # דחיפה לענף: בניית הגשר + ולידציה של שני התוספים + צילומי מסך (artifacts בלבד).
-# שינוי <Version> ב-bridge/OtzariaBridge.csproj לגרסה שאין לה עדיין Release = Release (ניסיון) עם ה-exe ושני קובצי .otzplugin.
+# שחרורים (Releases) לא נוצרים בריפו הזה; ה-exe והתוספים זמינים כ-artifacts של ה-run.
 # פרסום לחנות אוצריא — ידני בלבד, אחרי בדיקה על Windows אמיתי: Actions → Run workflow → store = true.
 
 on:
@@ -57,52 +57,20 @@ jobs:
             bridge/plugins/*.otzplugin
           if-no-files-found: error
 
-      - name: האם לשחרר גרסה?
-        id: rel
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # שחרורים לא יוצאים מהריפו הזה (עמוד ה-Releases שלו שייך ל"עינים למקרא").
+
+  cleanup-releases:
+    name: הסרת שני שחרורי כלי המערכת מעמוד עינים למקרא
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/כלי-מערכת'
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: מחיקת bridge-v0.0.1 ו-bridge-v0.0.2 בלבד
         run: |
-          $ver = ([xml](Get-Content bridge/OtzariaBridge.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
-          $tag = "bridge-v$ver"
-          gh release view $tag -R ${{ github.repository }} *> $null
-          $exists = $LASTEXITCODE -eq 0
-          $global:LASTEXITCODE = 0
-          $do = ("${{ github.ref }}" -like "refs/tags/bridge-v*") -or (-not $exists)
-          "tag=$tag" >> $env:GITHUB_OUTPUT
-          "do=$($do.ToString().ToLower())" >> $env:GITHUB_OUTPUT
-          Write-Host "version=$ver tag=$tag exists=$exists release=$do"
-
-      # גרסה חדשה ב-OtzariaBridge.csproj (תג שעוד לא קיים) = Release אוטומטי מהענף
-      - name: Release
-        if: steps.rel.outputs.do == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.rel.outputs.tag }}
-          target_commitish: ${{ github.sha }}
-          files: |
-            out/OtzariaBridge.exe
-            bridge/plugins/system-settings.otzplugin
-            bridge/plugins/file-explorer.otzplugin
-          name: כלי מערכת לאוצריא ${{ steps.rel.outputs.tag }} (ניסיון)
-          prerelease: true
-          body: |
-            **גשר אוצריא** — תוכנה קטנה שרצה ברקע ב-Windows ומאפשרת לתוספי אוצריא לנהל קבצים ולשלוט בהגדרות המחשב.
-
-            הורדה: `OtzariaBridge.exe` — הפעלה ראשונה מתקינה את הגשר (הפעלה אוטומטית עם Windows, קיצור דרך בשולחן העבודה) ופותחת את תיקיית התוספים.
-            התוספים "סייר קבצים" ו"הגדרות מערכת" מצורפים כקובצי `.otzplugin` — מתקינים מתוך אוצריא (התקנת תוסף מקובץ).
-
-            ⚠️ גרסת בטא: עדיין לא נבדקה על מחשבי Windows אמיתיים. מומלץ לא להפעיל "נעילה קפדנית" לפני שרושמים את קוד השחזור.
-
-            * אנגלית: תפריט המגש → English, או `OtzariaBridge.exe --lang en`.
-            * ביטול נעילה בחירום: `OtzariaBridge.exe --unlock <קוד שחזור>`
-            * הסרה: `OtzariaBridge.exe --uninstall`
-            * הערות ותקלות: כפתור "שליחת הערה" בשני התוספים.
-            * מה חדש: [CHANGELOG-SYSTEM-TOOLS.md](https://github.com/e0548433917-gif/madaei-hatanach/blob/${{ github.sha }}/CHANGELOG-SYSTEM-TOOLS.md)
-
-            ---
-            **Otzaria Bridge** — a small background program for Windows that lets Otzaria plugins manage files and computer settings.
-            Download `OtzariaBridge.exe` and run it once. The "File Explorer" and "System Settings" plugins are attached as `.otzplugin` files (install from inside Otzaria). Beta: not yet tested on real Windows machines.
+          for t in bridge-v0.0.1 bridge-v0.0.2; do
+            gh release delete "$t" -R "$GITHUB_REPOSITORY" --yes --cleanup-tag || echo "$t כבר לא קיים"
+          done
 
   plugins:
     name: ולידציה, צילומים ופרסום לחנות
