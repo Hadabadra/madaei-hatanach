@@ -147,7 +147,12 @@ function guideCatOf(catId){
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
   return cats.find(c => c.id === catId) || null;
 }
+// #74: תקופה מפורטת ברמת הערך (era בערך, כמו לוח התקופות של ״ביוגרפיות״) גוברת על תקופת הספר
+const DETAILED_ERA_ORDER = ['עשרה דורות מאדם עד נח','עשרה דורות מנח עד אברהם','אבותינו ואמותינו','שבטי ישראל','גלות מצרים',
+  'יציאת מצרים ודור המדבר','כניסה לארץ וכיבוש','תקופת השופטים','תקופת שמואל, שאול ודוד','תקופת המלכים ובית ראשון',
+  'חורבן בית ראשון','גלות בבל ובית שני'];
 function guideEraOf(entry){
+  if (entry && entry.era) return entry.era;
   const c = guideCatOf(entry.cat);
   return (c && c.era) || '';
 }
@@ -167,8 +172,10 @@ function matchesGuideFilters(entry){
 function renderGuideEraChips(){
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
   const eras = [];
+  const detailed = new Set(currentGuideData.map(e => e.era).filter(Boolean));
+  DETAILED_ERA_ORDER.forEach(x => { if (detailed.has(x)) eras.push(x); });
   cats.forEach(c => {
-    if (c.era && !eras.includes(c.era) && currentGuideData.some(e => e.cat === c.id)) eras.push(c.era);
+    if (c.era && !eras.includes(c.era) && currentGuideData.some(e => e.cat === c.id && !e.era)) eras.push(c.era);
   });
   if (!eras.length){
     guideEraRow.classList.add('hidden');
