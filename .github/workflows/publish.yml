@@ -353,7 +353,10 @@ jobs:
           mkdir -p /tmp/plus-shots
           cp "docs/screenshots/ביוגרפיות תקופות.png" /tmp/plus-shots/01.png
           cp "docs/screenshots/בעלי חיים2.png" /tmp/plus-shots/02.png
-          [[ -z "$too_big" ]] && echo "ready=true" >> "$GITHUB_OUTPUT" || true
+          # #127: הוחלט (בעלת הפרויקט, 09/10/2026) — הפלוס לא נשלח לחנות עד תשובה מאוצריא.
+          # הקובץ עדיין מצורף ל-Release. כשתגיע תשובה: למחוק את השורה PLUS_HOLD ולהחזיר את הבדיקה.
+          PLUS_HOLD=1
+          [[ -z "$too_big" && -z "$PLUS_HOLD" ]] && echo "ready=true" >> "$GITHUB_OUTPUT" || echo "::notice::הפלוס לא נשלח לחנות (#127)"
 
       # 08/10/2026 (באישור בעלת הפרויקט): עינים למקרא+ לא עלה לחנות דרך דף ״תוסף חדש״
       # באתר (״לא ניתן לקרוא את manifest.json מקובץ התוסף״ — 4,677 קבצים, #91). כאן
