@@ -121,6 +121,26 @@ const guideEraChips = document.getElementById('guideEraChips');
 const guideAlphaBar = document.getElementById('guideAlphaBar');
 const ALEPH_BET = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 let activeGuideEra = 'all';
+// #76: סינון לפי שבט — רק לערכים שיש להם tribes (שיוך מפורש בפסוקי יהושע יג–כא)
+let activeGuideTribe = 'all';
+const guideTribeRow = document.getElementById('guideTribeRow');
+const guideTribeChips = document.getElementById('guideTribeChips');
+const TRIBE_ORDER = ['ראובן','שמעון','יהודה','יששכר','זבולון','דן','נפתלי','גד','אשר','בנימין','אפרים','מנשה'];
+const tribeOk = (e) => activeGuideTribe === 'all' || (e.tribes || []).includes(activeGuideTribe);
+function renderGuideTribeChips(){
+  if (!guideTribeRow) return;
+  const have = new Set(); (currentGuideData || []).forEach(e => (e.tribes || []).forEach(t => have.add(t)));
+  const list = TRIBE_ORDER.filter(t => have.has(t));
+  if (!list.length){ guideTribeRow.classList.add('hidden'); guideTribeChips.innerHTML = ''; activeGuideTribe = 'all'; return; }
+  guideTribeRow.classList.remove('hidden');
+  guideTribeChips.innerHTML = `<button class="chip${activeGuideTribe==='all'?' active':''}" data-tribe="all">הכל</button>` +
+    list.map(t => `<button class="chip${activeGuideTribe===t?' active':''}" data-tribe="${esc(t)}">${esc(t)}</button>`).join('');
+  guideTribeChips.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+    activeGuideTribe = btn.dataset.tribe;
+    guideTribeChips.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+    renderGuideGrid(guideSearchBox.value);
+  }));
+}
 let activeGuideLetter = 'all';
 
 function guideCatOf(catId){
@@ -140,6 +160,7 @@ function guideFirstLetter(name){
 function matchesGuideFilters(entry){
   if (activeGuideEra !== 'all' && guideEraOf(entry) !== activeGuideEra) return false;
   if (activeGuideLetter !== 'all' && guideFirstLetter(entry.name) !== activeGuideLetter) return false;
+  if (!tribeOk(entry)) return false;
   return true;
 }
 
@@ -172,6 +193,7 @@ function renderGuideAlphaBar(){
   currentGuideData.forEach(e => {
     if (!chipSelected(e.cat)) return;
     if (activeGuideEra !== 'all' && guideEraOf(e) !== activeGuideEra) return;
+    if (!tribeOk(e)) return;
     const l = guideFirstLetter(e.name);
     if (l) letters.add(l);
   });
@@ -194,6 +216,7 @@ function updateGuideFiltersSummary(){
     parts.push((labels.length > 1 ? 'קטגוריות: ' : 'קטגוריה: ') + labels.join(', '));
   }
   if (activeGuideEra !== 'all') parts.push('תקופה: ' + activeGuideEra);
+  if (activeGuideTribe !== 'all') parts.push('שבט: ' + activeGuideTribe);
   if (activeGuideLetter !== 'all') parts.push('אות: ' + activeGuideLetter);
   const open = !guideFilters.classList.contains('collapsed');
   guideFiltersSummary.textContent = (parts.length && !open) ? ('סינון פעיל — ' + parts.join(' · ')) : '';
@@ -209,6 +232,7 @@ guideFiltersToggle.addEventListener('click', () => {
 
 function renderGuideChips(){
   renderGuideEraChips();
+  renderGuideTribeChips();
   renderGuideAlphaBar();
   updateGuideFiltersSummary();
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
@@ -376,7 +400,7 @@ function renderGuideGrid(filterText){
   }
 
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
-  const noExtraFilter = activeGuideEra === 'all' && activeGuideLetter === 'all';
+  const noExtraFilter = activeGuideEra === 'all' && activeGuideLetter === 'all' && activeGuideTribe === 'all';
   const groupByCat = chipsAreAll() && !q && noExtraFilter && cats.length;
   const flatIdx = []; // רשימת (entry) לפי סדר הופעה בפועל ב-DOM, לחיבור הקליקים
   let html = '';
@@ -446,6 +470,7 @@ async function openGuide(catId, term){
   guideSearchBox.value = '';
   activeGuideChips.clear();
   activeGuideEra = 'all';
+  activeGuideTribe = 'all';
   activeGuideLetter = 'all';
   guideViewMode = 'grid';
   if (guideTimelineToggle){

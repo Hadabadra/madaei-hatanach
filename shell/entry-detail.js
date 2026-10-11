@@ -235,17 +235,17 @@ const FIELD_LABELS = {
   wiki:'ערך ויקיפדיה', confidence:'מידת ודאות', mapQuery:'חיפוש במפה',
   role:'תקופה', dor:'דור', place:'מקום פעילות',
   // ארכיאולוגיה יהודית (3.3.4)
-  site:'מקום הגילוי', found:'שנת הגילוי', museum:'היכן מוצג היום', credit:'קרדיט לתמונה'
+  site:'מקום הגילוי', found:'שנת הגילוי', museum:'היכן מוצג היום', credit:'קרדיט לתמונה', tribes:'שבט', tribeRefs:'נחלת השבט — מקור'
 };
 // #89: תווית שונה לאותו שדה לפי מדריך
 const GUIDE_FIELD_LABELS = { mumim: { region: 'סוג הפסול' } };
 function fieldLabel(catId, k){ return ((GUIDE_FIELD_LABELS[catId] || {})[k]) || FIELD_LABELS[k] || k; }
-const ARRAY_FIELDS = new Set(['aliases','spouses','children','siblings','roles']);
+const ARRAY_FIELDS = new Set(['aliases','tribes','spouses','children','siblings','roles']);
 const LONG_FIELDS = new Set(['explanation','identification','note','modern']);
 
 const GUIDE_FIELDS = {
   people: ['gender','father','mother','spouses','children','siblings','roles','tribe','birthPlace','dwelling','deathPlace','burialPlace','age','note'],
-  places: ['region','explanation','modern','mapQuery','note','credit'],
+  places: ['region','tribes','tribeRefs','explanation','modern','mapQuery','note','credit'],
   animal: ['explanation','latin','wiki','confidence','note','credit'],
   flora:  ['explanation','latin','wiki','confidence','note','credit'],
   domem:  ['tribe','explanation','identification','note','credit'],
@@ -702,9 +702,10 @@ async function focusMainMap(lat, lng, zoom, name){
   resultsOverlay.classList.remove('open');
   if (!currentGuideCat || currentGuideCat.id !== 'places'){
     await openGuide('places', null);
-  } else if (!chipsAreAll() || guideSearchBox.value || activeGuideEra !== 'all' || activeGuideLetter !== 'all'){
+  } else if (!chipsAreAll() || guideSearchBox.value || activeGuideEra !== 'all' || activeGuideTribe !== 'all' || activeGuideLetter !== 'all'){
     activeGuideChips.clear();
     activeGuideEra = 'all';
+    activeGuideTribe = 'all';
     activeGuideLetter = 'all';
     guideSearchBox.value = '';
     renderGuideGrid('');

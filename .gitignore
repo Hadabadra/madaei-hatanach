@@ -52,3 +52,4 @@ docs/לגבי הקידום*
 # מותקנות ב---no-save לפי צורך ואינן חלק מהחבילה (.otzignore מחריג אותן גם מהאריזה).
 node_modules/
 _עבודה/assets/v5-images/*.webp
+_עבודה/assets/joshua-cache/
