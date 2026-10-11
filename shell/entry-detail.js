@@ -246,15 +246,15 @@ const LONG_FIELDS = new Set(['explanation','identification','note','modern']);
 const GUIDE_FIELDS = {
   people: ['gender','father','mother','spouses','children','siblings','roles','tribe','birthPlace','dwelling','deathPlace','burialPlace','age','note'],
   places: ['region','explanation','modern','mapQuery','note','credit'],
-  animal: ['explanation','latin','wiki','confidence','note'],
-  flora:  ['explanation','latin','wiki','confidence','note'],
-  domem:  ['tribe','explanation','identification','note'],
-  beithamikdash: ['explanation','identification','note'],
+  animal: ['explanation','latin','wiki','confidence','note','credit'],
+  flora:  ['explanation','latin','wiki','confidence','note','credit'],
+  domem:  ['tribe','explanation','identification','note','credit'],
+  beithamikdash: ['explanation','identification','note','credit'],
   archaeology: ['site','era','found','museum','note','credit'],
   // #89: שלושת המדריכים המומרים — אותו סדר שדות. ב-mumim השדה region הוא סוג הפסול
   // (״פוסל כהן / בהמה״), ולא הוצג כלל עד כה.
   mumim:  ['region','explanation','modern','note'],
-  chullin: ['explanation','note'],
+  chullin: ['explanation','note','credit'],
   sukkah: ['explanation','note'],
   // אנשים מהתלמוד: אין שדות זיהוי/משפחה — רק תקופה, דור ומקום פעילות.
   // התיאור הביוגרפי יושב ב-methods[0].explanation כמו בשאר המדריכים.

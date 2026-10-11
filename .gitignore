@@ -51,3 +51,4 @@ docs/לגבי הקידום*
 # תלויות npm של סקריפטי tools/ (למשל sharp ל-compress-embedded-images.js).
 # מותקנות ב---no-save לפי צורך ואינן חלק מהחבילה (.otzignore מחריג אותן גם מהאריזה).
 node_modules/
+_עבודה/assets/v5-images/*.webp
