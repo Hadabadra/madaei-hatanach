@@ -73,7 +73,7 @@ const DENSITY = { compact: ['170px','9px'], normal: ['200px','12px'], roomy: ['2
 
 // כל המשתנים שערכת "תואם לאוצריא" מזריקה — נשמרים כדי שאפשר יהיה לנקות אותם
 // בחזרה לערכה אחרת (אחרת ערכים ישנים היו נדבקים ל-<html> לנצח).
-const OTZ_VARS = ['--color-primary','--color-on-primary','--color-secondary','--color-on-secondary',
+const OTZ_VARS = ['--color-surface-container','--color-surface-container-low','--color-on-surface-variant','--color-primary','--color-on-primary','--color-secondary','--color-on-secondary',
   '--color-surface','--color-on-surface','--color-surface-container-highest','--color-error',
   '--color-on-error','--color-outline','--color-primary-subtle','--color-secondary-subtle',
   '--color-secondary-container','--color-on-secondary-container',
@@ -164,6 +164,9 @@ function applyPrefs(){
     set('--color-shadow',           dark ? 'rgba(0,0,0,.45)' : 'rgba(0,0,0,.08)');
     set('--color-shadow-strong',    dark ? 'rgba(0,0,0,.55)' : 'rgba(0,0,0,.18)');
     set('--color-glow',             dark ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,0)');
+    set('--color-surface-container',     normHex(cs.surfaceContainer || cs.surfaceContainerHigh || cs.surface));
+    set('--color-surface-container-low', normHex(cs.surfaceContainerLow || cs.surface));
+    set('--color-on-surface-variant',    normHex(cs.onSurfaceVariant || cs.onSurface));
     set('--color-map-bg',           hexToRgba(cs.surfaceContainerHighest || cs.surface, 1));
   }
 
@@ -175,6 +178,10 @@ function applyPrefs(){
     stack = fam ? ("'" + fam + "', 'David', serif") : FONT_STACKS.default;
   }
   root.style.setProperty('--font-main', stack);
+  // 5.0.0 — קו עיצוב חדש: גופן ממשק נפרד מגופן הקריאה (DESIGN_GUIDE: uiFontFamily ≠ fontFamily)
+  const uiFam = otzariaTheme && otzariaTheme.typography && otzariaTheme.typography.uiFontFamily;
+  if (uiFam) root.style.setProperty('--font-ui', "'" + uiFam + "', 'Rubik', system-ui, sans-serif");
+  else root.style.removeProperty('--font-ui');
 
   // --- גודל טקסט (בשליטת המשתמש בלבד — לא נגזר מגודל הקריאה של אוצריא,
   //     שהוא גדול בהרבה ממה שמתאים לממשק כזה) ---

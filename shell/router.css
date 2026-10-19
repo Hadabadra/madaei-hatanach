@@ -1866,3 +1866,91 @@ button.ft-node:hover, button.ft-node:focus-visible { border-color: var(--color-p
   #chapterMapOverlay .cm-body { flex-direction: column; }
   #chapterMapOverlay .cm-list { width: auto; max-height: 30%; }
 }
+
+/* ============================================================
+   5.0.0 — קו עיצוב "מודרני-קל", תואם אוצריא (M3).
+   שכבה אחת בסוף הקובץ שדורסת את הכבדות: בלי צללים וקפיצות, משטחים
+   שטוחים בשכבות surface-container, גופן ממשק (Rubik / uiFontFamily)
+   נפרד מגופן הקריאה, צורות pill לכפתורים, ומשוב hover כ-state layer.
+   גופן הקריאה (--font-main, בחירת המשתמש) נשאר לפסוקים ולמקורות.
+   ============================================================ */
+:root {
+  --font-ui: 'Rubik', 'Heebo', system-ui, sans-serif;
+  --color-surface-container:     var(--color-surface-2);
+  --color-surface-container-low: var(--color-surface);
+  --color-on-surface-variant:    var(--color-on-surface-dim);
+  --state-hover: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+  --state-press: color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+  --ease-std: cubic-bezier(.2, 0, 0, 1);
+}
+
+/* --- טיפוגרפיה: ממשק ב-Rubik, טקסט מקראי בגופן הקריאה --- */
+body, button, input, select, textarea,
+.topbar h1, .card .label, .panel-box, .set-card, .entry-card, .result-row,
+#homeSearch, .chip, .ptab, .panel-btn, .tool-btn, .nf-btn, .alpha-btn {
+  font-family: var(--font-ui);
+}
+#entryModalInner .verse-text, .result-row-detail .verse-text, .verse-card,
+.src-item, #resultsModal .quote, .entry-card .label, #entryModalInner h2 {
+  font-family: var(--font-main);
+}
+.topbar h1, #guideViewTitle, #talmudViewTitle, #personalTitle, #frameTitle {
+  font-weight: 500; letter-spacing: 0;
+}
+
+/* --- סרגל עליון: חלק, בלי קו תחתון (כמו AppTopBar) --- */
+.topbar, #guideViewBar, #talmudViewBar, #personalBar, #frameBar {
+  border-bottom: 0;
+}
+
+/* --- כרטיסים: שטוחים, שכבת משטח במקום צל --- */
+.card, .entry-card, .set-card, .book-choice {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-faint);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  transition: background var(--anim-fast) var(--ease-std), border-color var(--anim-fast) var(--ease-std);
+}
+.card:hover, .entry-card:hover, .set-card:hover, .book-choice:hover {
+  box-shadow: none;
+  transform: none;
+  background: color-mix(in srgb, var(--color-surface-container-low), var(--color-on-surface) 6%);
+  border-color: var(--color-outline);
+}
+.card:active, .entry-card:active { background: color-mix(in srgb, var(--color-surface-container-low), var(--color-on-surface) 10%); }
+.card .label { font-weight: 500; }
+
+/* --- חיפוש: שדה מלא בצורת pill, בלי צל --- */
+#homeSearchWrap {
+  background: var(--color-surface-container-high);
+  border-color: transparent;
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+}
+#homeSearchWrap:focus-within {
+  box-shadow: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+/* --- כפתורים ו-chips: pill, state layer --- */
+.panel-btn, .tool-btn, .nf-btn, .entry-tool-btn, .verse-act-btn, .set-action, .ptab, .alpha-btn {
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+  transition: background var(--anim-fast) var(--ease-std);
+}
+.tool-btn:hover, .nf-btn:hover, .entry-tool-btn:hover, .verse-act-btn:hover, .ptab:hover, .alpha-btn:hover {
+  background: var(--state-hover);
+}
+
+/* --- חלונות צפים: רדיוס גדול וצל אחד עדין בלבד --- */
+.panel-box, #entryModalInner, #settingsPanel {
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+.verse-card, .src-item { border-radius: var(--radius-sm); box-shadow: none; }
+
+/* --- תנועה: מכבדים העדפת "פחות אנימציה" --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
