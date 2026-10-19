@@ -13,7 +13,7 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 
-const REPO = 'e0548433917-gif/madaei-hatanach';
+const REPO = 'Hadabadra/madaei-hatanach';
 const args = process.argv.slice(2);
 const opt = (n) => { const i = args.indexOf('--' + n); return i !== -1 ? args[i + 1] : null; };
 const TITLE_RE = /הצעת עריכה|עריכת כרטיס|עריכות מקומיות/;

@@ -20,7 +20,7 @@
 param([switch]$NoPost)
 
 $ErrorActionPreference = 'Stop'
-$REPO       = 'e0548433917-gif/madaei-hatanach'
+$REPO       = 'Hadabadra/madaei-hatanach'
 $WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxzlCAZzhaEM68jRqqekW8InrtbSiZrtiiIjgCKOInUvyBG43wLY29MYY6PrbHijpO6/exec'
 $MERGE_UTC  = [datetimeoffset]::Parse('2026-09-01T08:14:00Z')   # מיזוג PR Otzaria/otzaria#1070 ל-dev
 

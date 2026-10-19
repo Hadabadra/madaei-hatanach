@@ -39,7 +39,7 @@ let activePersonalTab = 'bookmarks';
 //  הוא נשאר לניסיון הבא בפתיחה הבאה.
 // ============================================================
 // נפרס ואומת 10.8.26 — curl/fetch אמיתי דרך הכתובת הזו פתח את
-// github.com/e0548433917-gif/madaei-hatanach/issues/8 בפועל, עם
+// github.com/Hadabadra/madaei-hatanach/issues/8 בפועל, עם
 // success:true אמיתי בתשובה (לא ניחוש דרך no-cors).
 const REPORT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxzlCAZzhaEM68jRqqekW8InrtbSiZrtiiIjgCKOInUvyBG43wLY29MYY6PrbHijpO6/exec';
 const REPORT_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd7NiGDUahnwpaestosEcDxPJoAkYXzVRUa2yB5EiXkLPSWvQ/formResponse';
@@ -137,7 +137,7 @@ const REPORT_KINDS = [
 ];
 // כתובת הדיווחים הידנית — למי שמעדיף לפתוח Issue בעצמו, או שהשליחה אצלו חסומה.
 // לא נפתחת בניווט ישיר אלא דרך data-external-link ⇒ confirmOpenExternal (refs.js).
-const REPORT_ISSUES_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/issues';
+const REPORT_ISSUES_URL = 'https://github.com/Hadabadra/madaei-hatanach/issues';
 
 // התור נשמר ב-plugin.storage כשיש אוצריא (שורד עדכון גרסה), ובדפדפן חשוף
 // נופל ל-localStorage כדי שגם בדיקה מחוץ לאוצריא תתנהג אותו דבר.
@@ -1566,7 +1566,7 @@ function whatsNewStatusHTML(local, remote){
 // כשאין רשת (data-offline-only) - אותו דפוס זוגי בדיוק כמו כפתור טופס הדיווח
 // למעלה, כדי שבמצב אופליין יישאר כתוב ולא ייעלם (net-disabled = display:none).
 // נתיב שאינו http נחשב יחסי לשורש הריפו, כי משם ROADMAP.md/CHANGELOG.md נטענים.
-const REPO_BLOB_BASE = 'https://github.com/e0548433917-gif/madaei-hatanach/blob/main/';
+const REPO_BLOB_BASE = 'https://github.com/Hadabadra/madaei-hatanach/blob/main/';
 function mdLinkify(html){
   return html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
     const full = /^https?:\/\//.test(url) ? url : REPO_BLOB_BASE + url;

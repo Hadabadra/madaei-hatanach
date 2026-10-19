@@ -13,7 +13,7 @@
 //                   הערוץ של מי שאין לו חשבון גיטהאב וממלא את הטופס ביד.
 // ============================================================
 
-const REPO    = 'e0548433917-gif/madaei-hatanach';
+const REPO    = 'Hadabadra/madaei-hatanach';
 const IMG_DIR = 'docs/report-images';        // התמונות נשמרות בריפו עצמו
 const NL      = String.fromCharCode(10);
 

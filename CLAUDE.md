@@ -36,8 +36,8 @@ head -40 CHANGELOG.md                  # מה יצא בגרסאות האחרונ
 בדרך כלל כי `INVITE_TOKEN` חסר או פג. **מטפלים בה כמו בכל Issue אחר, תוך כדי:**
 
 ```bash
-gh api repos/e0548433917-gif/madaei-hatanach/collaborators/<user>            # 204 = כבר שותף
-gh api -X PUT repos/e0548433917-gif/madaei-hatanach/collaborators/<user> -f permission=push
+gh api repos/Hadabadra/madaei-hatanach/collaborators/<user>            # 204 = כבר שותף
+gh api -X PUT repos/Hadabadra/madaei-hatanach/collaborators/<user> -f permission=push
 gh issue comment <N> --body-file docs/הצטרפות-מפתח.md
 gh issue edit <N> --add-label "הוזמן" ; gh issue close <N>
 ```
@@ -229,7 +229,7 @@ git status --short                       # חייב לצאת ריק משינוי
 
 התוסף הגיע ל-22MB כי תמונות הוטבעו כמו שהורדו — PNG/JPEG ברוחב עד 960px, מול
 פאנל שרוחבו 520px (`.panel-box`, `shell/router.css`). זה תוקן בבת אחת ב-3.5.2
-([#97](https://github.com/e0548433917-gif/madaei-hatanach/issues/97)), אבל אם
+([#97](https://github.com/Hadabadra/madaei-hatanach/issues/97)), אבל אם
 תמונות חדשות ייכנסו לא-מכווצות המשקל פשוט יצטבר מחדש.
 
 **לכן: אחרי כל הוספת תמונות לקובץ data — מריצים עליו את הסקריפט, ורק אז מקמטים:**
@@ -251,4 +251,4 @@ node tools/compress-embedded-images.js guides/<תחום>/data/<שם>-data.js
 תמונה בודדת שמאבדת בהירות בכיווץ (כתובת עתיקה עם אותיות דקות, מפה עם טקסט
 זעיר) — מחריגים אותה: מעלים לה `--quality` בהרצה נפרדת, לפי ההכרעה ב-ROADMAP
 ת.4. פתרון המשקל לטווח הארוך הוא עדיין 2.11 (טעינה עצלה,
-[#54](https://github.com/e0548433917-gif/madaei-hatanach/issues/54)).
+[#54](https://github.com/Hadabadra/madaei-hatanach/issues/54)).

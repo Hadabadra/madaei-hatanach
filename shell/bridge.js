@@ -449,12 +449,12 @@ const UPDATE_CHECK_KEY = 'madaei_hatanach_update_check_v1';
 const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;   // לכל היותר פעם ביממה
 const UPDATE_FETCH_TIMEOUT_MS = 8000;                    // שלא תישאר בקשה תלויה
 const UPDATE_CHECK_DELAY_MS = 5000;                      // אחרי שהתוסף כבר שימושי
-const UPDATE_RELEASES_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases';
+const UPDATE_RELEASES_URL = 'https://github.com/Hadabadra/madaei-hatanach/releases';
 const UPDATE_MANIFEST_URLS = [
-  'https://raw.githubusercontent.com/e0548433917-gif/madaei-hatanach/main/manifest.json',
+  'https://raw.githubusercontent.com/Hadabadra/madaei-hatanach/main/manifest.json',
   // גיבוי דרך ה-API, למקרה ש-raw חסום/נופל. Accept: ...github.raw מחזיר את
   // הקובץ עצמו במקום מעטפת JSON עם base64.
-  'https://api.github.com/repos/e0548433917-gif/madaei-hatanach/contents/manifest.json?ref=main',
+  'https://api.github.com/repos/Hadabadra/madaei-hatanach/contents/manifest.json?ref=main',
 ];
 
 // גרסה נחשבת תקינה רק אם היא מספרים ונקודות. כל דבר אחר (tag בסגנון "v2.12.1",

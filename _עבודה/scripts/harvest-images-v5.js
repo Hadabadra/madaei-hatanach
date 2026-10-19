@@ -21,7 +21,7 @@ const DRY = process.argv.includes('--dry');
 const WALL_ONLY = process.argv.includes('--wall-only');
 const oi = process.argv.indexOf('--only');
 const ONLY = oi > 0 ? process.argv[oi + 1].split(',') : Object.keys(FILES);
-const UA = 'GinimLamikra-image-harvest/5.0 (https://github.com/e0548433917-gif/madaei-hatanach)';
+const UA = 'GinimLamikra-image-harvest/5.0 (https://github.com/Hadabadra/madaei-hatanach)';
 fs.mkdirSync(OUT, { recursive: true });
 // rejected.txt — קבצים שנפסלו בסקירה חזותית (לא קשור, מודרני/אנכרוניסטי, דמויות, כפילויות). לא מוטבעים.
 const REJ = new Set(fs.existsSync(path.join(OUT, 'rejected.txt')) ? fs.readFileSync(path.join(OUT, 'rejected.txt'), 'utf8').split(/\r?\n/).filter(Boolean) : []);

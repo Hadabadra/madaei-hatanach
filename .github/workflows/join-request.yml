@@ -180,12 +180,12 @@ jobs:
               head = `תודה על הבקשה, @${user}! ההזמנה תישלח ידנית בקרוב (טוקן ההזמנה טרם הוגדר בריפו).`;
             } else if (status === 'invited') {
               head = `שלום @${user} — **ההזמנה נשלחה!** 🎉\n`
-                   + 'אשר אותה ב-https://github.com/e0548433917-gif/madaei-hatanach/invitations '
+                   + 'אשר אותה ב-https://github.com/Hadabadra/madaei-hatanach/invitations '
                    + 'או בקישור שהגיע למייל.';
               ok = close = true;
             } else if (status === 'pending') {
               head = `@${user} — כבר ממתינה לך הזמנה. אשר אותה ב-`
-                   + 'https://github.com/e0548433917-gif/madaei-hatanach/invitations';
+                   + 'https://github.com/Hadabadra/madaei-hatanach/invitations';
               ok = close = true;
             } else if (status === 'already') {
               head = `@${user} — אתה כבר שותף בריפו, אין צורך בהזמנה חדשה. הנה כללי העבודה:`;
