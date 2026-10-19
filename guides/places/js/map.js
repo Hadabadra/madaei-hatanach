@@ -149,7 +149,7 @@ function rebuildBaseSwitch(){
 // build/pack-offline-maps-variant.ps1) ישירות מדף ה-Releases.
 // 📌 כשתצא חבילת המפות ל"עינים למקרא פלוס" כתוסף נפרד בחנות — להחליף כאן
 //    את הקישור בקישור לדף שלו בחנות, ולעדכן את נוסח ההודעה בהתאם.
-const FULL_MAPS_URL = 'https://github.com/e0548433917-gif/madaei-hatanach/releases';
+const FULL_MAPS_URL = 'https://github.com/Hadabadra/madaei-hatanach/releases';
 
 function openOfflineMapHelp(){
   if (!(window.Otzaria && Otzaria.call)) return;
