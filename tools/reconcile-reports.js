@@ -17,7 +17,7 @@
 'use strict';
 const fs = require('fs');
 const { execFileSync } = require('child_process');
-const REPO = 'e0548433917-gif/madaei-hatanach';
+const REPO = 'Hadabadra/madaei-hatanach';
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith('--'));
 if (!file) { console.error('חסר קובץ CSV — ר׳ ״שימוש״ בראש הקובץ'); process.exit(1); }

@@ -29,9 +29,9 @@ eader.toolbar, pp.startup_contributions ו-contributes.startup
 > מסלול הטעינה-בעלייה ב-0.9.98 לא תפגע ברישום פריט תפריט ההקשר.
 > ⚠️ **§ב.2 נפתח**: הטיעון ״
 etwork.fetchStream הוא API של 0.9.97 והמחרוזת
-> תחסום אריזה עם minAppVersion: 0.9.96״ בטל — אפשר לקרוא ישירות. ר׳ [#47](https://github.com/e0548433917-gif/madaei-hatanach/issues/47).
+> תחסום אריזה עם minAppVersion: 0.9.96״ בטל — אפשר לקרוא ישירות. ר׳ [#47](https://github.com/Hadabadra/madaei-hatanach/issues/47).
 > ⚠️ הביקורת הזו נכתבה מול התיעוד של 19–28/08. מאז היו **8 עדכוני SDK**
-> (25/08–05/09) שסעיף ג׳ אינו מכיר — הרשימה המלאה ב-[#100](https://github.com/e0548433917-gif/madaei-hatanach/issues/100).
+> (25/08–05/09) שסעיף ג׳ אינו מכיר — הרשימה המלאה ב-[#100](https://github.com/Hadabadra/madaei-hatanach/issues/100).
 ## א. מה שהיה שבור — ותוקן ב-2.20.3
 
 ### א.1 🔴 `contributes.startup` בלי `app.startup_contributions` — חסם התקנה, וגם ניטרל את הפריט
@@ -128,7 +128,7 @@ etwork.fetchStream הוא API של 0.9.97 והמחרוזת
 
 1. **הקלון המקומי של אוצריא אינו קיים יותר במחשב.** הענף
    `plugin-allowlist-madaei-hatanach` שנכתב בו נעלם איתו; מה שנשאר בפורק
-   `e0548433917-gif/otzaria` היה מבוסס על `dev` ישן ולא נפתח ממנו PR מעולם.
+   `Hadabadra/Prayer-pointA` היה מבוסס על `dev` ישן ולא נפתח ממנו PR מעולם.
    הענף נבנה **מחדש** מ-`dev` העדכני (`973e802`) דרך ה-API של גיטהאב.
 2. **מבנה הרשימה באוצריא השתנה.** `lib/plugins/models/plugin_network_allowlist.dart`
    **כבר אינו מכיל את הרשימה** — הוא רק לוגיקת התאמה שמייצאת מקובץ מחולל.
@@ -145,14 +145,14 @@ etwork.fetchStream הוא API של 0.9.97 והמחרוזת
 
 | כתובת | מי קורא | מה עובר |
 |---|---|---|
-| `https://raw.githubusercontent.com/e0548433917-gif/madaei-hatanach/main/manifest.json` | `shell/bridge.js` | GET של ה-manifest שלנו בלבד, להשוואת מספר גרסה |
-| `https://api.github.com/repos/e0548433917-gif/madaei-hatanach/contents/manifest.json` | `shell/bridge.js` | אותו דבר, כשה-raw חסום/נופל |
+| `https://raw.githubusercontent.com/Hadabadra/madaei-hatanach/main/manifest.json` | `shell/bridge.js` | GET של ה-manifest שלנו בלבד, להשוואת מספר גרסה |
+| `https://api.github.com/repos/Hadabadra/madaei-hatanach/contents/manifest.json` | `shell/bridge.js` | אותו דבר, כשה-raw חסום/נופל |
 | `https://script.google.com/macros/s/AKfycbxz…/exec` | `shell/personal.js` | POST של דיווח באג שהמשתמש כתב; פותח GitHub Issue |
 | `https://script.googleusercontent.com/macros/echo` | (redirect) | יעד ההפניה של Apps Script — בלעדיו הבקשה נחסמת באמצע |
 | `https://docs.google.com/forms/d/e/1FAIpQLSd7…/formResponse` | `shell/personal.js` | אותו דיווח, מסלול גיבוי |
 | `https://he.wikipedia.org/api/rest_v1/page/summary` | `shell/guides.js` | GET תקציר לפי שם מדעי, לתמונת כרטיס במדריך הצומח |
 
-⚠️ `https://github.com/e0548433917-gif/madaei-hatanach/releases` מוצהר במניפסט
+⚠️ `https://github.com/Hadabadra/madaei-hatanach/releases` מוצהר במניפסט
 אבל **לא** נוסף לרשימה הגלובלית, בכוונה: הוא נפתח דרך `app.openUrl` בדפדפן
 המערכת, ו-`app.openUrl` אינו נבדק מול ה-allowlist (רק מול הסכמה `http/https`).
 לפי עקרון המינימום שבתיעוד, אין סיבה לפתוח אותו לרשת ה-WebView.

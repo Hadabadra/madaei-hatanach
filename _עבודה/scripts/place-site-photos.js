@@ -41,7 +41,7 @@ vm.runInContext(src + ';this.D=DATA;this.I=(typeof CARD_IMAGES!=="undefined"?CAR
 const DATA = ctx.D, IMGS = ctx.I;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const UA = { 'User-Agent': 'madaei-hatanach/1.0 (Otzaria plugin; https://github.com/e0548433917-gif/madaei-hatanach)' };
+const UA = { 'User-Agent': 'madaei-hatanach/1.0 (Otzaria plugin; https://github.com/Hadabadra/madaei-hatanach)' };
 async function api(q, tries = 4) {
   await sleep(1200);
   const u = 'https://commons.wikimedia.org/w/api.php?format=json&origin=*&' + new URLSearchParams(q);
