@@ -1,7 +1,7 @@
 name: כיוון תפילה — פרסום לחנות אוצריא
 
 # מפרסם את התוסף ״כיוון תפילה״ (com.shiachrina.kivuntefila) לחנות אוצריא, מתוך
-# ענף ההפצה כיוון-תפילה ב-e0548433917-gif/otzaria (התיקייה kivun-tefila/).
+# ענף ההפצה כיוון-תפילה ב-Hadabadra/Prayer-pointA (התיקייה kivun-tefila/).
 # נמצא כאן כי פרטי החנות (OTZARIA_USER / OTZARIA_PASSWORD) שמורים בריפו הזה.
 # רץ אוטומטית כל 3 שעות. גרסה שכבר קיימת בחנות לא מתפרסמת שוב (publish: auto),
 # כך שהעלאת מספר הגרסה ב-manifest.json בענף ההפצה מספיקה לעדכון החנות.
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: e0548433917-gif/otzaria
+          repository: Hadabadra/Prayer-pointA
           ref: כיוון-תפילה
           sparse-checkout: |
             kivun-tefila
