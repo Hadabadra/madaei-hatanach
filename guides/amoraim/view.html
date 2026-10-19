@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root{ /* 5.0.0 — צבעים שהיו קשיחים בכללים */ --c-fff:#fff; 
     --parchment:#EAEEF6; --parchment-deep:#DDE3F0; --card:#F7F9FD;
     --ink:#20263A; --ink-soft:#565F7A; --forest:#38508E; --forest-deep:#28396A;
     --rust:#B4622F; --rust-deep:#8C4A22; --gold:#C6952E; --gold-light:#D9AE58;
@@ -36,7 +36,7 @@
     border-radius:20px; padding:6px 14px; color:var(--ink-soft);}
   .lightbulb-btn{position:absolute; top:16px; left:16px; z-index:5; background:var(--card); border:1px solid var(--line);
     border-radius:20px; padding:8px 14px; font-size:13px; cursor:pointer; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.1);}
-  .lightbulb-btn:hover{background:var(--gold-light); color:#fff;}
+  .lightbulb-btn:hover{background:var(--gold-light); color:var(--c-fff);}
   .lookup-status{display:none; font-size:12px; margin-top:8px; padding:5px 12px; border-radius:14px;}
   .lookup-status.ok{display:inline-block; background:rgba(63,91,68,.12); color:var(--forest-deep);}
   .lookup-status.err{display:inline-block; background:rgba(156,74,46,.12); color:var(--rust-deep);}
@@ -45,17 +45,17 @@
     border-bottom:1px solid var(--line); padding:14px 20px;}
   .controls-inner{max-width:1180px;margin:0 auto; display:flex; flex-wrap:wrap; gap:10px; align-items:center;}
   #search{flex:1; min-width:180px; padding:10px 16px; border-radius:20px; border:1px solid var(--line);
-    background:#fff; font-family:'Heebo',sans-serif; font-size:14px;}
+    background:var(--c-fff); font-family:'Heebo',sans-serif; font-size:14px;}
   .chips{display:flex; flex-wrap:wrap; gap:8px; max-width:1180px; margin:10px auto 0;}
   .chip{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:6px 14px;
     font-size:12.5px; cursor:pointer; color:var(--ink-soft);}
-  .chip.active{background:var(--forest); color:#fff; border-color:var(--forest);}
+  .chip.active{background:var(--forest); color:var(--c-fff); border-color:var(--forest);}
   .count-tag{opacity:.7; font-size:11px;}
 
   #main{max-width:1180px; margin:0 auto; padding:24px 20px 80px;}
   .category-section.hidden{display:none;}
   .cat-head{display:flex; align-items:center; gap:12px; border-bottom:2px solid var(--gold); padding-bottom:8px; margin-top:34px;}
-  .cat-num{font-family:'Frank Ruhl Libre',serif; font-size:17px; color:#fff; background:var(--forest); font-weight:900;
+  .cat-num{font-family:'Frank Ruhl Libre',serif; font-size:17px; color:var(--c-fff); background:var(--forest); font-weight:900;
     width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
   .cat-head h2{margin:0; font-size:20px;}
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-top:14px;}
@@ -64,11 +64,11 @@
   .card:hover{transform:translateY(-3px); box-shadow:var(--shadow);}
   .card.hidden{display:none;}
   .card-avatar{width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,var(--forest),var(--teal));
-    color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif;
+    color:var(--c-fff); display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif;
     font-size:18px; font-weight:900; margin:14px 14px 0; flex:0 0 auto;}
   .card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
   .card-roles{display:flex; flex-wrap:wrap; gap:5px; padding:12px 14px 0; flex:1;}
-  .role-tag{font-size:10.5px; background:var(--forest); color:#fff; border-radius:20px; padding:2px 10px;}
+  .role-tag{font-size:10.5px; background:var(--forest); color:var(--c-fff); border-radius:20px; padding:2px 10px;}
   .card-body{padding:8px 14px 16px;}
   .card-name{margin:4px 0 4px; font-size:17px;}
   .card-verse{font-size:11.5px; color:var(--gold); font-weight:600;}
@@ -85,7 +85,7 @@
   .modal-actions{position:absolute; top:12px; right:52px; display:flex; gap:8px;}
   .icon-btn{background:var(--card); border:1px solid var(--line); border-radius:50%; width:32px; height:32px;
     cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;}
-  .icon-btn:hover{background:var(--gold-light); color:#fff;}
+  .icon-btn:hover{background:var(--gold-light); color:var(--c-fff);}
   .modal-head{padding:24px 84px 10px 26px;}
   .modal-head h2{margin:0 0 4px; font-size:24px;}
   .cat-line{font-size:12.5px; color:var(--ink-soft);}
@@ -115,13 +115,13 @@
   .card-media{position:relative;}
   .multi-list{display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; margin-bottom:10px;}
   .multi-item{flex:0 0 150px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px; cursor:pointer; text-align:center;}
-  .multi-item.active{border-color:var(--gold); background:var(--gold-light); color:#fff;}
+  .multi-item.active{border-color:var(--gold); background:var(--gold-light); color:var(--c-fff);}
   .multi-item-name{font-size:12.5px; font-weight:700; margin-top:4px;}
   .multi-item-desc{font-size:10.5px; margin-top:2px;}
   .nf-form input, .nf-form textarea{width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--line); font-family:inherit; margin-bottom:10px;}
   .field-label{font-size:12px; color:var(--ink-soft); margin-bottom:4px;}
   .nf-actions{display:flex; gap:10px;}
-  .nf-btn{background:var(--forest); color:#fff; border:none; border-radius:10px; padding:9px 16px; cursor:pointer; font-size:13px;}
+  .nf-btn{background:var(--forest); color:var(--c-fff); border:none; border-radius:10px; padding:9px 16px; cursor:pointer; font-size:13px;}
   .nf-btn.secondary{background:var(--card); color:var(--ink); border:1px solid var(--line);}
   .hidden{display:none;}
   .person-link{color:var(--forest); cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:2px;}
@@ -131,7 +131,7 @@
   .alpha-bar{display:flex; flex-wrap:wrap; gap:5px;}
   .alpha-btn{width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:var(--card);
     color:var(--ink-soft); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
-  .alpha-btn.active{background:var(--rust); color:#fff; border-color:var(--rust);}
+  .alpha-btn.active{background:var(--rust); color:var(--c-fff); border-color:var(--rust);}
   .edit-field{margin-bottom:10px;}
   @media print{
     body *{visibility:hidden;}

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root{ /* 5.0.0 — צבעים שהיו קשיחים בכללים */ --c-eaf2e9:#eaf2e9; --c-2b2318:#2b2318; --c-eaf4f2:#eaf4f2; --c-fbede6:#fbede6; 
     --parchment:#EDE3C8; --parchment-deep:#E1D2A8; --card:#F4ECD8;
     --ink:#2B2318; --ink-soft:#5B4E39; --forest:#3F5B44; --forest-deep:#2C4131;
     --rust:#9C4A2E; --rust-deep:#7A3821; --gold:#A9812F; --gold-light:#C9A24E;
@@ -64,9 +64,9 @@
   .card:hover{transform:translateY(-3px); border-color:var(--gold); box-shadow:var(--shadow);}
   .card.hidden{display:none;}
   .seal{position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:2px; z-index:2; letter-spacing:.03em;}
-  .seal.kosher{background:var(--forest); color:#EAF2E9;}
-  .seal.special{background:var(--gold); color:#2B2318;}
-  .expand-badge{position:absolute; top:8px; right:8px; font-size:9px; background:var(--teal); color:#EAF4F2;
+  .seal.kosher{background:var(--forest); color:var(--c-eaf2e9);}
+  .seal.special{background:var(--gold); color:var(--c-2b2318);}
+  .expand-badge{position:absolute; top:8px; right:8px; font-size:9px; background:var(--teal); color:var(--c-eaf4f2);
     padding:3px 7px; border-radius:2px; z-index:2; letter-spacing:.03em;}
   .card-media{height:104px; display:flex; align-items:center; justify-content:center; background:var(--parchment-deep);
     position:relative; overflow:hidden;}
@@ -102,12 +102,12 @@
   .method-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
   .method-tab{border:1px solid var(--line); background:var(--card); color:var(--ink-soft); padding:6px 12px;
     border-radius:16px; font-size:12.5px; cursor:pointer;}
-  .method-tab.active{background:var(--forest-deep); color:#EAF2E9; border-color:var(--forest-deep);}
+  .method-tab.active{background:var(--forest-deep); color:var(--c-eaf2e9); border-color:var(--forest-deep);}
   .method-panel{background:var(--card); border:1px solid var(--line); border-radius:3px; padding:16px;}
   .conf-tag{display:inline-block; font-size:11px; padding:3px 10px; border-radius:12px; margin-bottom:8px; font-weight:600;}
-  .conf-ודאי, .conf-ודאי\ כמוטיב\ ספרותי{background:var(--forest); color:#EAF2E9;}
-  .conf-סביר{background:var(--gold); color:#2B2318;}
-  .conf-שנוי{background:var(--rust); color:#FBEDE6;}
+  .conf-ודאי, .conf-ודאי\ כמוטיב\ ספרותי{background:var(--forest); color:var(--c-eaf2e9);}
+  .conf-סביר{background:var(--gold); color:var(--c-2b2318);}
+  .conf-שנוי{background:var(--rust); color:var(--c-fbede6);}
   .method-latin{font-style:italic; color:var(--ink-soft); font-size:12.5px; margin:0 0 6px;}
   .method-text{margin:0 0 12px; font-size:14px;}
   .method-gallery{display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:8px; margin-top:10px;}
@@ -139,7 +139,7 @@
   .src-link{display:inline-block; margin-top:5px; font-size:11.5px; color:var(--teal);}
   .no-src{font-size:12.5px; color:var(--ink-soft); opacity:.75; font-style:italic;}
 
-  .expanded-note{background:var(--forest); color:#EAF2E9; font-size:12px; padding:8px 12px; border-radius:3px; margin-bottom:16px;}
+  .expanded-note{background:var(--forest); color:var(--c-eaf2e9); font-size:12px; padding:8px 12px; border-radius:3px; margin-bottom:16px;}
   .basic-note{background:var(--card); border:1px dashed var(--line); color:var(--ink-soft); font-size:12px; padding:8px 12px; border-radius:3px; margin-bottom:16px;}
 
   #lightbulb-btn{position:fixed; top:14px; left:14px; z-index:999; border:1px solid var(--line); background:var(--card);
@@ -147,8 +147,8 @@
   #lightbulb-btn:hover{border-color:var(--gold);}
   .disclosure-line{display:block; margin-top:8px; font-size:11px; color:var(--ink-soft); opacity:.75;}
   .lookup-status{display:inline-block; margin-top:10px; font-size:11.5px; padding:4px 10px; border-radius:12px;}
-  .lookup-status.ok{background:var(--forest); color:#EAF2E9;}
-  .lookup-status.err{background:var(--rust); color:#FBEDE6;}
+  .lookup-status.ok{background:var(--forest); color:var(--c-eaf2e9);}
+  .lookup-status.err{background:var(--rust); color:var(--c-fbede6);}
 </style>
 </head>
 <body>
