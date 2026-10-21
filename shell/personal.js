@@ -105,7 +105,7 @@ async function ensureReplyEmail(){
       if ((r && r.data !== undefined ? r.data : r) === true) hint = '\n(בהגדרות הדיווח של אוצריא כבר שמורה כתובת — היא תצורף לעותק שנשלח לאוצריא. כאן היא נדרשת עבור תשובה מהמפתח.)';
     } catch(e){}
   }
-  const typed = window.prompt('כתובת אימייל לתשובה (חובה — כדי שנוכל לחזור אליכם על ההצעה):' + hint, saved || '');
+  const typed = (await uiPrompt('כתובת אימייל לתשובה (חובה — כדי שנוכל לחזור אליכם על ההצעה):' + hint, saved || ''));
   if (typed === null) return '';
   const clean = typed.trim();
   if (!isValidReplyEmail(clean)){
@@ -659,7 +659,7 @@ function downloadReportFile(text, name){
   } catch(e){
     return copyReportText(text).then(ok => {
       if (ok) reportNotify('ההורדה חסומה כאן — הדיווח הועתק ללוח. אפשר להדביק אותו ב-' + REPORT_ISSUES_URL, 'success');
-      else window.prompt('העתיקו את הטקסט ושלחו אותו ב-' + REPORT_ISSUES_URL, text);
+      else uiPrompt('העתיקו את הטקסט ושלחו אותו ב-' + REPORT_ISSUES_URL, text);
       return ok;
     });
   }
@@ -1286,7 +1286,7 @@ function renderPersonalEdits(){
         { label: '💾 הורדה', secondary: true, onClick: () => downloadEdits([e],
             'עריכה-' + ((e.rec.entry && e.rec.entry.name) || e.origName)) },
         { label: 'שחזור למקור', secondary: true, onClick: async () => {
-            if (!window.confirm('לשחזר את "' + e.origName + '" לגרסת המקור? העריכה שלכם תימחק.')) return;
+            if (!(await uiConfirm('לשחזר את "' + e.origName + '" לגרסת המקור? העריכה שלכם תימחק.'))) return;
             const cat = CATEGORIES.find(c => c.id === e.catId);
             const data = cat ? await loadGuideData(cat) : [];
             const entry = data.find(x => (x.__origName || x.name) === e.origName);
@@ -1446,7 +1446,7 @@ function renderPersonalDrafts(){
     const body = 'פריטים שמורים מעינים למקרא — ' + drafts.length + '\n\n'
       + drafts.map((d, i) => (i + 1) + '.\n' + draftBody(d)).join('\n\n');
     const ok = await sendToDev('שליחה מרוכזת (' + drafts.length + ' פריטים)', body, 'שליחה מרוכזת');
-    if (ok && window.confirm('הכל נשלח. למחוק את הפריטים ששמורים במכשיר?')){
+    if (ok && (await uiConfirm('הכל נשלח. למחוק את הפריטים ששמורים במכשיר?'))){
       CATEGORIES.forEach(c => { try { localStorage.removeItem(c.id + '_nf_drafts_v1'); } catch(e){} });
       try { localStorage.removeItem(IDENTIFY_REPORTS_KEY); } catch(e){}
       renderPersonalBody();
@@ -1482,8 +1482,8 @@ function renderPersonalDrafts(){
         ) },
       { label: '💾 הורדה', secondary: true, onClick: () => downloadDrafts([d],
           d.kind === 'propose' ? ('הצעה-' + (d.data.name || 'ערך')) : 'דיווח-זיהוי') },
-      { label: 'מחיקה', secondary: true, onClick: () => {
-          if (window.confirm('למחוק את הפריט?')) deleteDraft(d);
+      { label: 'מחיקה', secondary: true, onClick: async () => {
+          if ((await uiConfirm('למחוק את הפריט?'))) deleteDraft(d);
         } }
     ]));
   });
@@ -1525,7 +1525,7 @@ async function renderPersonalPages(){
             'דף HTML');
         } },
       { label: 'מחיקה', secondary: true, onClick: async () => {
-          if (!window.confirm('למחוק את "' + name + '"?')) return;
+          if (!(await uiConfirm('למחוק את "' + name + '"?'))) return;
           await deleteHtmlPage(name);
           talmudRendered = false;
           renderCustomPageCards();

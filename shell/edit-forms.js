@@ -138,8 +138,8 @@ function openGenericEditForm(entry, catIdOverride){
   attachRefCheck('editMidrashTa', 'editMidrashCheck', 'midrash');
 
   const restoreBtn = document.getElementById('genEditRestore');
-  if (restoreBtn) restoreBtn.addEventListener('click', () => {
-    if (!window.confirm('לשחזר את "' + origName + '" לגרסה המקורית שבמדריך? העריכה השמורה שלכם תימחק.')) return;
+  if (restoreBtn) restoreBtn.addEventListener('click', async () => {
+    if (!(await uiConfirm('לשחזר את "' + origName + '" לגרסה המקורית שבמדריך? העריכה השמורה שלכם תימחק.'))) return;
     const ok = restoreEntryToOriginal(catId, entry, origName);
     invalidateLookup(catId);
     renderGuideGrid(guideSearchBox.value);

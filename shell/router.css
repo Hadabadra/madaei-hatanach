@@ -1954,3 +1954,107 @@ body, button, input, select, textarea,
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
 }
+
+/* ============================================================
+   5.2.0 — "מודרני מקצה לקצה" (בעקבות משוב משתמשים: מראה מרובע,
+   כפתורי אימוג'י וחלונות דפדפן ישנים).
+   - אייקונים קוויים (SVG) במקום אימוג'י — shell/ui-modern.js
+   - חלונות דו-שיח מעוצבים במקום alert/confirm/prompt
+   - צורות רכות יותר, כרטיסים "צפים", כפתור ראשי מלא
+   ============================================================ */
+:root {
+  --elev-1: 0 1px 2px color-mix(in srgb, var(--color-on-surface) 10%, transparent),
+            0 1px 3px color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+  --elev-3: 0 8px 28px color-mix(in srgb, var(--color-on-surface) 18%, transparent),
+            0 2px 6px color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+  --primary-soft: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface));
+}
+
+/* --- אייקונים --- */
+.ui-ico-wrap { display: inline-flex; align-items: center; justify-content: center; vertical-align: -0.18em; }
+.ui-ico { width: 1.15em; height: 1.15em; flex: none; }
+.ui-ico-wrap + * , .ui-ico-wrap { margin-inline-end: 0.35em; }
+button .ui-ico-wrap:only-child, .tool-btn .ui-ico-wrap:only-child { margin-inline-end: 0; }
+.card .ui-ico-wrap:first-child {
+  width: 2.6em; height: 2.6em; border-radius: var(--radius-md);
+  background: var(--primary-soft); color: var(--color-primary);
+  margin: 0 auto 0.4em; display: flex;
+}
+.card .ui-ico-wrap:first-child .ui-ico { width: 1.4em; height: 1.4em; }
+
+/* --- צורות: כרטיסים רכים וצפים במקום ריבועים --- */
+.card, .entry-card, .set-card, .book-choice, .result-row {
+  border-radius: var(--radius-lg);
+  border-color: transparent;
+  box-shadow: var(--elev-1);
+}
+.card:hover, .entry-card:hover, .set-card:hover, .book-choice:hover {
+  border-color: transparent;
+  box-shadow: var(--elev-3);
+}
+.panel-box, #entryModalInner, #settingsPanel {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-3);
+}
+
+/* --- כפתורים: ראשי מלא, משני טונאלי, עם מקום לאייקון --- */
+.panel-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.15em;
+  min-height: 2.5em; padding: 0 1.2em;
+  background: var(--color-primary); color: var(--color-on-primary);
+  border: 0; font-weight: 500;
+}
+.panel-btn:hover { background: color-mix(in srgb, var(--color-primary), var(--color-on-primary) 10%); }
+.panel-btn.secondary, .panel-btn[data-secondary], .set-action {
+  background: var(--primary-soft); color: var(--color-primary);
+}
+.tool-btn, .nf-btn, .entry-tool-btn, .verse-act-btn {
+  display: inline-flex; align-items: center; gap: 0.15em;
+  border: 1px solid var(--color-outline-faint);
+  background: var(--color-surface);
+}
+button:focus-visible, .chip:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-primary); outline-offset: 2px;
+}
+
+/* --- חלונות דו-שיח (uiAlert/uiConfirm/uiPrompt) --- */
+.ui-dlg-scrim {
+  position: fixed; inset: 0; z-index: 99999;
+  display: flex; align-items: center; justify-content: center; padding: 1em;
+  background: color-mix(in srgb, var(--color-on-surface) 40%, transparent);
+  opacity: 0; transition: opacity 0.16s var(--ease-std);
+}
+.ui-dlg-scrim.open { opacity: 1; }
+.ui-dlg {
+  width: min(26em, 100%);
+  background: var(--color-surface); color: var(--color-on-surface);
+  border-radius: var(--radius-lg); box-shadow: var(--elev-3);
+  padding: 1.5em 1.5em 1em; font-family: var(--font-ui);
+  transform: translateY(0.6em) scale(0.98); transition: transform 0.18s var(--ease-std);
+}
+.ui-dlg-scrim.open .ui-dlg { transform: none; }
+.ui-dlg-icon {
+  width: 2.75em; height: 2.75em; border-radius: var(--radius-pill);
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 0.8em;
+  background: var(--primary-soft); color: var(--color-primary);
+}
+.ui-dlg-icon .ui-ico { width: 1.4em; height: 1.4em; }
+.ui-dlg-msg { font-size: 1rem; line-height: 1.6; text-align: center; white-space: pre-line; }
+.ui-dlg-input {
+  width: 100%; box-sizing: border-box; margin-top: 1em; padding: 0.7em 0.9em;
+  font: inherit; color: inherit; background: var(--color-surface-container-high);
+  border: 1px solid transparent; border-radius: var(--radius-md); min-height: 2.8em;
+}
+textarea.ui-dlg-input { min-height: 7em; resize: vertical; }
+.ui-dlg-input:focus { outline: none; border-color: var(--color-primary); background: var(--color-surface); }
+.ui-dlg-actions { display: flex; gap: 0.5em; justify-content: flex-end; margin-top: 1.3em; }
+.ui-dlg-btn {
+  min-height: 2.5em; padding: 0 1.3em; border: 0; border-radius: var(--radius-pill);
+  font: inherit; font-weight: 500; cursor: pointer;
+  transition: background var(--anim-fast) var(--ease-std);
+}
+.ui-dlg-ok { background: var(--color-primary); color: var(--color-on-primary); }
+.ui-dlg-ok:hover { background: color-mix(in srgb, var(--color-primary), var(--color-on-primary) 10%); }
+.ui-dlg-cancel { background: transparent; color: var(--color-primary); }
+.ui-dlg-cancel:hover { background: var(--primary-soft); }
+.ui-dlg-alert .ui-dlg-actions { justify-content: center; }

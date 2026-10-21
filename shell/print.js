@@ -200,12 +200,12 @@ function chooseItemsToExport(sourceLabel, items){
 
 function printItems(sourceLabel, items, pdfName){
   if (!items.length){ window.alert('אין ערכים לייצוא.'); return; }
-  chooseItemsToExport(sourceLabel, items).then(res => {
+  chooseItemsToExport(sourceLabel, items).then(async res => {
     if (!res || !res.items.length) return;
     const chosen = res.items;
     if (chosen.length > PRINT_CONFIRM_OVER &&
-        !window.confirm('ייצוא ' + chosen.length + ' ערכים יפיק דף הדפסה ארוך מאוד (עשרות עמודים) '
-          + 'ועלול לקחת זמן. אפשר לצמצם עם הסינון שלמעלה.\n\nלהמשיך בכל זאת?')) return;
+        !(await uiConfirm('ייצוא ' + chosen.length + ' ערכים יפיק דף הדפסה ארוך מאוד (עשרות עמודים) '
+          + 'ועלול לקחת זמן. אפשר לצמצם עם הסינון שלמעלה.\n\nלהמשיך בכל זאת?'))) return;
     const label = chosen.length < items.length ? sourceLabel + ' (' + chosen.length + ' מתוך ' + items.length + ')' : sourceLabel;
     buildPrintSheet(label, chosen, res.exclude);
     runPrintSheet(pdfName);
@@ -314,10 +314,10 @@ function todayEventsLabel(){
 }
 // ברוב ימות השנה אין מאורע רשום להיום, ואז "אין מה להדפיס" היה כפתור מת. במקום
 // הודעת שגיאה - מציעים את הרשימה המלאה, שהיא ממילא מה שהמשתמש רואה מתחת.
-function printDailyToday(){
+async function printDailyToday(){
   const evs = eventsForToday();
   if (!evs.length){
-    if (window.confirm('אין מאורע רשום לתאריך של היום.\n\nלהדפיס במקום זאת את כל המאורעות לפי תאריך?')) printAllDateEvents();
+    if ((await uiConfirm('אין מאורע רשום לתאריך של היום.\n\nלהדפיס במקום זאת את כל המאורעות לפי תאריך?'))) printAllDateEvents();
     return;
   }
   printDateEvents(todayEventsLabel(), evs);
@@ -337,10 +337,10 @@ function orderedDateEvents(){
   });
   return ordered;
 }
-function printAllDateEvents(){
+async function printAllDateEvents(){
   const ordered = orderedDateEvents();
   if (ordered.length > PRINT_CONFIRM_OVER &&
-      !window.confirm('הדפסת ' + ordered.length + ' מאורעות תפיק דף הדפסה ארוך.\n\nלהמשיך?')) return;
+      !(await uiConfirm('הדפסת ' + ordered.length + ' מאורעות תפיק דף הדפסה ארוך.\n\nלהמשיך?'))) return;
   printDateEvents('כל מאורעות התנ״ך והתלמוד לפי תאריך', ordered);
 }
 
