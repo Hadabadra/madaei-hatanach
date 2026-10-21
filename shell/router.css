@@ -2059,3 +2059,50 @@ textarea.ui-dlg-input { min-height: 7em; resize: vertical; }
 .ui-dlg-cancel { background: transparent; color: var(--color-primary); }
 .ui-dlg-cancel:hover { background: var(--primary-soft); }
 .ui-dlg-alert .ui-dlg-actions { justify-content: center; }
+
+/* ==================== 5.3.0 — כרטיס בחלונית צד + תצוגה מקדימה ==================== */
+.side-grip, .side-nav { display: none; }
+body.entry-side #entryOverlay {
+  background: transparent; pointer-events: none; padding: 0;
+  justify-content: flex-end; align-items: stretch; overflow: hidden;
+}
+body.entry-side #entryModal {
+  pointer-events: auto; width: var(--side-w, 30em); max-width: 70vw; margin: 0;
+  height: 100%; overflow-y: auto; border-radius: 0; animation: none;
+  border-width: 0 1px 0 0; border-color: var(--color-outline);
+  box-shadow: 0 0 1.5em var(--color-shadow);
+}
+body.entry-side #guideView { margin-left: var(--side-w, 30em); }
+body.entry-side .side-grip {
+  display: block; position: fixed; top: 0; bottom: 0; width: .5em; cursor: ew-resize;
+  left: calc(var(--side-w, 30em) - .25em); z-index: 6;
+}
+body.entry-side .side-grip:hover { background: var(--color-primary-subtle); }
+body.entry-side .side-nav {
+  display: flex; gap: .4em; position: sticky; top: 0; z-index: 4;
+  background: var(--color-surface); padding: .2em 0 .5em; margin-bottom: .4em;
+  border-bottom: 1px solid var(--color-outline-faint);
+}
+.side-nav button {
+  border: 1px solid var(--color-outline); background: var(--color-surface);
+  color: var(--color-on-surface-dim); border-radius: var(--radius-pill);
+  padding: .3em .9em; cursor: pointer; font-family: var(--font-main);
+}
+.side-nav button:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-subtle); }
+#guideGrid > .entry-card.side-active { border-color: var(--color-primary); background: var(--color-primary-subtle); }
+
+#homePreview { display: none; }
+@media (min-width: 900px) {
+  #landing.has-preview { padding-left: 22em; }
+  #homePreview {
+    display: flex; flex-direction: column; gap: .6em;
+    position: fixed; left: 1em; top: 6em; width: 19em;
+    background: var(--color-surface); border: 1px solid var(--color-outline-faint);
+    border-radius: var(--radius-lg); padding: 1.2em;
+  }
+  #homePreview .hp-icon img { width: 3em; height: 3em; }
+  #homePreview .hp-title { margin: 0; font-size: 1.3em; }
+  #homePreview .hp-desc { margin: 0; line-height: 1.7; color: var(--color-on-surface-dim); }
+  #homePreview .hp-open { align-self: flex-start; }
+  #landing .card.hp-on { border-color: var(--color-primary); }
+}
