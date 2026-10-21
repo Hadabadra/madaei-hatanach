@@ -56,6 +56,23 @@ async function isModernApp(){
 // 3.8.0 — plugin.openSelf({param}) + plugin.page_opened (#52): הבקשה נמסרת
 // ישירות למופע הלשונית. המסירה דרך storage + הפולינג נשארים כרשת ביטחון בלבד,
 // והמופע שמקבל את ה-param מסמן את ה-ts כנצרך כדי שלא תוצג פעמיים.
+// #173 — מזהי חלקים קבועים לפתיחה מתוסף אחר (למשל כיוון תפילה):
+//   Otzaria.call('plugin.openOther', { pluginId: 'com.chadbedera.madaeihatanach',
+//                                      param: { section: 'kotel-archaeology' } })
+// מזהה שאינו ברשימה מתקבל גם כמזהה מדריך ישיר (catId), ו-term אופציונלי מחפש בתוכו.
+const OPEN_SECTIONS = {
+  'temple-guide':      { catId: 'beithamikdash' },
+  'kotel-archaeology': { catId: 'archaeology', term: 'כותל' },
+  'archaeology':       { catId: 'archaeology' },
+  'places':            { catId: 'places' },
+};
+function openSection(section, term){
+  const s = OPEN_SECTIONS[section] || (typeof CATEGORIES !== 'undefined' && CATEGORIES.some(c => c.id === section) ? { catId: section } : null);
+  if (!s) return false;
+  openGuide(s.catId, term || s.term || null);
+  return true;
+}
+
 function bringToFront(param){
   openSelfWith(param);
 }
@@ -366,8 +383,11 @@ function waitForOtzaria(elapsed){
     Otzaria.on('plugin.page_opened', (data) => {
       // האירוע הגיע — הוא עובד בגרסה הזו, והפולינג כבר אינו נחוץ
       if (!pageOpenedSeen){ pageOpenedSeen = true; if (pendingPollTimer){ clearInterval(pendingPollTimer); pendingPollTimer = null; } }
-      const p = data && data.param;
+      let p = data && data.param;
+      if (typeof p === 'string'){ try { p = JSON.parse(p); } catch(e){ p = { section: p }; } }
       if (p && p.kind === 'guide' && p.catId){ openGuide(p.catId, null); return; }
+      // #173 — פתיחה ישירה של חלק מסוים מתוסף אחר (plugin.openOther עם {section}).
+      if (p && p.section && openSection(p.section, p.term)) return;
       if (!p || p.kind !== 'identify' || !p.text) return;
       if (p.origin === INSTANCE_ID) return;              // המופע ששלח כבר הציג
       if (p.ts && p.ts <= lastConsumedTs) return;
