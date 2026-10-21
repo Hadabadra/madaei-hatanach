@@ -308,7 +308,7 @@ function wireNikudSettings(){
       await navigator.clipboard.writeText(NAKDAN_FORUM_URL);
       copyBtn.textContent = '✓ הועתק';
       setTimeout(() => { copyBtn.textContent = '📋 העתקת קישור הפורום'; }, 1800);
-    } catch(e){ window.prompt('העתיקו את קישור הפורום:', NAKDAN_FORUM_URL); }
+    } catch(e){ uiPrompt('העתיקו את קישור הפורום:', NAKDAN_FORUM_URL); }
   });
 }
 

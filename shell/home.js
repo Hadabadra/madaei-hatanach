@@ -90,7 +90,7 @@ async function renderSavedHtmlList(){
         'דף HTML');
     });
     row.querySelector('[data-del]').addEventListener('click', async () => {
-      if (!window.confirm('למחוק את "' + name + '"?')) return;
+      if (!(await uiConfirm('למחוק את "' + name + '"?'))) return;
       await deleteHtmlPage(name);
       talmudRendered = false;   // ליד מסכת ייתכן שהיה מוצמד דף שנמחק - יש לבנות מחדש
       renderSavedHtmlList();
@@ -657,8 +657,8 @@ function openDateEventForm(ev){
     if (sentOk) markEntryEditSent('dates', sentKey, diffHash);
   });
 
-  if (isCustom) document.getElementById('dateEvDelete').addEventListener('click', () => {
-    if (!window.confirm('למחוק את המאורע הזה לצמיתות?')) return;
+  if (isCustom) document.getElementById('dateEvDelete').addEventListener('click', async () => {
+    if (!(await uiConfirm('למחוק את המאורע הזה לצמיתות?'))) return;
     deleteCustomDateEvent(ev.__addedIdx);
     entryOverlay.classList.remove('open');
     renderDailyEventBody();
