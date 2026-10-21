@@ -806,7 +806,7 @@ html[dir="ltr"] body { direction: ltr; }
 }
 #guideFilters .filter-row.hidden { display: none; }
 #guideFilters .filter-label { font-size: .78em; color: var(--color-on-surface-faint); white-space: nowrap; }
-#guideEraChips { display: flex; flex-wrap: wrap; gap: 8px; }
+#guideEraChips, #guideTribeChips { display: flex; flex-wrap: wrap; gap: 8px; }
 #guideAlphaBar { display: flex; flex-wrap: wrap; gap: 5px; }
 .alpha-btn {
   width: 26px; height: 26px; border-radius: 50%;
@@ -824,16 +824,16 @@ html[dir="ltr"] body { direction: ltr; }
   padding: 10px 16px;
   flex: 0 0 auto;
 }
-#guideChips .chip, #guideEraChips .chip, #resultsChips .chip {
+#guideChips .chip, #guideEraChips .chip, #guideTribeChips .chip, #resultsChips .chip {
   border: 1px solid var(--color-outline); background: var(--color-surface); color: var(--color-on-surface-dim);
   padding: 6px 14px; border-radius: var(--radius-pill); font-family: var(--font-main);
   font-size: .83em; font-weight: 600; cursor: pointer; white-space: nowrap;
   transition: background .12s, color .12s, border-color .12s;
 }
-#guideChips .chip:hover, #guideEraChips .chip:hover, #resultsChips .chip:hover {
+#guideChips .chip:hover, #guideEraChips .chip:hover, #guideTribeChips .chip:hover, #resultsChips .chip:hover {
   border-color: var(--color-primary); background: var(--color-primary-subtle); color: var(--color-primary);
 }
-#guideChips .chip.active, #guideEraChips .chip.active, #resultsChips .chip.active {
+#guideChips .chip.active, #guideEraChips .chip.active, #guideTribeChips .chip.active, #resultsChips .chip.active {
   background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary);
 }
 #resultsChips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
@@ -964,6 +964,7 @@ html[dir="ltr"] body { direction: ltr; }
   border-radius: var(--radius-lg); position: relative; margin-bottom: 40px;
   padding: clamp(16px, 3vw, 28px);
   animation: fadeIn .2s ease-out;
+  min-width: 0; box-sizing: border-box; overflow-x: hidden; overflow-wrap: anywhere;
 }
 /* כפתור הסגירה צמוד לפינת הכרטיס עצמו ונשאר גלוי בגלילה (sticky בתוך המודל) */
 #entryCloseBtn {
