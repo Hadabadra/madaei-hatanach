@@ -2116,3 +2116,9 @@ body.entry-side #entryModal.side-swap #entryModalInner { opacity: .35; transitio
   color: var(--color-primary); background: var(--color-surface); border-radius: var(--radius-pill);
   padding: 0 .4em; border: 1px solid var(--color-outline-faint);
 }
+/* בחלונית צד — בלי מסגרות סביב בלוקי התוכן (ממצאים, תמונות, פרטים, מקורות) */
+body.entry-side #entryModalInner div,
+body.entry-side #entryModalInner details,
+body.entry-side #entryModalInner figure { border-color: transparent; box-shadow: none; }
+body.entry-side #entryModalInner .verse-card,
+body.entry-side #entryModalInner .src-item { background: transparent; padding-inline: 0; }
