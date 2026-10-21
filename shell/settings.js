@@ -11,7 +11,7 @@
 const PREFS_KEY = 'madaei_hatanach_ui_prefs_v1';
 // pubEvents/pubChurban/pubAhead/pubBack — פרסום ליומן של אוצריא. ברירות המחדל
 // 4.16.1: כבויות כברירת מחדל (בקשת בעלת הפרויקט — יש למי שזה מפריע); מפעילים בהגדרות.
-const DEFAULT_PREFS = { theme: 'otzaria', font: 'otzaria', scale: 100, density: 'normal', cardImg: true, divineName: 'he',
+const DEFAULT_PREFS = { theme: 'otzaria', font: 'otzaria', scale: 100, density: 'normal', cardImg: true, entrySide: true, divineName: 'he',
   pubEvents: false, pubChurban: false, pubAhead: 365, pubBack: 7, shemMode: 'hyphen', shemScope: 'all', shemAggr: true };
 let uiPrefs = Object.assign({}, DEFAULT_PREFS);
 let otzariaTheme = null; // ה-theme האחרון שהתקבל מאוצריא (boot / theme.changed)
@@ -234,6 +234,8 @@ function syncSettingsUI(){
   if (scv) scv.textContent = uiPrefs.scale + '%';
   const ci = document.getElementById('setCardImg');
   if (ci) setOn(ci, !!uiPrefs.cardImg);
+  const es = document.getElementById('setEntrySide');
+  if (es) setOn(es, uiPrefs.entrySide !== false);
 }
 
 function setPref(key, val){
@@ -359,6 +361,10 @@ function wireSettings(){
     setOn(ci, next);
     setPref('cardImg', next);
   });
+
+  // 5.3.0 — כרטיס ערך בחלונית צד (ברירת מחדל) או בחלון קופץ כמו קודם
+  const es = document.getElementById('setEntrySide');
+  if (es) es.addEventListener('click', () => { const next = !isOn(es); setOn(es, next); setPref('entrySide', next); });
 
   // 3.2.7 — פרסום ליומן. אחרי כל שינוי חייבים לאפס את חותמת ההרצה היומית
   // ולהריץ מחדש: ה-throttle היומי היה משאיר ביומן את מה שכבר פורסם עד מחר,

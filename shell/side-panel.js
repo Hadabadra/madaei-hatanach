@@ -56,10 +56,12 @@
   nav.querySelector('.side-prev').addEventListener('click', () => step(-1));
   nav.querySelector('.side-next').addEventListener('click', () => step(1));
   nav.querySelector('.side-link').addEventListener('click', async () => {
-    const name = (modal.querySelector('#entryModalInner h2') || {}).textContent || '';
-    const txt = 'עינים למקרא — ' + name.trim();
+    const name = ((modal.querySelector('#entryModalInner h2') || {}).textContent || '').replace(/[\u2B50\u2606\u2605].*$/, '').trim();
+    const cat = (typeof currentGuideCat !== 'undefined' && currentGuideCat) || '';
+    // קריאה שתוסף אחר מדביק כדי לפתוח בדיוק את הכרטיס הזה (#173, docs/עיצוב-5.3.md)
+    const txt = "Otzaria.call('plugin.openOther', { pluginId: 'com.chadbedera.madaeihatanach', param: { section: '" + cat + "', entry: '" + name.replace(/'/g, "\\'") + "' } })";
     try { await navigator.clipboard.writeText(txt); } catch(e){}
-    if (typeof showToast === 'function') showToast('הועתק: ' + txt);
+    if (typeof showToast === 'function') showToast('הועתק קישור לפתיחת הערך ״' + name + '״ מתוסף אחר');
   });
 
   // לחיצה על כרטיסייה במדריך: מצב צד, ולחיצה חוזרת סוגרת
@@ -74,11 +76,15 @@
 
   const orig = openEntryDetail;
   window.openEntryDetail = openEntryDetail = function(entry){
-    const side = WIDE() && inGuide();
+    const pref = (typeof uiPrefs === 'undefined') || uiPrefs.entrySide !== false;
+    const side = WIDE() && inGuide() && pref;
     if (side) setTop();
     document.body.classList.toggle('entry-side', side);
     document.body.classList.toggle('entry-in-guide', inGuide());
     if (!inGuide()) mark(null);
+    // כפתור הסגירה עובר לשורת הניווט (שלא יעלה עליה), ובחוץ חוזר למקומו
+    const cb = document.getElementById('entryCloseBtn');
+    if (cb) { if (inGuide()) nav.appendChild(cb); else modal.insertBefore(cb, nav); }
     const r = orig.apply(this, arguments);
     if (side && curCard) curCard.scrollIntoView({ block: 'nearest' });
     return r;
@@ -88,6 +94,17 @@
   new MutationObserver(() => {
     if (!ov.classList.contains('open')) { mark(null); document.body.classList.remove('entry-side', 'entry-in-guide'); }
   }).observe(ov, { attributes: true, attributeFilter: ['class'] });
+
+  // יציאה מהמדריך סוגרת את הכרטיס שנפתח בתוכו
+  const gv = document.getElementById('guideView');
+  if (gv) new MutationObserver(() => {
+    if (!gv.classList.contains('open') && document.body.classList.contains('entry-in-guide')) ov.classList.remove('open');
+  }).observe(gv, { attributes: true, attributeFilter: ['class'] });
+  // פתיחה/סגירה של המסננים משנה את גובה הסרגל — החלונית עוקבת
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => { if (document.body.classList.contains('entry-side')) setTop(); });
+    ['guideViewBar', 'guideFilters', 'guideChips'].forEach(id => { const e = document.getElementById(id); if (e) ro.observe(e); });
+  }
 
   document.addEventListener('keydown', ev => {
     if (!document.body.classList.contains('entry-in-guide') || !ov.classList.contains('open')) return;

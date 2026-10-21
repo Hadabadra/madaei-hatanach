@@ -66,11 +66,24 @@ const OPEN_SECTIONS = {
   'archaeology':       { catId: 'archaeology' },
   'places':            { catId: 'places' },
 };
-function openSection(section, term){
+// 5.3.0 — entry: שם ערך לפתיחה ישירה של הכרטיס שלו בתוך המדריך, למשל
+//   param: { section: 'places', entry: 'באר שבע' }
+function openSection(section, term, entry){
   const s = OPEN_SECTIONS[section] || (typeof CATEGORIES !== 'undefined' && CATEGORIES.some(c => c.id === section) ? { catId: section } : null);
   if (!s) return false;
-  openGuide(s.catId, term || s.term || null);
+  const p = openGuide(s.catId, entry || term || s.term || null);
+  if (entry) Promise.resolve(p).then(() => openEntryCardByName(entry));
   return true;
+}
+function openEntryCardByName(name, tries){
+  tries = tries || 0;
+  const norm = t => String(t || '').replace(/[\u0591-\u05C7]/g, '').trim();
+  const want = norm(name);
+  const cards = Array.from(document.querySelectorAll('#guideGrid > .entry-card'));
+  const hit = cards.find(c => { const h = c.querySelector('.entry-card-name'); return norm(h ? h.textContent : c.textContent.split('\n')[0]) === want; })
+    || cards.find(c => norm(c.textContent).startsWith(want));
+  if (hit) { hit.click(); return; }
+  if (tries < 20) setTimeout(() => openEntryCardByName(name, tries + 1), 150);
 }
 
 function bringToFront(param){
@@ -387,7 +400,7 @@ function waitForOtzaria(elapsed){
       if (typeof p === 'string'){ try { p = JSON.parse(p); } catch(e){ p = { section: p }; } }
       if (p && p.kind === 'guide' && p.catId){ openGuide(p.catId, null); return; }
       // #173 — פתיחה ישירה של חלק מסוים מתוסף אחר (plugin.openOther עם {section}).
-      if (p && p.section && openSection(p.section, p.term)) return;
+      if (p && p.section && openSection(p.section, p.term, p.entry)) return;
       if (!p || p.kind !== 'identify' || !p.text) return;
       if (p.origin === INSTANCE_ID) return;              // המופע ששלח כבר הציג
       if (p.ts && p.ts <= lastConsumedTs) return;

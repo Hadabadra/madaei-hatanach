@@ -2068,6 +2068,7 @@ body.entry-in-guide .side-nav {
   background: var(--color-surface); padding: .2em 0 .5em; margin-bottom: .4em;
   border-bottom: 1px solid var(--color-outline-faint);
 }
+.side-nav #entryCloseBtn { position: static; float: none; margin: 0 auto 0 0; box-shadow: none; }
 .side-nav button {
   border: 1px solid var(--color-outline); background: var(--color-surface);
   color: var(--color-on-surface-dim); border-radius: var(--radius-pill);
@@ -2082,9 +2083,10 @@ body.entry-side #entryOverlay {
 body.entry-side #entryModal {
   pointer-events: auto; width: var(--side-w, 30em); max-width: 70vw; margin: 0;
   height: 100%; overflow-y: auto; border-radius: 0; animation: none;
-  border-width: 0 1px 0 0; border-color: var(--color-outline);
-  box-shadow: 0 0 1.5em var(--color-shadow);
+  border-width: 0 1px 0 0; border-color: var(--color-outline-faint); box-shadow: none;
 }
+/* בחלונית צד אין צורך במסגרות סביב התוכן */
+body.entry-side #entryModalInner .method-block { border: 0; background: transparent; padding: 0; }
 body.entry-side #guideGrid { margin-left: var(--side-w, 30em); }
 body.entry-side .side-grip {
   display: block; position: fixed; top: var(--side-top, 0); bottom: 0; width: .6em; cursor: ew-resize;
@@ -2095,9 +2097,9 @@ body.entry-side .side-grip:hover { background: var(--color-primary-subtle); }
 
 #homePreview { display: none; }
 #homePreview.on {
-  display: flex; flex-direction: column; gap: .6em; position: fixed; z-index: 5;
-  background: var(--color-surface); border: 1px solid var(--color-outline-faint);
-  border-radius: var(--radius-lg); padding: 1.2em;
+  display: flex; flex-direction: column; gap: .6em; position: fixed; z-index: 5; bottom: 1em;
+  background: transparent; border: 0; border-right: 1px solid var(--color-outline-faint);
+  padding: 1.2em 1.2em 1.2em 0;
 }
 #homePreview .hp-icon img { width: 3.5em; height: 3.5em; object-fit: contain; }
 #homePreview .hp-title { margin: 0; font-size: 1.3em; }
