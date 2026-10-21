@@ -8,7 +8,11 @@
   if (!ov || !modal || typeof openEntryDetail !== 'function') return;
 
   const WIDE = () => window.matchMedia('(min-width: 900px)').matches;
-  const inGuide = () => { const g = document.getElementById('guideView'); return g && g.offsetParent !== null; };
+  // #guideView הוא position:fixed ולכן offsetParent שלו תמיד null — בודקים את המחלקה open
+  const inGuide = () => { const g = document.getElementById('guideView'); return !!(g && g.classList.contains('open')); };
+  const grid = () => document.getElementById('guideGrid');
+  // החלונית מתחילה מתחת לסרגל העליון ולמסננים, כדי שהם יישארו לכל הרוחב
+  const setTop = () => { const g = grid(); if (g) document.documentElement.style.setProperty('--side-top', Math.max(0, g.getBoundingClientRect().top) + 'px'); };
   let curCard = null;
 
   // רוחב שמור
@@ -37,7 +41,7 @@
   });
 
   const cards = () => Array.from(document.querySelectorAll('#guideGrid > .entry-card'))
-    .filter(c => c.offsetParent !== null);
+    .filter(c => c.getClientRects().length > 0);
   const mark = c => {
     document.querySelectorAll('#guideGrid > .entry-card.side-active').forEach(x => x.classList.remove('side-active'));
     curCard = c || null;
@@ -71,23 +75,27 @@
   const orig = openEntryDetail;
   window.openEntryDetail = openEntryDetail = function(entry){
     const side = WIDE() && inGuide();
+    if (side) setTop();
     document.body.classList.toggle('entry-side', side);
-    if (!side) mark(null);
-    return orig.apply(this, arguments);
+    document.body.classList.toggle('entry-in-guide', inGuide());
+    if (!inGuide()) mark(null);
+    const r = orig.apply(this, arguments);
+    if (side && curCard) curCard.scrollIntoView({ block: 'nearest' });
+    return r;
   };
 
   // סגירה מנקה סימון
   new MutationObserver(() => {
-    if (!ov.classList.contains('open')) { mark(null); document.body.classList.remove('entry-side'); }
+    if (!ov.classList.contains('open')) { mark(null); document.body.classList.remove('entry-side', 'entry-in-guide'); }
   }).observe(ov, { attributes: true, attributeFilter: ['class'] });
 
   document.addEventListener('keydown', ev => {
-    if (!document.body.classList.contains('entry-side') || !ov.classList.contains('open')) return;
+    if (!document.body.classList.contains('entry-in-guide') || !ov.classList.contains('open')) return;
     if (/INPUT|TEXTAREA|SELECT/.test((ev.target.tagName || '')) || ev.target.isContentEditable) return;
     if (ev.key === 'ArrowLeft') { ev.preventDefault(); step(1); }
     else if (ev.key === 'ArrowRight') { ev.preventDefault(); step(-1); }
   });
-  window.addEventListener('resize', applyW);
+  window.addEventListener('resize', () => { applyW(); if (document.body.classList.contains('entry-side')) setTop(); });
 
   // ===== תצוגה מקדימה בעמוד הבית =====
   const DESC = {
@@ -107,7 +115,23 @@
   pv.id = 'homePreview';
   pv.innerHTML = '<div class="hp-icon"></div><h3 class="hp-title"></h3><p class="hp-desc"></p><button type="button" class="hp-open panel-btn">📂 פתח מדריך</button>';
   landing.appendChild(pv);
-  landing.classList.add('has-preview');
+  // התצוגה המקדימה יושבת ברווח הפנוי שמשמאל לכרטיסים — לא דוחסת אותם.
+  // אין מספיק מקום → לא מוצגת.
+  const place = () => {
+    const els = Array.from(landing.querySelectorAll('.cards, .cards-sep')).filter(e => e.getClientRects().length);
+    if (!els.length || landing.getClientRects().length === 0) { pv.classList.remove('on'); return; }
+    const lr = landing.getBoundingClientRect();
+    const gap = Math.min.apply(null, els.map(e => e.getBoundingClientRect().left)) - lr.left;
+    if (gap < 260) { pv.classList.remove('on'); return; }
+    pv.style.width = Math.min(380, gap - 48) + 'px';
+    pv.style.left = (lr.left + 16) + 'px';
+    pv.style.top = Math.max(lr.top + 16, els[0].getBoundingClientRect().top) + 'px';
+    pv.classList.add('on');
+  };
+  window.addEventListener('resize', place);
+  landing.addEventListener('scroll', place, { passive: true });
+  new MutationObserver(place).observe(landing, { attributes: true, attributeFilter: ['class', 'style'] });
+  setTimeout(place, 300);
   let pvCat = null;
   const show = card => {
     pvCat = card.dataset.cat;
@@ -116,6 +140,7 @@
     pv.querySelector('.hp-title').textContent = (card.querySelector('.label') || {}).textContent || '';
     pv.querySelector('.hp-desc').textContent = DESC[pvCat] || '';
     homeCards.forEach(c => c.classList.toggle('hp-on', c === card));
+    place();
   };
   homeCards.forEach(c => { c.addEventListener('mouseenter', () => show(c)); c.addEventListener('focus', () => show(c)); });
   pv.querySelector('.hp-open').addEventListener('click', () => { if (pvCat && typeof openGuide === 'function') openGuide(pvCat, null); });
