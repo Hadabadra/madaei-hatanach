@@ -40,12 +40,34 @@
     grip.addEventListener('pointermove', move); grip.addEventListener('pointerup', up);
   });
 
+  // לחיצה כפולה על הגבול — חזרה לרוחב ברירת המחדל
+  grip.addEventListener('dblclick', () => { w = 460; applyW(); try { localStorage.removeItem('mh.sideW'); } catch(e){} });
+
+  // ערכים שכבר נצפו — סימון ✓ ברשימה, נשמר לפי מדריך
+  const SEEN_KEY = 'mh.seen';
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {}; } catch(e){}
+  const catNow = () => (typeof currentGuideCat !== 'undefined' && currentGuideCat) || '';
+  const nameOf = c => ((c.querySelector('.entry-card-name') || {}).textContent || '').trim();
+  const applySeen = () => {
+    const set = seen[catNow()] || [];
+    document.querySelectorAll('#guideGrid > .entry-card').forEach(c => c.classList.toggle('seen', set.indexOf(nameOf(c)) >= 0));
+  };
+  const addSeen = c => {
+    const cat = catNow(), n = nameOf(c); if (!cat || !n) return;
+    const set = seen[cat] || (seen[cat] = []);
+    if (set.indexOf(n) < 0) { set.push(n); if (set.length > 2000) set.shift(); try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch(e){} }
+    c.classList.add('seen');
+  };
+  const gridEl = document.getElementById('guideGrid');
+  if (gridEl) new MutationObserver(applySeen).observe(gridEl, { childList: true });
+
   const cards = () => Array.from(document.querySelectorAll('#guideGrid > .entry-card'))
     .filter(c => c.getClientRects().length > 0);
   const mark = c => {
     document.querySelectorAll('#guideGrid > .entry-card.side-active').forEach(x => x.classList.remove('side-active'));
     curCard = c || null;
-    if (curCard) { curCard.classList.add('side-active'); curCard.scrollIntoView({ block: 'nearest' }); }
+    if (curCard) { addSeen(curCard); curCard.classList.add('side-active'); curCard.scrollIntoView({ block: 'nearest' }); }
   };
   const step = d => {
     const list = cards(); if (!list.length) return;
@@ -85,7 +107,11 @@
     // כפתור הסגירה עובר לשורת הניווט (שלא יעלה עליה), ובחוץ חוזר למקומו
     const cb = document.getElementById('entryCloseBtn');
     if (cb) { if (inGuide()) nav.appendChild(cb); else modal.insertBefore(cb, nav); }
+    // מעבר בין ערכים בחלונית פתוחה — בלי הבהוב: שומרים גובה, גוללים לראש, ומעמעמים רק את התוכן
+    const swapping = side && ov.classList.contains('open');
+    if (swapping) modal.classList.add('side-swap');
     const r = orig.apply(this, arguments);
+    if (swapping) { modal.scrollTop = 0; requestAnimationFrame(() => modal.classList.remove('side-swap')); }
     if (side && curCard) curCard.scrollIntoView({ block: 'nearest' });
     return r;
   };
