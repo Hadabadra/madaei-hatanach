@@ -82,8 +82,15 @@
     const cat = (typeof currentGuideCat !== 'undefined' && currentGuideCat) || '';
     // קריאה שתוסף אחר מדביק כדי לפתוח בדיוק את הכרטיס הזה (#173, docs/עיצוב-5.3.md)
     const txt = "Otzaria.call('plugin.openOther', { pluginId: 'com.chadbedera.madaeihatanach', param: { section: '" + cat + "', entry: '" + name.replace(/'/g, "\\'") + "' } })";
-    try { await navigator.clipboard.writeText(txt); } catch(e){}
-    if (typeof showToast === 'function') showToast('הועתק קישור לפתיחת הערך ״' + name + '״ מתוסף אחר');
+    // 5.3.2 — העתקה עם גיבוי (ב-WebView של אוצריא clipboard לא תמיד זמין) + חיווי על הכפתור עצמו
+    let ok = false;
+    try { await navigator.clipboard.writeText(txt); ok = true; } catch(e){}
+    if (!ok) { try { const ta = document.createElement('textarea'); ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch(e){} }
+    const lb = nav.querySelector('.side-link');
+    lb.textContent = ok ? '✓ הועתק' : '✗ לא הועתק'; lb.classList.add('copied');
+    clearTimeout(lb._t); lb._t = setTimeout(() => { lb.textContent = '🔗'; lb.classList.remove('copied'); }, 1800);
+    if (ok && typeof showToast === 'function') showToast('הועתק קישור לפתיחת הערך ״' + name + '״ מתוסף אחר');
   });
 
   // לחיצה על כרטיסייה במדריך: מצב צד, ולחיצה חוזרת סוגרת

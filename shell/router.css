@@ -2126,7 +2126,9 @@ body.entry-side #entryModalInner { box-shadow: none; border-radius: 0; }
 /* 5.3.1 — סרגל עליון אחד: ניווט + כלי הכרטיס + סגירה; ריווח בין כפתורי הפעולה */
 body.entry-in-guide .side-nav { flex-wrap: wrap; }
 body.entry-in-guide .side-nav .entry-tool-btn { padding: .3em .6em; }
-body.entry-in-guide .side-nav .side-link { margin-inline-end: auto; }
+/* 5.3.2 — כלי הכרטיס צמודים לקישור; רק הסגירה נדחפת לקצה */
+body.entry-in-guide .side-nav #entryCloseBtn { margin-inline-start: auto; }
+.side-nav .side-link.copied { color: var(--color-primary); background: var(--color-primary-subtle); }
 .otz-mentions { display: flex; flex-wrap: wrap; gap: .5em; }
 .otz-mentions .otz-mentions-list { flex-basis: 100%; }
 .otz-actions { gap: .5em !important; }
