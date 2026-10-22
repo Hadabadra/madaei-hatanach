@@ -2122,3 +2122,11 @@ body.entry-side #entryModalInner figure { border-color: transparent; box-shadow:
 body.entry-side #entryModalInner .verse-card,
 body.entry-side #entryModalInner .src-item { background: transparent; padding-inline: 0; }
 body.entry-side #entryModalInner { box-shadow: none; border-radius: 0; }
+
+/* 5.3.1 — סרגל עליון אחד: ניווט + כלי הכרטיס + סגירה; ריווח בין כפתורי הפעולה */
+body.entry-in-guide .side-nav { flex-wrap: wrap; }
+body.entry-in-guide .side-nav .entry-tool-btn { padding: .3em .6em; }
+body.entry-in-guide .side-nav .side-link { margin-inline-end: auto; }
+.otz-mentions { display: flex; flex-wrap: wrap; gap: .5em; }
+.otz-mentions .otz-mentions-list { flex-basis: 100%; }
+.otz-actions { gap: .5em !important; }

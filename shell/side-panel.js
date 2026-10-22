@@ -107,10 +107,16 @@
     // כפתור הסגירה עובר לשורת הניווט (שלא יעלה עליה), ובחוץ חוזר למקומו
     const cb = document.getElementById('entryCloseBtn');
     if (cb) { if (inGuide()) nav.appendChild(cb); else modal.insertBefore(cb, nav); }
+    // 5.3.1 — כלי הכרטיס (מועדף, הדפסה, PDF, עריכה, דיווח) עוברים גם הם לסרגל העליון הדביק
     // מעבר בין ערכים בחלונית פתוחה — בלי הבהוב: שומרים גובה, גוללים לראש, ומעמעמים רק את התוכן
     const swapping = side && ov.classList.contains('open');
     if (swapping) modal.classList.add('side-swap');
     const r = orig.apply(this, arguments);
+    nav.querySelectorAll('.entry-tool-btn').forEach(b => b.remove());
+    if (inGuide()) {
+      const tools = modal.querySelectorAll('#entryModalInner h2 .entry-tool-btn');
+      tools.forEach(b => nav.insertBefore(b, cb && cb.parentNode === nav ? cb : null));
+    }
     if (swapping) { modal.scrollTop = 0; requestAnimationFrame(() => modal.classList.remove('side-swap')); }
     if (side && curCard) curCard.scrollIntoView({ block: 'nearest' });
     return r;
