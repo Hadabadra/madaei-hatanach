@@ -345,11 +345,12 @@ function satelliteThumbHTML(entry){
   for (let dx = -2; dx <= 2; dx++) for (let dy = -1; dy <= 1; dy++) {
     const left = ox + dx * 256, top = oy + dy * 256;
     if (left > W || top > H || left < -256 || top < -256) continue;
-    tiles += `<img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/${z}/${cy + dy}/${cx + dx}.jpg" alt="" loading="lazy" onerror="this.style.display='none'" style="position:absolute;left:${left}px;top:${top}px;width:256px;height:256px;">`;
+    tiles += `<img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/${z}/${cy + dy}/${cx + dx}.jpg" alt="" loading="lazy" onerror="this.style.display='none'" onload="var w=this.closest('.sat-wrap');if(w)w.style.display=''" style="position:absolute;left:${left}px;top:${top}px;width:256px;height:256px;">`;
   }
-  return `<div class="sat-thumb" title="תצלום לוויין" style="position:relative;width:100%;max-width:${W}px;height:${H}px;overflow:hidden;border-radius:10px;margin-bottom:4px;background:var(--surface-2, #ddd);">${tiles}`
+  // 5.4.0 — מוסתר עד שאריח אחד לפחות נטען: בלי רשת לא מוצג מלבן אפור ריק
+  return `<div class="sat-wrap" style="display:none"><div class="sat-thumb" title="תצלום לוויין" style="position:relative;width:100%;max-width:${W}px;height:${H}px;overflow:hidden;border-radius:10px;margin-bottom:4px;background:var(--surface-2, #ddd);">${tiles}`
     + `<span style="position:absolute;left:${W / 2 - 7}px;top:${H / 2 - 7}px;width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#d33;"></span></div>`
-    + `<div style="font-size:.75em;opacity:.7;margin-bottom:12px;">תצלום לוויין: Sentinel-2 cloudless 2024, EOX</div>`;
+    + `<div style="font-size:.75em;opacity:.7;margin-bottom:12px;">תצלום לוויין: Sentinel-2 cloudless 2024, EOX</div></div>`;
 }
 
 function renderEntryDetailHTML(entry, catIdOverride){

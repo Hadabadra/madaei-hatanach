@@ -2193,3 +2193,7 @@ body.entry-in-guide .side-nav {
 }
 #entryOverlay { z-index: 1100; }
 .result-row button.expand-btn { font-size: 1.3em; line-height: 1; }
+
+/* 5.4.0 — כלי הכרטיס בלי מסגרת */
+.entry-tool-btn { border: none !important; background: transparent !important; box-shadow: none !important; }
+.entry-tool-btn:hover { background: var(--color-hover) !important; }
