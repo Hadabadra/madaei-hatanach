@@ -243,7 +243,8 @@ function updateGuideFiltersSummary(){
       const cur = { c:[...activeGuideChips], e:activeGuideEra, t:activeGuideTribe, l:activeGuideLetter };
       if (JSON.stringify(all[currentGuideCat.id] || null) !== JSON.stringify(parts.length ? cur : null)){
         if (parts.length) all[currentGuideCat.id] = cur; else delete all[currentGuideCat.id];
-        setPref('lastFilters', all);
+        uiPrefs.lastFilters = all;   // בלי setPref: applyPrefs מרנדר מחדש ותוקע את המדריך
+        if (typeof savePrefs === 'function') savePrefs();
       }
     }
   } catch(_){}
@@ -510,7 +511,7 @@ async function openGuide(catId, term){
   // 5.4.0 — זכירת הסינון האחרון לכל מדריך (נשמר בהעדפות)
   try {
     const lf = (typeof uiPrefs !== 'undefined' && uiPrefs.lastFilters && uiPrefs.lastFilters[cat.id]) || null;
-    if (lf){ (lf.c||[]).forEach(x => activeGuideChips.add(x)); activeGuideEra = lf.e||'all'; activeGuideTribe = lf.t||'all'; activeGuideLetter = lf.l||'all'; }
+    if (lf){ const ids = new Set(currentGuideData.map(e => e.cat)); (lf.c||[]).forEach(x => { if (ids.has(x)) activeGuideChips.add(x); }); activeGuideEra = lf.e||'all'; activeGuideTribe = lf.t||'all'; activeGuideLetter = lf.l||'all'; }
   } catch(_){}
   renderGuideGrid('');
   // #54: התמונות נטענות עכשיו (לא בפתיחת התוסף); כשהגיעו — מרנדרים שוב את אותו מדריך

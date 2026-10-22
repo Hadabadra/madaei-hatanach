@@ -2185,3 +2185,11 @@ body.entry-in-guide .side-nav {
   font-family: var(--font-main); font-size: .9em; text-decoration: underline; padding: 0 .4em;
 }
 .chip.chip-map { background: transparent; box-shadow: none; }
+
+/* 5.4.0 תיקונים: סינון צד סגור = רשת לכל הרוחב; כרטיס מעל חלון הזיהוי */
+@media (min-width: 52em) {
+  body.filters-side #guideView:has(#guideFilters.collapsed) { display: block; }
+  body.filters-side #guideFilters.collapsed { display: none; }
+}
+#entryOverlay { z-index: 1100; }
+.result-row button.expand-btn { font-size: 1.3em; line-height: 1; }

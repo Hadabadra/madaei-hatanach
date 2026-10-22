@@ -96,7 +96,7 @@ function buildResultRow(m){
         <div class="name">${viaPrefix}${catIconHtml(m.catId, 20)} ${esc(m.name)}</div>
         <div class="cat">${m.catLabel}${modern ? ' · ' + esc(modern) : ''}</div>
       </div>
-      <button type="button" class="expand-btn">${isCustom ? 'פתיחה' : 'הרחבה ⌄'}</button>
+      <button type="button" class="expand-btn" title="פתיחת הכרטיס" aria-label="פתיחת הכרטיס">‹</button>
     </div>
     <div class="result-row-detail" style="display:none;margin-top:10px;"></div>
   `;
@@ -109,7 +109,9 @@ function buildResultRow(m){
   if (isCustom){
     btn.addEventListener('click', () => openCustomHtmlPage(m.term));
   } else {
-    btn.addEventListener('click', async () => {
+    // 5.4.0 — האריח פותח את כרטיס הערך המלא (חלונית צד/חלון), במקום הרחבה בתוך הרשימה
+    btn.addEventListener('click', () => { if (typeof openEntryDetail === 'function') openEntryDetail(m.entry); });
+    if (false) btn.addEventListener('click', async () => {
       const open = detailBox.style.display !== 'none';
       if (open){
         detailBox.style.display = 'none';
