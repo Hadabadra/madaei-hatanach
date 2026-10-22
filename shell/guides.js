@@ -226,8 +226,27 @@ function updateGuideFiltersSummary(){
   if (activeGuideTribe !== 'all') parts.push('שבט: ' + activeGuideTribe);
   if (activeGuideLetter !== 'all') parts.push('אות: ' + activeGuideLetter);
   const open = !guideFilters.classList.contains('collapsed');
-  guideFiltersSummary.textContent = (parts.length && !open) ? ('סינון פעיל — ' + parts.join(' · ')) : '';
+  const n = guideGrid ? guideGrid.querySelectorAll('.entry-card').length : 0;
+  guideFiltersSummary.innerHTML = parts.length
+    ? `<span>${open ? '' : esc('סינון פעיל — ' + parts.join(' · ') + ' · ')}${n} תוצאות</span> <button type="button" class="clear-filters-btn">נקה סינונים</button>`
+    : '';
+  const cb = guideFiltersSummary.querySelector('.clear-filters-btn');
+  if (cb) cb.addEventListener('click', () => {
+    activeGuideChips.clear(); activeGuideEra = 'all'; activeGuideTribe = 'all'; activeGuideLetter = 'all';
+    renderGuideGrid(guideSearchBox.value); updateGuideFiltersSummary();
+  });
   guideFiltersToggle.classList.toggle('on', parts.length > 0);
+  // 5.4.0 — שמירת הסינון האחרון למדריך הנוכחי
+  try {
+    if (currentGuideCat && typeof setPref === 'function' && typeof uiPrefs !== 'undefined'){
+      const all = Object.assign({}, uiPrefs.lastFilters || {});
+      const cur = { c:[...activeGuideChips], e:activeGuideEra, t:activeGuideTribe, l:activeGuideLetter };
+      if (JSON.stringify(all[currentGuideCat.id] || null) !== JSON.stringify(parts.length ? cur : null)){
+        if (parts.length) all[currentGuideCat.id] = cur; else delete all[currentGuideCat.id];
+        setPref('lastFilters', all);
+      }
+    }
+  } catch(_){}
 }
 
 guideFiltersToggle.addEventListener('click', () => {
@@ -255,7 +274,7 @@ function renderGuideChips(){
     }).join('');
   // במקומות: כפתור קפיצה ישירה למפה שבסוף הרשימה
   if (currentGuideCat && currentGuideCat.id === 'places'){
-    guideChips.insertAdjacentHTML('beforeend', '<button class="chip chip-map" id="jumpToMapChip">🗺️ למפה</button>');
+    guideChips.insertAdjacentHTML('beforeend', '<button class="chip chip-map" id="jumpToMapChip" title="למפה" aria-label="למפה">🗺️</button>');
   }
   guideChips.querySelectorAll('.chip').forEach(btn => {
     if (btn.id === 'jumpToMapChip') return;
@@ -441,6 +460,7 @@ function renderGuideGrid(filterText){
   }
 
   guideGrid.innerHTML = html;
+  updateGuideFiltersSummary();
   let cardI = 0;
   Array.from(guideGrid.children).forEach(card => {
     if (!card.classList.contains('entry-card')) return;
@@ -487,6 +507,11 @@ async function openGuide(catId, term){
   }
   currentGuideCat = cat;
   currentGuideData = await loadGuideData(cat);
+  // 5.4.0 — זכירת הסינון האחרון לכל מדריך (נשמר בהעדפות)
+  try {
+    const lf = (typeof uiPrefs !== 'undefined' && uiPrefs.lastFilters && uiPrefs.lastFilters[cat.id]) || null;
+    if (lf){ (lf.c||[]).forEach(x => activeGuideChips.add(x)); activeGuideEra = lf.e||'all'; activeGuideTribe = lf.t||'all'; activeGuideLetter = lf.l||'all'; }
+  } catch(_){}
   renderGuideGrid('');
   // #54: התמונות נטענות עכשיו (לא בפתיחת התוסף); כשהגיעו — מרנדרים שוב את אותו מדריך
   if (!guideImagesReady(cat.id)) loadGuideImages(cat).then(() => {
