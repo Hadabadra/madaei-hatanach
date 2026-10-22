@@ -2170,7 +2170,7 @@ body.entry-in-guide .side-nav {
 
 /* סינון בעמודה בצד (הגדרה) */
 @media (min-width: 52em) {
-  body.filters-side #guideView { display: grid; grid-template-columns: 15em 1fr; column-gap: 1em; align-items: start; }
+  body.filters-side #guideView.open { display: grid; grid-template-columns: 15em 1fr; column-gap: 1em; align-items: start; }
   body.filters-side #guideView > :not(#guideFilters):not(#guideGrid) { grid-column: 1 / -1; }
   body.filters-side #guideFilters {
     grid-column: 1; position: sticky; top: 0; max-height: 85vh; overflow-y: auto;
@@ -2188,7 +2188,7 @@ body.entry-in-guide .side-nav {
 
 /* 5.4.0 תיקונים: סינון צד סגור = רשת לכל הרוחב; כרטיס מעל חלון הזיהוי */
 @media (min-width: 52em) {
-  body.filters-side #guideView:has(#guideFilters.collapsed) { display: block; }
+  body.filters-side #guideView.open:has(#guideFilters.collapsed) { display: flex; }
   body.filters-side #guideFilters.collapsed { display: none; }
 }
 #entryOverlay { z-index: 1100; }
