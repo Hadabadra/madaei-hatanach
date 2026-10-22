@@ -80,6 +80,16 @@ function showResults(allMatches, selectedText, mapScope){
   render();
   renderNikudStatus();
 
+  // 5.4.0 — עמוד מלא מתחת לסרגל הקיים (מדריך/בית), או חלון קופץ לפי ההגדרה
+  const page = !(typeof uiPrefs !== 'undefined' && uiPrefs.resultsPopup);
+  document.body.classList.toggle('results-page', page);
+  if (page){
+    const gv = document.getElementById('guideView');
+    const bar = (gv && gv.classList.contains('open')) ? document.getElementById('guideViewBar')
+      : (document.getElementById('homeSearchWrap') || {}).parentElement;
+    const b = bar && bar.getBoundingClientRect ? bar.getBoundingClientRect().bottom : 0;
+    document.documentElement.style.setProperty('--res-top', Math.max(0, b) + 'px');
+  }
   resultsOverlay.classList.add('open');
 }
 

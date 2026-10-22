@@ -2202,14 +2202,14 @@ body.entry-in-guide .side-nav {
 #guideViewBar { padding-block: .2em; gap: .4em; }
 #guideViewBar button, #guideViewBar input { padding-block: .3em; min-height: 0; }
 
-/* 5.4.0 — תוצאות הזיהוי כעמוד מלא (כמו מדריך); כרטיס נפתח בחלונית הצד */
-#resultsOverlay { padding: 0; background: var(--color-bg); align-items: stretch; justify-content: stretch; }
-#resultsModal {
+/* 5.4.0 — תוצאות הזיהוי כעמוד מלא (ברירת מחדל; הגדרה resultsPopup מחזירה לחלון) */
+body.results-page #resultsOverlay { top: var(--res-top, 0); padding: 0; background: var(--color-bg); align-items: stretch; justify-content: stretch; z-index: 450; }
+body.results-page #resultsModal {
   max-width: none; max-height: none; height: 100%; border-radius: 0; box-shadow: none;
   background: var(--color-bg); padding: .8em 1.2em; animation: none;
 }
-#resultsModal h2 { text-align: start; padding-left: 0; padding-inline-end: 3em; }
-#resultsCloseX { left: auto; inset-inline-end: 1em; top: .8em; }
-#resultsList { grid-template-columns: repeat(auto-fill, minmax(16em, 1fr)); }
-#resultsFoot { justify-content: flex-start; }
-body.entry-side #resultsList { margin-inline-end: var(--side-w, 30em); }
+body.results-page #resultsModal h2 { text-align: start; padding-left: 0; padding-inline-end: 3em; }
+body.results-page #resultsCloseX { left: auto; inset-inline-end: 1em; top: .8em; }
+body.results-page #resultsList { grid-template-columns: repeat(auto-fill, minmax(16em, 1fr)); }
+body.results-page #resultsFoot { justify-content: flex-start; }
+body.results-page.entry-side #resultsList { margin-inline-end: var(--side-w, 30em); }

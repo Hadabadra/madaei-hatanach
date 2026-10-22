@@ -9,8 +9,9 @@
 
   const WIDE = () => window.matchMedia('(min-width: 900px)').matches;
   // #guideView הוא position:fixed ולכן offsetParent שלו תמיד null — בודקים את המחלקה open
-  const inGuide = () => { const g = document.getElementById('guideView'); return !!(g && g.classList.contains('open')); };
-  const grid = () => document.getElementById('guideGrid');
+  const resPage = () => { const r = document.getElementById('resultsOverlay'); return document.body.classList.contains('results-page') && !!(r && r.classList.contains('open')); };
+  const inGuide = () => { if (resPage()) return true; const g = document.getElementById('guideView'); return !!(g && g.classList.contains('open')); };
+  const grid = () => document.getElementById(resPage() ? 'resultsList' : 'guideGrid');
   // החלונית מתחילה מתחת לסרגל העליון ולמסננים, כדי שהם יישארו לכל הרוחב
   const setTop = () => { const g = grid(); if (g) document.documentElement.style.setProperty('--side-top', Math.max(0, g.getBoundingClientRect().top) + 'px'); };
   let curCard = null;

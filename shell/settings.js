@@ -11,7 +11,7 @@
 const PREFS_KEY = 'madaei_hatanach_ui_prefs_v1';
 // pubEvents/pubChurban/pubAhead/pubBack — פרסום ליומן של אוצריא. ברירות המחדל
 // 4.16.1: כבויות כברירת מחדל (בקשת בעלת הפרויקט — יש למי שזה מפריע); מפעילים בהגדרות.
-const DEFAULT_PREFS = { theme: 'otzaria', font: 'otzaria', scale: 100, density: 'normal', cardImg: true, entrySide: true, filtersSide: false, divineName: 'he',
+const DEFAULT_PREFS = { theme: 'otzaria', font: 'otzaria', scale: 100, density: 'normal', cardImg: true, entrySide: true, filtersSide: false, resultsPopup: false, divineName: 'he',
   pubEvents: false, pubChurban: false, pubAhead: 365, pubBack: 7, shemMode: 'hyphen', shemScope: 'all', shemAggr: true };
 let uiPrefs = Object.assign({}, DEFAULT_PREFS);
 let otzariaTheme = null; // ה-theme האחרון שהתקבל מאוצריא (boot / theme.changed)
@@ -239,6 +239,8 @@ function syncSettingsUI(){
   if (es) setOn(es, uiPrefs.entrySide !== false);
   const fs0 = document.getElementById('setFiltersSide');
   if (fs0) setOn(fs0, !!uiPrefs.filtersSide);
+  const rp0 = document.getElementById('setResultsPopup');
+  if (rp0) setOn(rp0, !!uiPrefs.resultsPopup);
 }
 
 function setPref(key, val){
@@ -368,6 +370,8 @@ function wireSettings(){
   // 5.3.0 — כרטיס ערך בחלונית צד (ברירת מחדל) או בחלון קופץ כמו קודם
   const es = document.getElementById('setEntrySide');
   if (es) es.addEventListener('click', () => { const next = !isOn(es); setOn(es, next); setPref('entrySide', next); });
+  const rpb = document.getElementById('setResultsPopup');
+  if (rpb) rpb.addEventListener('click', () => { const next = !isOn(rpb); setOn(rpb, next); setPref('resultsPopup', next); });
   // 5.4.0 — סינון בעמודה בצד
   const fsb = document.getElementById('setFiltersSide');
   if (fsb) fsb.addEventListener('click', () => { const next = !isOn(fsb); setOn(fsb, next); setPref('filtersSide', next); document.body.classList.toggle('filters-side', next); });
