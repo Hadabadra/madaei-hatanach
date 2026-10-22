@@ -91,7 +91,7 @@ function buildResultRow(m){
   const modern = shortModernId(m.entry);
   const isCustom = m.catId === 'custom';
   row.innerHTML = `
-    <div class="result-row-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+    <div class="result-row-head" role="button" tabindex="0">
       <div class="info">
         <div class="name">${viaPrefix}${catIconHtml(m.catId, 20)} ${esc(m.name)}</div>
         <div class="cat">${m.catLabel}${modern ? ' · ' + esc(modern) : ''}</div>
@@ -101,6 +101,10 @@ function buildResultRow(m){
     <div class="result-row-detail" style="display:none;margin-top:10px;"></div>
   `;
   const btn = row.querySelector('.expand-btn');
+  // 5.4.0 — כל האריח לחיץ, לא רק הכפתור
+  const head = row.querySelector('.result-row-head');
+  head.addEventListener('click', e => { if (e.target !== btn) btn.click(); });
+  head.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
   const detailBox = row.querySelector('.result-row-detail');
   if (isCustom){
     btn.addEventListener('click', () => openCustomHtmlPage(m.term));

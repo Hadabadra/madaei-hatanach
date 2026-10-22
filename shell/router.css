@@ -2132,3 +2132,50 @@ body.entry-in-guide .side-nav #entryCloseBtn { margin-inline-start: auto; }
 .otz-mentions { display: flex; flex-wrap: wrap; gap: .5em; }
 .otz-mentions .otz-mentions-list { flex-basis: 100%; }
 .otz-actions { gap: .5em !important; }
+
+/* ==================== 5.4.0 — זיהוי באריחים, סרגל כרטיס צמוד, סינון בצד ==================== */
+#resultsModal { border: none; box-shadow: var(--elev-3); }
+#resultsCloseX { border: none; background: transparent; }
+#resultsChips { border-bottom: none; }
+.nikud-status { font-size: .74em; }
+#resultsList {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(14em, 1fr));
+  gap: .7em; align-content: start; padding: .3em;
+}
+#resultsList > :not(.result-row) { grid-column: 1 / -1; }
+.result-row {
+  display: block; margin: 0; border: none; background: var(--color-surface-2);
+  box-shadow: var(--elev-1); padding: .8em .9em; transition: box-shadow .15s, background .15s;
+}
+.result-row:hover { border-color: transparent; background: var(--color-primary-subtle); box-shadow: var(--elev-3); }
+.result-row-head { display: flex; align-items: center; gap: .6em; cursor: pointer; }
+.result-row .name { font-size: 1.05em; }
+.result-row button.expand-btn {
+  background: transparent; color: var(--color-primary); padding: .2em .5em; font-weight: 600;
+}
+.result-row button.expand-btn:hover { background: var(--color-hover); }
+.result-row:has(.result-row-detail[style*="block"]) { grid-column: 1 / -1; }
+.result-row-detail { border-top: none; }
+#resultsPrintBtn { background: transparent; color: var(--color-primary); box-shadow: none; }
+
+/* סרגל הכרטיס: צמוד לראש החלונית מעל התמונה, באותה שורה עם הסגירה, אייקונים בלי מסגרת */
+body.entry-in-guide .side-nav {
+  top: calc(-1 * clamp(16px, 3vw, 28px)); margin-top: calc(-1 * clamp(16px, 3vw, 28px));
+  padding-top: clamp(16px, 3vw, 28px); flex-wrap: nowrap; overflow-x: auto;
+}
+.side-nav button, .side-nav #entryCloseBtn {
+  background: transparent; box-shadow: none; border: none; padding: .3em .45em; flex: 0 0 auto;
+}
+.side-nav button:hover { background: var(--color-hover); box-shadow: none; }
+
+/* סינון בעמודה בצד (הגדרה) */
+@media (min-width: 52em) {
+  body.filters-side #guideView { display: grid; grid-template-columns: 15em 1fr; column-gap: 1em; align-items: start; }
+  body.filters-side #guideView > :not(#guideFilters):not(#guideGrid) { grid-column: 1 / -1; }
+  body.filters-side #guideFilters {
+    grid-column: 1; position: sticky; top: 0; max-height: 85vh; overflow-y: auto;
+    background: var(--color-surface-2); box-shadow: var(--elev-1); border-radius: var(--radius-md); padding: .7em;
+  }
+  body.filters-side #guideGrid { grid-column: 2; }
+  body.filters-side #guideFilters .filter-row { flex-direction: column; align-items: stretch; }
+}
