@@ -80,7 +80,7 @@
   nav.querySelector('.side-next').addEventListener('click', () => step(1));
   nav.querySelector('.side-link').addEventListener('click', async () => {
     const name = ((modal.querySelector('#entryModalInner h2') || {}).textContent || '').replace(/[\u2B50\u2606\u2605].*$/, '').trim();
-    const cat = (typeof currentGuideCat !== 'undefined' && currentGuideCat) || '';
+    const cat = (typeof currentGuideCat !== 'undefined' && currentGuideCat && (currentGuideCat.id || currentGuideCat)) || '';
     // קריאה שתוסף אחר מדביק כדי לפתוח בדיוק את הכרטיס הזה (#173, docs/עיצוב-5.3.md)
     const txt = "Otzaria.call('plugin.openOther', { pluginId: 'com.chadbedera.madaeihatanach', param: { section: '" + cat + "', entry: '" + name.replace(/'/g, "\\'") + "' } })";
     // 5.3.2 — העתקה עם גיבוי (ב-WebView של אוצריא clipboard לא תמיד זמין) + חיווי על הכפתור עצמו
