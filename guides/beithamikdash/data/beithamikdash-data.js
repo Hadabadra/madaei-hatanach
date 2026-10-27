@@ -784,7 +784,7 @@ const DATA = [
   },
   {
     "name": "לשכת הגזית (מושב הסנהדרין)",
-    "cat": "chambers","img":"beithamikdash:לשכת הגזית (מושב הסנהדרין)","credit":"Printer of a souvenir of Gerhard Schott’s model tour of London circa 1723-1730. · Public domain · ויקישיתוף",
+    "cat": "chambers",
     "aliases": [],
     "verses": [
       {
