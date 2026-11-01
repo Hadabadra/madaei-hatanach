@@ -2213,3 +2213,9 @@ body.results-page #resultsCloseX { left: auto; inset-inline-end: 1em; top: .8em;
 body.results-page #resultsList { grid-template-columns: repeat(auto-fill, minmax(16em, 1fr)); }
 body.results-page #resultsFoot { justify-content: flex-start; }
 body.results-page.entry-side #resultsList { margin-inline-end: var(--side-w, 30em); }
+
+/* 5.5.0 (#206) — באנגלית (dir=ltr) תחילת הסרגל משמאל, ולכן כפתור ההגדרות הצף עבר לימין:
+   קודם הוא ישב על כפתור "Back" ועל הכותרת. גם פאנל ההגדרות והשוליים שנשמרו לו מתהפכים. */
+html[dir="ltr"] #settingsBtn { left: auto; right: 10px; }
+html[dir="ltr"] #settingsPanel { left: auto; right: 10px; }
+html[dir="ltr"] .topbar, html[dir="ltr"] #guideViewBar, html[dir="ltr"] #talmudViewBar, html[dir="ltr"] #personalBar, html[dir="ltr"] #frameBar { padding: 0 56px 0 16px; }
