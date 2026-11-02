@@ -95,5 +95,5 @@
   window.eyesOpenMap = openMapRequest;
 
   let tries = 0;
-  (function wait(){ if (addControl()) { openMapRequest(); return; } if (++tries < 60) setTimeout(wait, 150); })();
+  (function wait(){ if (addControl()) { openMapRequest(); return; } setTimeout(wait, ++tries < 60 ? 150 : 600); })();   // 5.6.1 #245: המפה נטענת לפעמים מאוחר — ממשיכים לחכות
 })();
