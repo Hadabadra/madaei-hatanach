@@ -2238,3 +2238,10 @@ body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-heigh
 }
 .nf-btn.secondary { background: var(--color-secondary-container) !important; color: var(--color-on-secondary-container) !important; }
 .nf-btn.secondary.danger-link { color: var(--color-error) !important; }
+/* 5.6.0 — מטבעות: משקל ושווי */
+.coin-box { margin-top: 1em; padding: .8em 1em; background: var(--color-surface-2); box-shadow: var(--elev-1); border-radius: var(--radius-sm); }
+.coin-box h3 { margin: 0 0 .5em; font-size: 1em; }
+.coin-table { border-collapse: collapse; width: 100%; }
+.coin-table th, .coin-table td { text-align: start; padding: .25em .5em; }
+.coin-table th { color: var(--color-on-surface-dim); font-weight: 600; font-size: .9em; }
+.coin-note { margin: .4em 0 0; font-size: .85em; color: var(--color-on-surface-dim); }
