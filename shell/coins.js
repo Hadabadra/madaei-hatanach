@@ -96,11 +96,46 @@ function coinBoxHTML(entry){
           ? '<td class="coin-val" data-coin-g="' + r.g + '" data-coin-metal="' + u.metal + '">…</td>' : '') + '</tr>';
     });
     h += '</table>';
+    const g0 = coinGrams(u)[0];
+    if (g0) h += '<p class="coin-note">בהשוואה להיום: ' + modernCompare(g0.g) + '</p>';
   }
   if (u.note) h += '<p class="coin-note">' + esc(u.note) + '</p>';
   h += '<p class="coin-note coin-src"></p>'
+    + weightsTableHTML()
     + '<p class="coin-note">השיעורים בקירוב ולפי שיטות מקובלות; לשאלה למעשה (פדיון הבן, מחצית השקל וכו׳) — יש לשאול רב.</p></div>';
   setTimeout(fillCoinValues, 0);
+  return h;
+}
+
+
+// 5.6.0 — משקלות קדומים והשוואה למשקלים של היום (בקשה 5)
+// משקלי מטבעות ישראליים של היום (בנק ישראל) ומשקלים מוכרים, להמחשה בלבד
+const MODERN_REFS = [
+  { g: 3.5, label: 'מטבע של שקל אחד' },
+  { g: 8.2, label: 'מטבע של 5 ₪' },
+  { g: 28.35, label: 'אונקיה' },
+  { g: 1000, label: 'קילוגרם (שקית סוכר)' }
+];
+function modernCompare(g){
+  if (!(g > 0)) return '';
+  const ref = g < 20 ? MODERN_REFS[0] : g < 200 ? MODERN_REFS[1] : g < 2000 ? MODERN_REFS[2] : MODERN_REFS[3];
+  const n = g / ref.g;
+  return '≈ ' + n.toLocaleString('he-IL', { maximumFractionDigits: n < 10 ? 1 : 0 }) + ' × ' + ref.label;
+}
+const WEIGHT_ORDER = ['פרוטה','איסר','פונדיון','מעה (חז״ל)','גרה','דינר (חז״ל)','בקע','שקל','סלע (חז״ל)','דרכמון','ליטרא','מנה','ככר'];
+function weightsTableHTML(){
+  let h = '<details class="coin-weights"><summary>📊 טבלת המשקלות הקדומים והשוואה למשקלים של היום</summary>'
+    + '<div class="coin-scroll"><table class="coin-table"><tr><th>יחידה</th>'
+    + COIN_SHITOT.map(s => '<th>' + esc(s.label) + '</th>').join('') + '<th>בהשוואה להיום</th></tr>';
+  WEIGHT_ORDER.forEach(n => {
+    const u = COIN_UNITS[n]; if (!u) return;
+    const gs = coinGrams(u);
+    const cols = u.g ? COIN_SHITOT.map(() => fmtG(u.g) + (u.approx ? ' *' : '')) : gs.map(r => fmtG(r.g));
+    h += '<tr><td>' + esc(n) + '</td>' + cols.map(c => '<td>' + c + '</td>').join('')
+      + '<td>' + modernCompare(gs.length ? gs[0].g : 0) + '</td></tr>';
+  });
+  h += '</table></div><p class="coin-note">ההשוואה לפי השיטה הראשונה. * משקל משוער שלא אומת. '
+    + 'היחסים: סלע = 4 דינר, דינר = 6 מעות, מעה = 2 פונדיונים, פונדיון = 2 איסרים, איסר = 8 פרוטות; שקל = 20 גרה.</p></details>';
   return h;
 }
 

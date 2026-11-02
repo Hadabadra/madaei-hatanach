@@ -2245,3 +2245,6 @@ body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-heigh
 .coin-table th, .coin-table td { text-align: start; padding: .25em .5em; }
 .coin-table th { color: var(--color-on-surface-dim); font-weight: 600; font-size: .9em; }
 .coin-note { margin: .4em 0 0; font-size: .85em; color: var(--color-on-surface-dim); }
+.coin-weights { margin-top: .7em; }
+.coin-weights summary { cursor: pointer; color: var(--color-primary); font-weight: 600; }
+.coin-scroll { overflow-x: auto; }
