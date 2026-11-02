@@ -2228,3 +2228,13 @@ body.entry-in-guide .side-nav {
 }
 body.entry-in-guide .side-nav button, body.entry-in-guide .side-nav #entryCloseBtn,
 body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-height: 1.1; font-size: .95em; }
+/* כפתורי שמירה/שליחה בעריכת ערך — רקע מלא וניגודיות (כללים מאוחרים הפכו אותם לשקופים) */
+.nf-btn:not(.secondary), #genEditSave, #genEditSend, #genNfContinue {
+  background: var(--color-primary) !important; color: var(--color-on-primary) !important;
+  border-color: var(--color-primary) !important; box-shadow: var(--elev-2); opacity: 1;
+}
+.nf-btn:not(.secondary):hover, #genEditSave:hover, #genEditSend:hover, #genNfContinue:hover {
+  background: color-mix(in srgb, var(--color-on-primary) 12%, var(--color-primary)) !important; box-shadow: var(--elev-3);
+}
+.nf-btn.secondary { background: var(--color-secondary-container) !important; color: var(--color-on-secondary-container) !important; }
+.nf-btn.secondary.danger-link { color: var(--color-error) !important; }
