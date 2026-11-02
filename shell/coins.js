@@ -118,6 +118,7 @@ const MODERN_REFS = [
 ];
 function modernCompare(g){
   if (!(g > 0)) return '';
+  if (g < 1) return '≈ ' + Math.round(g * 1000) + ' מיליגרם — פחות מגרם';
   const ref = g < 20 ? MODERN_REFS[0] : g < 200 ? MODERN_REFS[1] : g < 2000 ? MODERN_REFS[2] : MODERN_REFS[3];
   const n = g / ref.g;
   return '≈ ' + n.toLocaleString('he-IL', { maximumFractionDigits: n < 10 ? 1 : 0 }) + ' × ' + ref.label;
