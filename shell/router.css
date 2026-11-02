@@ -2231,7 +2231,7 @@ body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-heigh
 /* כפתורי שמירה/שליחה בעריכת ערך — רקע מלא וניגודיות (כללים מאוחרים הפכו אותם לשקופים) */
 .nf-btn:not(.secondary), #genEditSave, #genEditSend, #genNfContinue {
   background: var(--color-primary) !important; color: var(--color-on-primary) !important;
-  border-color: var(--color-primary) !important; box-shadow: var(--elev-2); opacity: 1;
+  border-color: var(--color-primary) !important; box-shadow: var(--elev-1); opacity: 1;
 }
 .nf-btn:not(.secondary):hover, #genEditSave:hover, #genEditSend:hover, #genNfContinue:hover {
   background: color-mix(in srgb, var(--color-on-primary) 12%, var(--color-primary)) !important; box-shadow: var(--elev-3);
