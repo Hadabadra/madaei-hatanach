@@ -195,6 +195,8 @@ function journeyPinIcon(color, num){
   return L.divIcon({ className:'geo-pin', html, iconSize:[s,s], iconAnchor:[s/2,s], popupAnchor:[0,-s+6] });
 }
 function renderJourneyMap(container, points){
+  // 5.8.0 — המפה המשותפת (סיבוב, שכבות, מסך מלא); Leaflet רק כגיבוי
+  if (window.EyesMap && typeof EyesMap.journey === 'function'){ try { if (EyesMap.journey(container, points)) return; } catch(e){ console.warn('madaei-hatanach: shared journey map failed', e); } }
   if (typeof window.L === 'undefined' || typeof addBaseLayers !== 'function' || !points || !points.length){
     container.remove();
     return;
@@ -765,6 +767,7 @@ async function focusMainMap(lat, lng, zoom, name){
   setTimeout(() => {
     const el = document.getElementById('worldMap');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (window.EyesMap && EyesMap.mode() === 'shared'){ EyesMap.focus(lat, lng); return; }
     if (typeof worldMap === 'undefined' || !worldMap) return;
     const z = Math.min(zoom || 8, (typeof MAP_MAX_ZOOM !== 'undefined' ? MAP_MAX_ZOOM : 12));
 
