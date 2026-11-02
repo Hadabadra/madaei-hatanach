@@ -2219,3 +2219,12 @@ body.results-page.entry-side #resultsList { margin-inline-end: var(--side-w, 30e
 html[dir="ltr"] #settingsBtn { left: auto; right: 10px; }
 html[dir="ltr"] #settingsPanel { left: auto; right: 10px; }
 html[dir="ltr"] .topbar, html[dir="ltr"] #guideViewBar, html[dir="ltr"] #talmudViewBar, html[dir="ltr"] #personalBar, html[dir="ltr"] #frameBar { padding: 0 56px 0 16px; }
+
+/* ==================== 5.6.0 — סרגל כרטיס נמוך, בלי כפילות; כפתורי שמירה בולטים ==================== */
+body.entry-in-guide #entryModalInner h2 .entry-tool-btn { display: none; }
+body.entry-in-guide .side-nav {
+  top: calc(-1 * clamp(16px, 3vw, 28px)); margin-top: calc(-1 * clamp(16px, 3vw, 28px));
+  padding-top: .25em; padding-bottom: .25em; margin-bottom: .3em; min-height: 0; line-height: 1.1;
+}
+body.entry-in-guide .side-nav button, body.entry-in-guide .side-nav #entryCloseBtn,
+body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-height: 1.1; font-size: .95em; }
