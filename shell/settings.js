@@ -106,7 +106,8 @@ function loadPrefs(){
 function savePrefs(){
   try { localStorage.setItem(PREFS_KEY, JSON.stringify(uiPrefs)); } catch(e){}
   // גיבוי בזיכרון של אוצריא, כדי שההגדרות ישרדו גם ניקוי של אחסון הדפדפן
-  if (hasOtzaria()) storageSet(PREFS_KEY, uiPrefs);
+  // 5.6.0: נשמר כמחרוזת JSON — אובייקט לא תמיד שורד את storage.set
+  if (hasOtzaria()) storageSetJson(PREFS_KEY, uiPrefs);
 }
 
 function applyPrefs(){

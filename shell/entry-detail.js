@@ -215,6 +215,20 @@ function renderJourneyMap(container, points){
     if (latlngs.length === 1) map.setView(latlngs[0], 7);
     else map.fitBounds(latlngs, { padding: [26, 26], maxZoom: MAP_MAX_ZOOM });
     setTimeout(() => map.invalidateSize(), 120);
+    // 5.6.1 #237 — מסך מלא למפת המסע
+    const Full = L.Control.extend({ options: { position: 'topleft' }, onAdd(){
+      const b = L.DomUtil.create('button', 'leaflet-bar jm-full-btn');
+      b.type = 'button'; b.title = 'מסך מלא'; b.textContent = '⛶';
+      L.DomEvent.disableClickPropagation(b);
+      b.addEventListener('click', () => {
+        const on = container.classList.toggle('jm-full');
+        b.textContent = on ? '✕' : '⛶'; b.title = on ? 'יציאה ממסך מלא' : 'מסך מלא';
+        map.scrollWheelZoom[on ? 'enable' : 'disable']();
+        setTimeout(() => { map.invalidateSize(); if (latlngs.length > 1) map.fitBounds(latlngs, { padding: [26, 26] }); }, 60);
+      });
+      return b;
+    }});
+    map.addControl(new Full());
   } catch(e){
     console.warn('madaei-hatanach: journey map failed', e);
     container.textContent = 'מפה לא זמינה כרגע.';

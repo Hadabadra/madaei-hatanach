@@ -302,15 +302,25 @@ const READ_OPT_HIGHLIGHT = 'mh_highlight_identified';   // ברירת מחדל: 
 const READ_OPT_AUTO      = 'mh_auto_identify';          // ברירת מחדל: כבוי
 const READ_OPT_HIDE_BTN  = 'mh_hide_toolbar_button';    // ברירת מחדל: כבוי
 
+// 5.6.0: הגדרות ״קריאה״ (זיהוי אוטומטי וכו׳) לא נשמרו בסגירה — ערך בוליאני ב-storage.set
+// לא תמיד שורד את הגשר של אוצריא. כותבים מחרוזת 'true'/'false', ומשקפים גם
+// ב-localStorage; בקריאה מקבלים כל צורה (בוליאני, מחרוזת, מעטפת {value}).
+function parseOptFlag(v){
+  if (v && typeof v === 'object' && !Array.isArray(v) && 'value' in v) v = v.value;
+  if (v === 'true' || v === '1' || v === 1) return true;
+  if (v === 'false' || v === '0' || v === 0) return false;
+  return (typeof v === 'boolean') ? v : null;
+}
 async function readOptFlag(key, def){
-  if (!(window.Otzaria && Otzaria.call)) return def;
+  let local = null;
+  try { local = parseOptFlag(localStorage.getItem('opt:' + key)); } catch(e){}
+  if (!(window.Otzaria && Otzaria.call)) return local === null ? def : local;
   try {
     const res = await Otzaria.call('storage.get', { key: key });
-    let v = res && (res.data !== undefined ? res.data : res);
-    if (v && typeof v === 'object' && 'value' in v) v = v.value;
-    if (v === 'true') v = true; if (v === 'false') v = false;
-    return (typeof v === 'boolean') ? v : def;
-  } catch(e){ return def; }
+    const v = parseOptFlag(res && (res.data !== undefined ? res.data : res));
+    if (v !== null) return v;
+  } catch(e){}
+  return local === null ? def : local;
 }
 // ---- שולחן עבודה חדש עם מקורות הערך (תיקון 08/10/2026) ----
 // workspace.create+switchTo מחליף את הכרטיסיות — וכרטיסיית התוסף עצמה נשארת בשולחן
@@ -338,8 +348,9 @@ async function openPendingWorkspaceSources(){
 }
 
 function writeOptFlag(key, val){
+  try { localStorage.setItem('opt:' + key, val ? 'true' : 'false'); } catch(e){}
   if (!(window.Otzaria && Otzaria.call)) return Promise.resolve();
-  return Otzaria.call('storage.set', { key: key, value: !!val }).catch(()=>{});
+  return Otzaria.call('storage.set', { key: key, value: val ? 'true' : 'false' }).catch(()=>{});
 }
 
 // הדגשת הטקסט שזוהה בספר עצמו (reader.setHighlight). הבחירה מגיעה מ-payload של

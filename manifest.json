@@ -1,7 +1,7 @@
 {
   "id": "com.chadbedera.madaeihatanach",
   "name": "עינים למקרא",
-  "version": "5.5.0",
+  "version": "5.6.1",
   "description": "מדריך מאוחד לתנ״ך ומשנה/תלמוד: אישים, מקומות, בע״ח, צומח, דומם, בית המקדש, אנשים מהתלמוד ומסכתות — זיהוי אחיד בלחיצה ימנית, תמונות ומפה בלי אינטרנט.",
   "author": "חד בדרא",
   "homepage": "https://github.com/Hadabadra/madaei-hatanach",
@@ -64,6 +64,8 @@
       "https://script.googleusercontent.com/macros/echo",
       "https://docs.google.com/forms/d/e/1FAIpQLSd7NiGDUahnwpaestosEcDxPJoAkYXzVRUa2yB5EiXkLPSWvQ/formResponse",
       "https://he.wikipedia.org/api/rest_v1/page/summary",
+      "https://api.gold-api.com/price/",
+      "https://open.er-api.com/v6/latest/USD",
       "http://127.0.0.1:5000",
       "http://127.0.0.1:5001",
       "http://127.0.0.1:5002",

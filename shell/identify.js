@@ -133,6 +133,8 @@ const DISAMBIG_SKIP  = new Set(['מלך','בן','בת','אבי','אשת','אחי
 // מדריכי שמות — כאן ״מילה רגילה״ היא תמיד חשד. בשאר (דומם, צומח, בע״ח…) המילה
 // עצמה היא בדרך כלל המשמעות הנכונה, וסיומת רבים מותרת.
 const NAME_GUIDES = new Set(['people', 'places', 'amoraim']);
+// 5.6.1 #247 — שמות שהם גם מילה שכיחה מאוד (״בני ישראל״): לא מזוהים כמילה בודדת
+const COMMON_WORD_NAMES = new Set(['בני']);
 const isNameGuide = (catId) => NAME_GUIDES.has(catId);
 
 // מפתח שמופיע בניקוד אחר ב-AMBIG_VOCAL_MIN פסוקים לפחות במאגר של אותו מדריך
@@ -414,6 +416,7 @@ function matchWindow(ctx, i, len, cat, lookup){
   const forms = candidateForms2(first, phrase, vocalized, afterBen);
   const nameGuide = isNameGuide(cat.id);
   for (const m of forms){
+    if (len === 1 && nameGuide && COMMON_WORD_NAMES.has(m.f)) continue;
     if (m.suf && nameGuide) continue;                 // אלהים→אלה, שבעים→שבע, טבחים→טבח
     if (len === 1 && m.pre && STOPWORDS.has(m.f) && !(ctx.allowStopwords && ctx.allowStopwords.has(m.f))) continue; // ואת → את
     const entries = lookup.exact.get(m.f);

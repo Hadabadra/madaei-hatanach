@@ -2219,3 +2219,35 @@ body.results-page.entry-side #resultsList { margin-inline-end: var(--side-w, 30e
 html[dir="ltr"] #settingsBtn { left: auto; right: 10px; }
 html[dir="ltr"] #settingsPanel { left: auto; right: 10px; }
 html[dir="ltr"] .topbar, html[dir="ltr"] #guideViewBar, html[dir="ltr"] #talmudViewBar, html[dir="ltr"] #personalBar, html[dir="ltr"] #frameBar { padding: 0 56px 0 16px; }
+
+/* ==================== 5.6.0 — סרגל כרטיס נמוך, בלי כפילות; כפתורי שמירה בולטים ==================== */
+body.entry-in-guide #entryModalInner h2 .entry-tool-btn { display: none; }
+body.entry-in-guide .side-nav {
+  top: calc(-1 * clamp(16px, 3vw, 28px)); margin-top: calc(-1 * clamp(16px, 3vw, 28px));
+  padding-top: .25em; padding-bottom: .25em; margin-bottom: .3em; min-height: 0; line-height: 1.1;
+}
+body.entry-in-guide .side-nav button, body.entry-in-guide .side-nav #entryCloseBtn,
+body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-height: 1.1; font-size: .95em; }
+/* כפתורי שמירה/שליחה בעריכת ערך — רקע מלא וניגודיות (כללים מאוחרים הפכו אותם לשקופים) */
+.nf-btn:not(.secondary), #genEditSave, #genEditSend, #genNfContinue {
+  background: var(--color-primary) !important; color: var(--color-on-primary) !important;
+  border-color: var(--color-primary) !important; box-shadow: var(--elev-1); opacity: 1;
+}
+.nf-btn:not(.secondary):hover, #genEditSave:hover, #genEditSend:hover, #genNfContinue:hover {
+  background: color-mix(in srgb, var(--color-on-primary) 12%, var(--color-primary)) !important; box-shadow: var(--elev-3);
+}
+.nf-btn.secondary { background: var(--color-secondary-container) !important; color: var(--color-on-secondary-container) !important; }
+.nf-btn.secondary.danger-link { color: var(--color-error) !important; }
+/* 5.6.0 — מטבעות: משקל ושווי */
+.coin-box { margin-top: 1em; padding: .8em 1em; background: var(--color-surface-2); box-shadow: var(--elev-1); border-radius: var(--radius-sm); }
+.coin-box h3 { margin: 0 0 .5em; font-size: 1em; }
+.coin-table { border-collapse: collapse; width: 100%; }
+.coin-table th, .coin-table td { text-align: start; padding: .25em .5em; }
+.coin-table th { color: var(--color-on-surface-dim); font-weight: 600; font-size: .9em; }
+.coin-note { margin: .4em 0 0; font-size: .85em; color: var(--color-on-surface-dim); }
+.coin-weights { margin-top: .7em; }
+.coin-weights summary { cursor: pointer; color: var(--color-primary); font-weight: 600; }
+.coin-scroll { overflow-x: auto; }
+/* 5.6.1 #237 — מפת מסע במסך מלא */
+.jm-full { position: fixed !important; inset: 0; z-index: 9999; width: auto !important; height: auto !important; margin: 0 !important; }
+.jm-full-btn { background: var(--color-surface); color: var(--color-on-surface); border: none; width: 2em; height: 2em; cursor: pointer; font-size: 1em; }

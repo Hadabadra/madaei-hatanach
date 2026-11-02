@@ -347,16 +347,16 @@ function onOtzariaTheme(theme){
   if (uiPrefs.theme === 'otzaria' || uiPrefs.font === 'otzaria') applyPrefs();
 }
 
-// שחזור ההגדרות מהאחסון של אוצריא, אם localStorage נוקה
+// 5.6.0: אחסון אוצריא הוא מקור האמת להגדרות — localStorage של התצוגה לא תמיד שורד
+// סגירה של התוסף, ולכן טוענים תמיד מאוצריא בפתיחה (ולא רק כשאין עותק מקומי).
 async function restorePrefsFromOtzaria(){
   try {
-    const stored = await storageGet(PREFS_KEY);
-    if (!stored || typeof stored !== 'object') return;
-    let hasLocal = false;
-    try { hasLocal = !!localStorage.getItem(PREFS_KEY); } catch(e){}
-    if (hasLocal) return;
+    const stored = await storageGetJson(PREFS_KEY);
+    if (!stored || typeof stored !== 'object') { if (typeof savePrefs === 'function') savePrefs(); return; }
     uiPrefs = Object.assign({}, DEFAULT_PREFS, stored);
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(uiPrefs)); } catch(e){}
     applyPrefs();
+    if (typeof syncSettingsForm === 'function') syncSettingsForm();
   } catch(e){}
 }
 

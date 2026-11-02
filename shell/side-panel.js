@@ -130,6 +130,20 @@
     return r;
   };
 
+  // 5.6.0 — כפתורים כפולים: כל רינדור חוזר של הכרטיס (מועדף, עריכה, החלפת שפה) יצר
+  // שוב כלים בכותרת בזמן שהישנים נשארו בסרגל. מעכשיו — בכל שינוי בכרטיס, הכלים
+  // שבכותרת עוברים לסרגל העליון ומחליפים את הקודמים; בכרטיס עצמו לא נשאר עותק.
+  const inner = document.getElementById('entryModalInner');
+  const syncTools = () => {
+    if (!document.body.classList.contains('entry-in-guide')) return;
+    const fresh = inner ? inner.querySelectorAll('h2 .entry-tool-btn') : [];
+    if (!fresh.length) return;
+    nav.querySelectorAll('.entry-tool-btn').forEach(b => b.remove());
+    const cb = document.getElementById('entryCloseBtn');
+    fresh.forEach(b => nav.insertBefore(b, cb && cb.parentNode === nav ? cb : null));
+  };
+  if (inner) new MutationObserver(syncTools).observe(inner, { childList: true, subtree: true });
+
   // סגירה מנקה סימון
   new MutationObserver(() => {
     if (!ov.classList.contains('open')) { mark(null); document.body.classList.remove('entry-side', 'entry-in-guide'); }
