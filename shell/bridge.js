@@ -609,3 +609,22 @@ async function checkForUpdate(){
 // מדלגים במופע רקע: הוא נדלק כדי לטפל בלחיצה אחת ולכבות, ובקשת רשת שם רק הייתה
 // מאריכה את חייו — ואת ההודעה ממילא אין מי שיראה.
 setTimeout(() => { if (runMode !== 'background') checkForUpdate(); }, UPDATE_CHECK_DELAY_MS);
+
+// 5.9.0 — דיווח קריסה דרך מערכת הדיווחים של אוצריא (feedback.report, reportType:'crash').
+// אוצריא מציגה למשתמש דיאלוג אישור עם תצוגה מקדימה — אי אפשר (ואין רצון) לשלוח בלי הסכמתו.
+// לכן: רק שגיאת קוד אמיתית (Error), פעם אחת בכל הפעלה, ולא אותה שגיאה פעמיים.
+(function(){
+  if (!(window.Otzaria && typeof Otzaria.call === 'function')) return;
+  let asked = false;
+  function report(msg, stack){
+    if (asked) return;
+    const sig = String(msg || '').slice(0, 120);
+    try { if (sessionStorage.getItem('mh_crash_sig') === sig) return; sessionStorage.setItem('mh_crash_sig', sig); } catch(e){}
+    asked = true;
+    const v = (typeof EMBEDDED_PLUGIN_VERSION !== "undefined") ? EMBEDDED_PLUGIN_VERSION : '';
+    Otzaria.call('feedback.report', { reportType: 'crash',
+      details: ('תקלה שנתפסה אוטומטית בעינים למקרא ' + v + '\n' + msg + '\n' + (stack || '')).slice(0, 4000) }).catch(() => {});
+  }
+  window.addEventListener('error', e => { if (e && e.error instanceof Error) report(e.message, e.error.stack); });
+  window.addEventListener('unhandledrejection', e => { const r = e && e.reason; if (r instanceof Error) report(r.message, r.stack); });
+})();
