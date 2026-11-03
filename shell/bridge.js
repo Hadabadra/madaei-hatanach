@@ -400,7 +400,7 @@ function waitForOtzaria(elapsed){
       if (typeof p === 'string'){ try { p = JSON.parse(p); } catch(e){ p = { section: p }; } }
       if (p && p.kind === 'guide' && p.catId){ openGuide(p.catId, null); return; }
       // 5.5.0 — מפה משותפת: תוסף אחר (כיוון תפילה / מקוואות / גבולות עירוב) פותח את מפת המקומות באותו מקום.
-      // הבקשה נשמרת ב-sessionStorage ומפת המקומות (guides/places/js/map-shared.js) קוראת אותה כשהיא נטענת.
+      // הבקשה נשמרת ב-sessionStorage ומפת המקומות (guides/places/js/map-layers.js) קוראת אותה כשהיא נטענת.
       if (p && p.type === 'open-map'){
         try { sessionStorage.setItem('eyes-open-map', JSON.stringify({ lat: +p.lat, lon: +p.lon, from: p.from || '' })); } catch(e){}
         bringToFront && bringToFront(); openGuide('places', null);
