@@ -132,6 +132,20 @@ async function wireEntryOtzariaActions(container, entry, catId){
     b.addEventListener('click', () => openSourcesInWorkspace(entry, refs));
     bar.appendChild(b);
   }
+  // 5.9.0 — ״לשון הקודש״ (Hadabadra/KLI-MULON): פירוש ודקדוק לשם הערך. התוסף שם מקבל {word} ב-plugin.openOther
+  {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'panel-btn secondary';
+    b.textContent = '📖 פירוש ודקדוק ב״לשון הקודש״ ↗';
+    b.title = 'פתיחת השם בתוסף לשון הקודש (שורש, פירוש, דקדוק)';
+    const word = String(entry.name).replace(/\s*\(.*\)\s*$/, '').trim();
+    b.addEventListener('click', () => {
+      Otzaria.call('plugin.openOther', { pluginId: 'milon-klei-kodesh', param: { word: word, source: PLUGIN_DISPLAY_NAME } })
+        .then(r => { if (r && r.success === false) throw r; })
+        .catch(() => Otzaria.call('ui.showMessage', { message: 'התוסף ״לשון הקודש״ אינו מותקן. אפשר להתקין אותו מחנות התוספים של אוצריא.' }).catch(() => {}));
+    });
+    bar.appendChild(b);
+  }
   container.appendChild(bar);
   const pat = COMPANION_PATTERNS[catId];
   if (!pat) { if (!bar.children.length) bar.remove(); return; }

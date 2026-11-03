@@ -39,6 +39,8 @@ function biographyHtml(b){
 }
 
 // ---- "היכן עוד מוזכר" — חיפוש מלא באוצריא ----
+// 5.9.0 — הטקסט מהחיפוש של אוצריא מגיע עם ישויות HTML (&#x27; &quot;); מפענחים לפני esc כדי שלא יוצגו כקודים
+function decodeEntities(s){ const t = document.createElement('textarea'); t.innerHTML = String(s == null ? '' : s); return t.value; }
 async function searchMentions(query, max){
   const out = [];
   let total = 0;
@@ -76,7 +78,7 @@ function wireMentionsSearch(container, entry){
       const { total, results } = await searchMentions(name, 30);
       if (!results.length){ list.innerHTML = '<p class="mini-note">לא נמצאו מופעים.</p>'; return; }
       list.innerHTML = `<p class="mini-note">${total} מופעים${total > results.length ? ' — מוצגים ' + results.length + ' הראשונים' : ''}</p>` +
-        results.map((r, i) => `<div class="src-item clickable" data-hit="${i}"><button type="button" class="tool-btn" data-bm="${i}" title="הוספה לסימניות של אוצריא" style="float:inline-end;">🔖</button><b>${esc(r.reference || r.book || '')}</b> — ${esc(String(r.text || '').replace(/<[^>]*>/g, '').slice(0, 140))}</div>`).join('');
+        results.map((r, i) => `<div class="src-item clickable" data-hit="${i}"><button type="button" class="tool-btn" data-bm="${i}" title="הוספה לסימניות של אוצריא" style="float:inline-end;">🔖</button><b>${esc(decodeEntities(r.reference || r.book || ''))}</b> — ${esc(decodeEntities(String(r.text || '').replace(/<[^>]*>/g, '')).slice(0, 140))}</div>`).join('');
       // 4.0.0 — bookmarks.add: שמירת מופע כסימנייה ברשימת הסימניות של אוצריא
       // 4.4.0 — bookmarks.list/remove: מופע שכבר שמור מסומן ✅, ולחיצה עליו מסירה אותו
       const setBm = (b, on) => {
