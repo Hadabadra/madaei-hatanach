@@ -457,7 +457,7 @@ function renderGuideGrid(filterText){
     html += `<div class="entry-section-head" style="grid-column:1/-1;"><span class="entry-section-num">🗺️</span>
         <h3>${mapFiltered ? 'מפת המקומות שבסינון' : 'מפת כל המקומות'}</h3></div>`
       + (mapFiltered ? `<div class="mini-note" style="grid-column:1/-1;margin:-4px 0 6px;">מציגה ${withGeo.length} מקומות מתוך ${list.length} שבסינון (רק למקומות עם קואורדינטות יש סימון).</div>` : '')
-      + `<div id="worldMap" style="grid-column:1/-1;height:420px;border-radius:10px;overflow:hidden;"></div>`;
+      + `<div id="worldMap" style="grid-column:1/-1;height:calc(100vh - 150px);min-height:420px;border-radius:10px;overflow:hidden;"></div>`;
   }
 
   guideGrid.innerHTML = html;

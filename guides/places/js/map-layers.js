@@ -7,7 +7,7 @@
 //   3. כשתוסף אחר פותח את עינים למקרא עם {type:"open-map", lat, lon} — המפה מתמקדת שם (shell/bridge.js שומר את הבקשה).
 (function(){
   'use strict';
-  if (typeof L === 'undefined' || typeof DATA === 'undefined') return;
+  if (typeof L === 'undefined') return;   // 5.9.0: גם בעמוד הראשי (index.html), שבו DATA נקבע רק בפתיחת מדריך המקומות
   const SELF = 'com.chadbedera.madaeihatanach';
   const PERIODS = [
     { id:'avot', g:'א',     label:'ימי האבות',                  books:['בראשית'] },
@@ -32,7 +32,8 @@
     if (!set.size) set.add('none');
     return set;
   };
-  const PER = DATA.map(periodsOf);
+  let PER = [], PER_SRC = null;
+  const per = () => { const d = window.DATA || []; if (PER_SRC !== d){ PER_SRC = d; PER = d.map(periodsOf); } return PER; };
   const KEY = 'eyes-map-periods';
   let on = new Set(PERIODS.map(p => p.id));
   try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (Array.isArray(s) && s.length) on = new Set(s); } catch(e){}
@@ -46,10 +47,10 @@
     if (allOn()) return baseFilter();
     const visible = currentVisibleIdxSet();
     markerLayer.clearLayers();
-    allMarkers.forEach(rec => { if (visible.has(rec.idx) && [...PER[rec.idx]].some(p => on.has(p))) markerLayer.addLayer(rec.marker); });
+    allMarkers.forEach(rec => { if (visible.has(rec.idx) && [...per()[rec.idx]].some(p => on.has(p))) markerLayer.addLayer(rec.marker); });
   };
 
-  const count = id => PER.filter(s => s.has(id)).length;
+  const count = id => per().filter(s => s.has(id)).length;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const periodsHTML = () => `<h5>תקופות</h5>`
     + PERIODS.map(p => `<label class="mu-row"><span class="mu-g alt">${esc(p.g)}</span><span class="mu-t">${esc(p.label)}<small>${count(p.id)} מקומות</small></span><input type="checkbox" class="mu-sw" data-period="${p.id}"${on.has(p.id) ? ' checked' : ''}></label>`).join('')
@@ -58,6 +59,7 @@
 
   function addControl(){
     if (typeof worldMap === 'undefined' || !worldMap || !window.MapUI) return false;
+    if (worldMap._eyesLayers) return true; worldMap._eyesLayers = true;
     const Ctl = L.Control.extend({ options:{ position:'topleft' }, onAdd(){
       const div = L.DomUtil.create('div', 'leaflet-bar eyes-layers');
       L.DomEvent.disableClickPropagation(div); L.DomEvent.disableScrollPropagation(div);
@@ -94,6 +96,8 @@
   window.addEventListener('storage', e => { if (e.key === 'eyes-open-map' && e.newValue) openMapRequest(); });
   window.eyesOpenMap = openMapRequest;
 
+  // 5.9.0 — בעמוד הראשי המפה נבנית מחדש בכל סינון: מוסיפים את התפריט אחרי כל initWorldMap
+  if (typeof window.initWorldMap === 'function'){ const base = window.initWorldMap; window.initWorldMap = function(){ const r = base.apply(this, arguments); try { addControl(); openMapRequest(); } catch(e){} return r; }; }
   let tries = 0;
   (function wait(){ if (addControl()) { openMapRequest(); return; } setTimeout(wait, ++tries < 60 ? 150 : 600); })();   // 5.6.1 #245: המפה נטענת לפעמים מאוחר — ממשיכים לחכות
 })();

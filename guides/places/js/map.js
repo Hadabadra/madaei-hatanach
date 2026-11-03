@@ -236,6 +236,7 @@ function popupHTML(item, idx, mi){
     <div class="s2-pop-cat">${catLabel}${methodLine} · ${m.confidence}</div>
     <p class="s2-pop-desc">${desc}</p>
     <button class="s2-pop-btn" data-open-idx="${idx}">לכרטיס המלא ⬅</button>
+    ${m.geo ? `<a class="s2-pop-gm" href="https://www.google.com/maps?q=${m.geo[0]},${m.geo[1]}" data-external-link="https://www.google.com/maps?q=${m.geo[0]},${m.geo[1]}" data-requires-net>📍 מפות גוגל ↗</a>` : ''}
   </div>`;
 }
 

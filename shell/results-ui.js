@@ -66,15 +66,14 @@ function showResults(allMatches, selectedText, mapScope){
         (showPossible ? 'הסתרת הזיהויים הנוספים ⌃' : 'הצג זיהויים נוספים (' + possible.length + ') ⌄') + '</button>' +
         '<div class="possible-note">זיהויים שהמנוע פחות בטוח בהם — מילה נפוצה, שם משותף לכמה אנשים, או עם ולא אדם.</div>';
       box.querySelector('#togglePossible').addEventListener('click', () => { showPossible = !showPossible; render(); });
-      if (showPossible){
-        const list = document.createElement('div');
-        list.className = 'possible-list';
-        possible.forEach(m => list.appendChild(buildResultRow(m)));
-        box.appendChild(list);
-      }
+      // 5.9.0 — הכפתור ברוחב מלא, והזיהויים הנוספים כאריחים באותה רשת (ולא עמודה צרה אחת)
+      box.style.gridColumn = '1 / -1';
       // לפני כפתור הדיווח, כדי שהדיווח יישאר אחרון
       const report = resultsList.querySelector('#identifyErrorBtn');
-      if (report) resultsList.insertBefore(box, report.parentNode); else resultsList.appendChild(box);
+      const ins = n => { if (report) resultsList.insertBefore(n, report.parentNode); else resultsList.appendChild(n); };
+      ins(box);
+      if (showPossible) possible.forEach(m => { const r = buildResultRow(m); r.classList.add('possible-row'); ins(r); });
+      if (report) report.parentNode.style.gridColumn = '1 / -1';
     }
   }
   render();
@@ -202,9 +201,15 @@ function openIdentifyErrorReport(selectedText, matches){
   });
 }
 
-closeResults.addEventListener('click', () => resultsOverlay.classList.remove('open'));
-document.getElementById('resultsCloseX').addEventListener('click', () => resultsOverlay.classList.remove('open'));
-resultsOverlay.addEventListener('click', (ev) => { if (ev.target === resultsOverlay) resultsOverlay.classList.remove('open'); });
+// 5.9.0 — סגירת הזיהוי סוגרת גם את הכרטיס שנפתח ממנו (בלוח הצד), כדי שלא יישאר מוצג בדף הבית
+function closeResultsAll(){
+  resultsOverlay.classList.remove('open');
+  document.body.classList.remove('results-page');
+  if (typeof entryOverlay !== 'undefined' && entryOverlay.classList.contains('open')) entryOverlay.classList.remove('open');
+}
+closeResults.addEventListener('click', closeResultsAll);
+document.getElementById('resultsCloseX').addEventListener('click', closeResultsAll);
+resultsOverlay.addEventListener('click', (ev) => { if (ev.target === resultsOverlay) closeResultsAll(); });
 document.querySelectorAll('.panel-overlay').forEach(p => {
   p.addEventListener('click', (ev) => { if (ev.target === p) p.classList.remove('open'); });
 });
