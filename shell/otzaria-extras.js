@@ -16,7 +16,8 @@ function otzData(res){ return (res && res.data !== undefined) ? res.data : res; 
 async function fetchOtzariaBiography(name){
   if (!otzOk() || !name) return null;
   try {
-    const d = otzData(await Otzaria.call('tools.biographies', { query: String(name).slice(0, 200), limit: 5 }));
+    // 5.10.0 — אוצריא 0.9.98.3: המאגר "תולדות גדולי ישראל"; formatVersion 2 = המבנה המלא (תקופה, קבורה, חיבורים, מקורות)
+    const d = otzData(await Otzaria.call('tools.biographies', { query: String(name).slice(0, 200), limit: 5, formatVersion: 2 }));
     const list = (d && d.results) || [];
     const norm = s => String(s || '').replace(/["'״׳\s]/g, '');
     const want = norm(name);
@@ -24,17 +25,36 @@ async function fetchOtzariaBiography(name){
   } catch(e){ return null; }
 }
 
+// 5.10.0 — הצגה מלאה יותר, ו**קרדיט חובה** לפי תנאי המאגר: attribution ומקורות (sources) לצד כל ערך.
 function biographyHtml(b){
+  const arr = v => Array.isArray(v) ? v.filter(Boolean) : [];
+  const names = v => arr(v).map(x => esc(typeof x === 'string' ? x : (x.name || ''))).filter(Boolean);
   const parts = [];
+  if (b.eraLabel) parts.push(esc(b.eraLabel));
   if (b.generation) parts.push('דור: ' + esc(b.generation));
   if (b.birth) parts.push('לידה: ' + esc(b.birth));
   if (b.death) parts.push('פטירה: ' + esc(b.death));
-  if (b.countries && b.countries.length) parts.push(esc(b.countries.join(', ')));
+  if (b.buried) parts.push('מקום קבורה: ' + esc(b.buried));
+  if (arr(b.countries).length) parts.push(esc(arr(b.countries).join(', ')));
   const text = b.summary || b.biographyShort || '';
+  const more = [];
+  if (arr(b.roles).length) more.push('<div><b>תפקידים:</b> ' + esc(arr(b.roles).join(' · ')) + '</div>');
+  if (names(b.teachers).length) more.push('<div><b>רבותיו:</b> ' + names(b.teachers).slice(0, 8).join(' · ') + '</div>');
+  if (names(b.students).length) more.push('<div><b>תלמידיו:</b> ' + names(b.students).slice(0, 8).join(' · ') + '</div>');
+  if (arr(b.family).length) more.push('<div><b>משפחה:</b> ' + arr(b.family).slice(0, 8).map(f => esc((f.relation ? f.relation + ': ' : '') + (f.name || ''))).join(' · ') + '</div>');
+  if (arr(b.works).length) more.push('<div><b>חיבורים:</b> ' + arr(b.works).slice(0, 10).map(w => esc(w.title || '')).filter(Boolean).join(' · ') + '</div>');
+  if (b.remember) more.push('<div><b>לזכור:</b> ' + esc(b.remember) + '</div>');
+  const src = arr(b.sources).map(s => {
+    const t = esc(s.title || s.credit || 'מקור');
+    return s.url ? `<a href="#" data-external-link="${esc(s.url)}" data-requires-net>${t} ↗</a>` : t;
+  });
+  const credit = (b.attribution ? esc(b.attribution) : '') + (src.length ? (b.attribution ? ' · ' : '') + 'מקורות: ' + src.join(', ') : '');
   return `<div class="otz-bio" style="margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid var(--color-outline);">
     <div class="field-label" style="margin-top:0;">📜 ממאגר הביוגרפיות של אוצריא</div>
     ${parts.length ? `<div class="mini-note" style="margin:0 0 6px;">${parts.join(' · ')}</div>` : ''}
     ${text ? `<p style="margin:0;">${esc(text)}</p>` : ''}
+    ${more.length ? `<details style="margin-top:6px;"><summary style="cursor:pointer;">עוד פרטים</summary><div class="mini-note" style="margin-top:4px;line-height:1.7;">${more.join('')}</div></details>` : ''}
+    ${credit ? `<div class="mini-note" style="margin-top:6px;opacity:.75;">${credit}</div>` : ''}
   </div>`;
 }
 

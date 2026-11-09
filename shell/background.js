@@ -169,6 +169,20 @@ function bgWait(elapsed){
     }, 700);
   });
 
+  // 5.10.0 (אוצריא 0.9.98.3) — כפתור עין בשדה החיפוש: הטקסט המסומן בשדה, או כל הטקסט, נפתח בזיהוי
+  Otzaria.on('search.fieldAction.invoked', (d) => {
+    if (!d || d.actionId !== 'madaei-hatanach-field-identify') return;
+    const sel = (d.selectionEnd > d.selectionStart) ? String(d.text || '').slice(d.selectionStart, d.selectionEnd) : '';
+    const text = String(sel || (d.request && d.request.query) || d.text || '').trim();
+    if (d.sessionId) Otzaria.call('search.endFieldSession', { sessionId: d.sessionId }).catch(()=>{});
+    if (!text) return;
+    bgStart();
+    storageSetJson(PENDING_IDENTIFY_KEY, { text: text, mode: 'show', ts: Date.now(), origin: BG_INSTANCE_ID })
+      .catch(()=>{})
+      .then(() => openSelfWith({ kind: 'identify', text: text, mode: 'show', ts: Date.now(), origin: BG_INSTANCE_ID }))
+      .then(bgEnd, bgEnd);
+  });
+
   Otzaria.on('reader.context_menu_item_clicked', (payload) => {
     if (!payload || payload.itemId !== MENU_ITEM_ID) return;
     bgStart();
