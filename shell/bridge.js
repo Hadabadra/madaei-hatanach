@@ -424,6 +424,16 @@ function waitForOtzaria(elapsed){
       if (!q) return;
       identifyWithLiveContext(q, { includePossible: true }).then(m => showResults(m, q));
     });
+    // 5.10.0 (אוצריא 0.9.98.3) — כפתור עין בשדה החיפוש (searchFieldActions): זיהוי הטקסט שבשדה.
+    // כשיש אפליקציית רקע האירוע מגיע אליה (shell/background.js); כאן — רק כשאין.
+    Otzaria.on('search.fieldAction.invoked', (d) => {
+      if (!d || d.actionId !== 'madaei-hatanach-field-identify') return;
+      const sel = (d.selectionEnd > d.selectionStart) ? String(d.text || '').slice(d.selectionStart, d.selectionEnd) : '';
+      const q = String(sel || (d.request && d.request.query) || d.text || '').trim();
+      if (d.sessionId) Otzaria.call('search.endFieldSession', { sessionId: d.sessionId }).catch(()=>{});
+      if (!q) return;
+      identifyWithLiveContext(q, { includePossible: true }).then(m => showResults(m, q));
+    });
     Otzaria.on('plugin.suspended', suspendBackgroundWork);
     Otzaria.on('plugin.resumed', resumeBackgroundWork);
     // גם משיכה יזומה — plugin.boot כבר עשוי היה לרוץ לפני שנרשמנו
