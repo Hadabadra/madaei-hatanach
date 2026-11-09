@@ -33,12 +33,21 @@
     return set;
   };
   let PER = [], PER_SRC = null;
-  const per = () => { const d = window.DATA || []; if (PER_SRC !== d){ PER_SRC = d; PER = d.map(periodsOf); } return PER; };
+  const per = () => { const d = window.DATA || (typeof DATA !== 'undefined' ? DATA : []); if (PER_SRC !== d){ PER_SRC = d; PER = d.map(periodsOf); } return PER; };
   const KEY = 'eyes-map-periods';
   let on = new Set(PERIODS.map(p => p.id));
   try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (Array.isArray(s) && s.length) on = new Set(s); } catch(e){}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify([...on])); } catch(e){} };
   const allOn = () => on.size === PERIODS.length;
+  // 5.10.0 — המפה המאוחדת (map-unified.js) משתמשת באותו סינון תקופות
+  window.eyesPeriods = {
+    list: PERIODS, count: id => per().filter(x => x.has(id)).length,
+    isOn: id => on.has(id), allOn: () => allOn(),
+    toggle(id){ on.has(id) ? on.delete(id) : on.add(id); save(); try { updateMapFilter(); } catch(e){}
+      document.querySelectorAll('.eyes-layers [data-period]').forEach(c => { c.checked = on.has(c.dataset.period); }); },
+    setAll(v){ on = v ? new Set(PERIODS.map(p => p.id)) : new Set(); save(); try { updateMapFilter(); } catch(e){}
+      document.querySelectorAll('.eyes-layers [data-period]').forEach(c => { c.checked = on.has(c.dataset.period); }); }
+  };
 
   // סינון: מה שמוצג ברשימה (כמו קודם) וגם בתקופה מסומנת
   const baseFilter = window.updateMapFilter;
