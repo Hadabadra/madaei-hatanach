@@ -40,6 +40,9 @@
 * ערך שנוי במחלוקת — שתי הדעות בשני טורים זה לצד זה; ומעבר לערך אחר באמצע עריכה לא יאבד את מה שלא נשמר ([#259](https://github.com/Hadabadra/madaei-hatanach/issues/259))
 * כפתור הסרגל ״זיהוי״ — לזהות את הטקסט המסומן גם כשהסימון מתבטל לפני שהאירוע מגיע ([#301](https://github.com/Hadabadra/madaei-hatanach/issues/301))
 * הערות אישיות מהמפרשים על שמעון, משה ויהושע — לבדוק מול הספרייה ולשלב ([#298](https://github.com/Hadabadra/madaei-hatanach/issues/298))
+* קישור otzaria:// שפותח כרטיס מוורד או מדפדפן, בהמשך ל-#173 ([#177](https://github.com/Hadabadra/madaei-hatanach/issues/177))
+* מפת המקומות על הבסיס המשותף Mikvaot/shared — שלב 8: החלפת Leaflet רק אחרי בדיקה באוצריא ([#258](https://github.com/Hadabadra/madaei-hatanach/issues/258))
+* עינים למקרא+: מפת האופליין מטושטשת מאז WebP q75 — לחזור לאריחי PNG ([#126](https://github.com/Hadabadra/madaei-hatanach/issues/126), דורש אישור)
 * #77 — ״שבעים המילים הבודדות״ לרס״ג: שאיבה מלאה של ערכי הספר (נכנס רק ״חלמות״; הספר אינו בעותק הספרייה שבגיטהאב, רק בספריית אוצריא 37)
 
 ### ✨ פיצ׳רים
