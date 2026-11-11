@@ -6,6 +6,9 @@
 
 ---
 
+> ⏸️ **הפיתוח מושהה עד סוף 2027** (סבב 6, 11/11/2026). הפניות בגיטהאב נסגרו; הרשימה כאן היא מה שנשאר פתוח,
+> והקישורים מובילים לפניות הסגורות עם הרקע המלא. מצב מסוכם: [docs/STATUS.md](docs/STATUS.md).
+
 ---
 
 ## 🔗 תור העבודה הוא ב-GitHub Issues
@@ -31,6 +34,13 @@
 * [#124 — 4.7 — אוצריא 0.9.99: לחיצה ימנית בלי סימון + הדפסת הפרק — ✅ בקוד, ממתין לשחרור 0.9.99 ולאימות](https://github.com/Hadabadra/madaei-hatanach/issues/124)
 * [#122 — קורא טקסט חלופי בכרטיסיית ספר (DEFAULT_TEXT_READER) — להערכה, דורש אישור](https://github.com/Hadabadra/madaei-hatanach/issues/122)
 * [#123 — feedback.submitBookCorrection (0.9.99) — להערכה, עדיפות נמוכה](https://github.com/Hadabadra/madaei-hatanach/issues/123)
+
+### 💬 מדיווחי משתמשים (סבב 6א, 11/11/2026)
+* עריכה מלאה של כרטיסים באזור האישי, כמו בכרטיסים הרגילים ([#289](https://github.com/Hadabadra/madaei-hatanach/issues/289), [#291](https://github.com/Hadabadra/madaei-hatanach/issues/291))
+* ערך שנוי במחלוקת — שתי הדעות בשני טורים זה לצד זה; ומעבר לערך אחר באמצע עריכה לא יאבד את מה שלא נשמר ([#259](https://github.com/Hadabadra/madaei-hatanach/issues/259))
+* כפתור הסרגל ״זיהוי״ — לזהות את הטקסט המסומן גם כשהסימון מתבטל לפני שהאירוע מגיע ([#301](https://github.com/Hadabadra/madaei-hatanach/issues/301))
+* הערות אישיות מהמפרשים על שמעון, משה ויהושע — לבדוק מול הספרייה ולשלב ([#298](https://github.com/Hadabadra/madaei-hatanach/issues/298))
+* #77 — ״שבעים המילים הבודדות״ לרס״ג: שאיבה מלאה של ערכי הספר (נכנס רק ״חלמות״; הספר אינו בעותק הספרייה שבגיטהאב, רק בספריית אוצריא 37)
 
 ### ✨ פיצ׳רים
 * [#57 — העלאת "עינים למקרא+" (מפות אופליין) לחנות כתוסף נפרד](https://github.com/Hadabadra/madaei-hatanach/issues/57) — ה-CI שולח אותו דרך ה-API בכל גרסה; החנות דוחה בצד השרת ([#127](https://github.com/Hadabadra/madaei-hatanach/issues/127)), ממתין לתשובת מנהלי החנות
