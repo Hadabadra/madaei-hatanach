@@ -143,6 +143,55 @@ function renderGuideTribeChips(){
 }
 let activeGuideLetter = 'all';
 
+// 6.0.0 (סבב 6ב) — שורות סינון לפי מאפיין: ״דף״ במדריכי מסכת (שדה daf) ו״מאפיין״
+// (שדה tags, ובמקומות גם עיר מקלט/לוים/נקודת גבול). שורה מוצגת רק כשיש במדריך ערכים
+// עם המאפיין — כמו שורת השבט. בזכותן מדריך מסכת חדש הוא נתונים בלבד, בלי קוד חדש.
+function entryTagsOf(e){
+  const t = (e.tags || []).slice();
+  if (e.refuge) t.push('עיר מקלט');
+  if (e.levite) t.push('עיר לוים');
+  if (e.border) t.push('נקודת גבול');
+  return t;
+}
+function dafOrder(d){
+  const m = String(d || '').match(/^([א-ת]+)([.:])?/);
+  return m ? gematriaValue(m[1]) * 2 + (m[2] === ':' ? 1 : 0) : 9999;
+}
+const GUIDE_ATTR_ROWS = [
+  { key: 'daf', label: 'דף', of: e => e.daf ? [e.daf] : [], sort: (a, b) => dafOrder(a) - dafOrder(b) },
+  { key: 'tag', label: 'מאפיין', of: entryTagsOf, sort: (a, b) => a.localeCompare(b, 'he') },
+];
+let activeGuideAttr = {};
+const attrOk = (e) => GUIDE_ATTR_ROWS.every(r => !activeGuideAttr[r.key] || r.of(e).includes(activeGuideAttr[r.key]));
+function renderGuideAttrRows(){
+  let anchor = guideTribeRow;
+  GUIDE_ATTR_ROWS.forEach(r => {
+    let row = document.getElementById('guideAttrRow-' + r.key);
+    if (!row && anchor){
+      row = document.createElement('div');
+      row.className = 'filter-row hidden';
+      row.id = 'guideAttrRow-' + r.key;
+      row.innerHTML = '<span class="filter-label">' + esc(r.label) + ':</span><div></div>';
+      anchor.after(row);
+    }
+    if (!row) return;
+    anchor = row;
+    const have = new Set();
+    (currentGuideData || []).forEach(e => r.of(e).forEach(v => have.add(v)));
+    const list = [...have].sort(r.sort);
+    const box = row.lastElementChild;
+    if (!list.length){ row.classList.add('hidden'); box.innerHTML = ''; delete activeGuideAttr[r.key]; return; }
+    row.classList.remove('hidden');
+    const cur = activeGuideAttr[r.key] || 'all';
+    box.innerHTML = `<button class="chip${cur==='all'?' active':''}" data-v="all">הכל</button>` +
+      list.map(v => `<button class="chip${cur===v?' active':''}" data-v="${esc(v)}">${esc(v)}</button>`).join('');
+    box.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+      if (btn.dataset.v === 'all') delete activeGuideAttr[r.key]; else activeGuideAttr[r.key] = btn.dataset.v;
+      renderGuideGrid(guideSearchBox.value);
+    }));
+  });
+}
+
 function guideCatOf(catId){
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
   return cats.find(c => c.id === catId) || null;
@@ -166,6 +215,7 @@ function matchesGuideFilters(entry){
   if (activeGuideEra !== 'all' && guideEraOf(entry) !== activeGuideEra) return false;
   if (activeGuideLetter !== 'all' && guideFirstLetter(entry.name) !== activeGuideLetter) return false;
   if (!tribeOk(entry)) return false;
+  if (!attrOk(entry)) return false;
   return true;
 }
 
@@ -225,6 +275,7 @@ function updateGuideFiltersSummary(){
   if (activeGuideEra !== 'all') parts.push('תקופה: ' + activeGuideEra);
   if (activeGuideTribe !== 'all') parts.push('שבט: ' + activeGuideTribe);
   if (activeGuideLetter !== 'all') parts.push('אות: ' + activeGuideLetter);
+  GUIDE_ATTR_ROWS.forEach(r => { if (activeGuideAttr[r.key]) parts.push(r.label + ': ' + activeGuideAttr[r.key]); });
   const open = !guideFilters.classList.contains('collapsed');
   const n = guideGrid ? guideGrid.querySelectorAll('.entry-card').length : 0;
   guideFiltersSummary.innerHTML = parts.length
@@ -232,7 +283,7 @@ function updateGuideFiltersSummary(){
     : '';
   const cb = guideFiltersSummary.querySelector('.clear-filters-btn');
   if (cb) cb.addEventListener('click', () => {
-    activeGuideChips.clear(); activeGuideEra = 'all'; activeGuideTribe = 'all'; activeGuideLetter = 'all';
+    activeGuideChips.clear(); activeGuideEra = 'all'; activeGuideTribe = 'all'; activeGuideLetter = 'all'; activeGuideAttr = {};
     renderGuideGrid(guideSearchBox.value); updateGuideFiltersSummary();
   });
   guideFiltersToggle.classList.toggle('on', parts.length > 0);
@@ -240,7 +291,7 @@ function updateGuideFiltersSummary(){
   try {
     if (currentGuideCat && typeof setPref === 'function' && typeof uiPrefs !== 'undefined'){
       const all = Object.assign({}, uiPrefs.lastFilters || {});
-      const cur = { c:[...activeGuideChips], e:activeGuideEra, t:activeGuideTribe, l:activeGuideLetter };
+      const cur = { c:[...activeGuideChips], e:activeGuideEra, t:activeGuideTribe, l:activeGuideLetter, a:Object.assign({}, activeGuideAttr) };
       if (JSON.stringify(all[currentGuideCat.id] || null) !== JSON.stringify(parts.length ? cur : null)){
         if (parts.length) all[currentGuideCat.id] = cur; else delete all[currentGuideCat.id];
         uiPrefs.lastFilters = all;   // בלי setPref: applyPrefs מרנדר מחדש ותוקע את המדריך
@@ -260,6 +311,7 @@ guideFiltersToggle.addEventListener('click', () => {
 function renderGuideChips(){
   renderGuideEraChips();
   renderGuideTribeChips();
+  renderGuideAttrRows();
   renderGuideAlphaBar();
   updateGuideFiltersSummary();
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
@@ -427,7 +479,7 @@ function renderGuideGrid(filterText){
   }
 
   const cats = (currentGuideCat && catsCache[currentGuideCat.id]) || [];
-  const noExtraFilter = activeGuideEra === 'all' && activeGuideLetter === 'all' && activeGuideTribe === 'all';
+  const noExtraFilter = activeGuideEra === 'all' && activeGuideLetter === 'all' && activeGuideTribe === 'all' && !Object.keys(activeGuideAttr).length;
   const groupByCat = chipsAreAll() && !q && noExtraFilter && cats.length;
   const flatIdx = []; // רשימת (entry) לפי סדר הופעה בפועל ב-DOM, לחיבור הקליקים
   let html = '';
@@ -500,6 +552,7 @@ async function openGuide(catId, term){
   activeGuideEra = 'all';
   activeGuideTribe = 'all';
   activeGuideLetter = 'all';
+  activeGuideAttr = {};
   guideViewMode = 'grid';
   if (guideTimelineToggle){
     guideTimelineToggle.style.display = TIMELINE_GUIDES.includes(cat.id) ? '' : 'none';
@@ -511,7 +564,7 @@ async function openGuide(catId, term){
   // 5.4.0 — זכירת הסינון האחרון לכל מדריך (נשמר בהעדפות)
   try {
     const lf = (typeof uiPrefs !== 'undefined' && uiPrefs.lastFilters && uiPrefs.lastFilters[cat.id]) || null;
-    if (lf){ const ids = new Set(currentGuideData.map(e => e.cat)); (lf.c||[]).forEach(x => { if (ids.has(x)) activeGuideChips.add(x); }); activeGuideEra = lf.e||'all'; activeGuideTribe = lf.t||'all'; activeGuideLetter = lf.l||'all'; }
+    if (lf){ const ids = new Set(currentGuideData.map(e => e.cat)); (lf.c||[]).forEach(x => { if (ids.has(x)) activeGuideChips.add(x); }); activeGuideEra = lf.e||'all'; activeGuideTribe = lf.t||'all'; activeGuideLetter = lf.l||'all'; activeGuideAttr = Object.assign({}, lf.a||{}); }
   } catch(_){}
   renderGuideGrid('');
   // #54: התמונות נטענות עכשיו (לא בפתיחת התוסף); כשהגיעו — מרנדרים שוב את אותו מדריך

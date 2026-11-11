@@ -26,6 +26,9 @@ const CATEGORIES = [
   { id: 'mumim', label: 'מומים', icon: '🩺', loaderPath: 'guides/mumim/data/_loader.html' },
   { id: 'chullin', label: 'חולין', icon: '🔪', loaderPath: 'guides/chullin/data/_loader.html' },
   { id: 'sukkah', label: 'סוכה ולולב', icon: '🌴', loaderPath: 'guides/sukkah/data/_loader.html' },
+  // 6.0.0 — מדריך מסכת ערכין: ערכי קישור למדריכים הקיימים. noIdentify — לא נכנס לזיהוי
+  // בטקסט (השמות שלו הם ערכים של מדריכים אחרים, והזיהוי כבר מוצא אותם שם).
+  { id: 'arachin', label: 'ערכין', icon: '⚖️', loaderPath: 'guides/arachin/data/_loader.html', noIdentify: true },
   { id: 'archaeology', label: 'ארכיאולוגיה יהודית', icon: '🏺', loaderPath: 'guides/archaeology/data/_loader.html' },
 ];
 
@@ -45,6 +48,7 @@ const CAT_ICON_IMG = {
   mumim: 'icon/masechtot/bechorot.png',
   chullin: 'icon/masechtot/chullin.png',
   sukkah: 'icon/masechtot/sukkah.png',
+  arachin: 'icon/masechtot/arachin.png',
   archaeology: 'icon/cats/archaeology.png',
 };
 

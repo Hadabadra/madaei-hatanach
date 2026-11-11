@@ -13,8 +13,29 @@ const MEAS_UNITS = {
   'סאה': { v: 144 }, 'איפה': { v: 432 }, 'בת': { v: 432 }, 'לתך': { v: 2160 },
   'כור': { v: 4320 }, 'חומר': { v: 4320 },
   'אצבע': { l: 1 }, 'טפח': { l: 4 }, 'זרת': { l: 12 }, 'אמה': { l: 24 },
-  'ריס': { l: 24 * 800 / 3 }, 'מיל': { l: 48000 }, 'פרסה': { l: 192000 }
+  'ריס': { l: 24 * 800 / 3 }, 'מיל': { l: 48000 }, 'פרסה': { l: 192000 },
+  // 6.0.0 (מסכת ערכין) — מידות שטח, a = באמות מרובעות. רמב״ם הלכות ערכים וחרמין ד, ד:
+  // בית סאה = חמשים אמה על חמשים אמה; בית כור (״זרע חומר שעורים״) = שלושים בית סאה = 75,000 אמה.
+  'בית סאה': { a: 2500 }, 'בית כור': { a: 75000 }
 };
+const AREA_ORDER = ['בית סאה', 'בית כור'];
+function fmtArea(m2){
+  if (m2 < 1000) return Math.round(m2).toLocaleString('he-IL') + ' מ״ר';
+  return Math.round(m2).toLocaleString('he-IL') + ' מ״ר (' + (m2 / 1000).toLocaleString('he-IL', { maximumFractionDigits: 1 }) + ' דונם)';
+}
+// אמה = 24 אצבעות; השטח במטרים רבועים לכל שיטה
+function areaVals(u){ return MEAS_SHITOT.map(s => u.a * Math.pow(s.finger * 24 / 100, 2)); }
+function areaBoxHTML(entry){
+  const u = MEAS_UNITS[entry.name], v = areaVals(u);
+  let h = '<div class="coin-box"><h3>📐 שטח ובהשוואה להיום</h3><table class="coin-table"><tr><th>שיטה</th><th>אמה</th><th>שטח</th></tr>';
+  MEAS_SHITOT.forEach((s, i) => { h += '<tr><td>' + esc(s.label) + '</td><td>' + fmtLen(s.finger * 24) + '</td><td>' + fmtArea(v[i]) + '</td></tr>'; });
+  h += '</table><p class="coin-note">בית סאה = 50 × 50 אמה (2,500 אמה מרובעת); בית כור = 30 בית סאה = 75,000 אמה, ״ברבוע מאתים ארבע ושבעים אמות על מאתים ארבע ושבעים אמות בקירוב״ (רמב״ם, הלכות ערכים וחרמין ד, ד).</p>'
+    + '<details class="coin-weights"><summary>📊 כל מידות השטח</summary><div class="coin-scroll"><table class="coin-table"><tr><th>מידה</th>'
+    + MEAS_SHITOT.map(s => '<th>' + esc(s.label) + '</th>').join('') + '</tr>'
+    + AREA_ORDER.map(n => '<tr><td>' + esc(n) + '</td>' + areaVals(MEAS_UNITS[n]).map(x => '<td>' + fmtArea(x) + '</td>').join('') + '</tr>').join('')
+    + '</table></div></details><p class="coin-note">השיעורים בקירוב; יש עוד שיטות. לשאלה למעשה יש לשאול רב.</p></div>';
+  return h;
+}
 const VOL_ORDER = ['ביצה','רביעית','לוג','קב','עשרון','תרקב','הין','סאה','איפה','לתך','כור'];
 const LEN_ORDER = ['אצבע','טפח','זרת','אמה','ריס','מיל','פרסה'];
 
@@ -76,6 +97,7 @@ async function fillMeasBooks(){
 
 function measBoxHTML(entry){
   const u = MEAS_UNITS[entry.name]; if (!u) return '';
+  if (u.a) return areaBoxHTML(entry);
   const v = measVals(u), isVol = !!u.v;
   let h = '<div class="coin-box"><h3>📏 ' + (isVol ? 'נפח' : 'אורך') + ' ובהשוואה להיום</h3><table class="coin-table"><tr><th>שיטה</th><th>' + (isVol ? 'נפח' : 'אורך') + '</th><th>בהשוואה להיום</th></tr>';
   MEAS_SHITOT.forEach((s, i) => { h += '<tr><td>' + esc(s.label) + '</td><td>' + (isVol ? fmtVol(v[i]) : fmtLen(v[i])) + '</td><td>' + (isVol ? volToday(v[i]) : lenToday(v[i])) + '</td></tr>'; });

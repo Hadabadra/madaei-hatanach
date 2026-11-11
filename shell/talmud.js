@@ -20,6 +20,8 @@ const MASECHTOT_SEDARIM = SEDER_ORDER.map(seder => ({
 const MASECHET_TOOLS = {
   'חולין': { title: 'חולין', guideId: 'chullin', icon: 'icon/masechtot/chullin.png' },
   'בכורות': { title: 'מומים — מסכת בכורות', guideId: 'mumim', icon: 'icon/masechtot/bechorot.png' },
+  // 6.0.0 — ערכין: מדריך קישורים לערכים במדריכים הקיימים, עם סינון לפי דף והקשר
+  'ערכין': { title: 'ערכין', guideId: 'arachin', icon: 'icon/masechtot/arachin.png' },
   'סוכה': { title: 'סוכה ולולב', guideId: 'sukkah', icon: 'icon/masechtot/sukkah.png',
     // גל 25/08: PDF חיצוני נוסף, *לצד* הכרטסת הילידית - לא במקומה.
     // ⚠️ תוקן אחרי בדיקה בפועל: ניסיון ראשון (window.open) לא נפתח בכלל

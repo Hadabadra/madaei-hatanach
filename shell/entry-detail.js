@@ -252,7 +252,7 @@ const FIELD_LABELS = {
   site:'מקום הגילוי', found:'שנת הגילוי', museum:'היכן מוצג היום', credit:'קרדיט לתמונה', tribes:'שבט', tribeRefs:'נחלת השבט — מקור'
 };
 // #89: תווית שונה לאותו שדה לפי מדריך
-const GUIDE_FIELD_LABELS = { mumim: { region: 'סוג הפסול' } };
+const GUIDE_FIELD_LABELS = { mumim: { region: 'סוג הפסול' }, arachin: { daf: 'דף (ערכין)' } };
 function fieldLabel(catId, k){ return ((GUIDE_FIELD_LABELS[catId] || {})[k]) || FIELD_LABELS[k] || k; }
 const ARRAY_FIELDS = new Set(['aliases','tribes','spouses','children','siblings','roles']);
 const LONG_FIELDS = new Set(['explanation','identification','note','modern']);
@@ -270,6 +270,7 @@ const GUIDE_FIELDS = {
   mumim:  ['region','explanation','modern','note'],
   chullin: ['explanation','note','credit'],
   sukkah: ['explanation','note'],
+  arachin: ['daf','explanation','note'],
   // אנשים מהתלמוד: אין שדות זיהוי/משפחה — רק תקופה, דור ומקום פעילות.
   // התיאור הביוגרפי יושב ב-methods[0].explanation כמו בשאר המדריכים.
   amoraim: ['role','dor','place','explanation','note']

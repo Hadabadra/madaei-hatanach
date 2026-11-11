@@ -637,7 +637,7 @@ async function identify(rawText, opts){
   const ctx = { toks, source, vocalized, allowStopwords, book: (opts.source && opts.source.book) || '' };
 
   const catLookups = [];
-  for (const cat of CATEGORIES) catLookups.push({ cat, lookup: await getLookup(cat) });
+  for (const cat of CATEGORIES) if (!cat.noIdentify) catLookups.push({ cat, lookup: await getLookup(cat) });
 
   // סריקה חמדנית אחת על פני כל המדריכים — הצירוף הארוך ביותר שיש לו התאמה
   // במדריך כלשהו קובע את המיקום הבא (״רבי יהושע בן לוי״ לא נבלע ב״יהושע״).

@@ -65,13 +65,21 @@ const OPEN_SECTIONS = {
   'kotel-archaeology': { catId: 'archaeology', term: 'כותל' },
   'archaeology':       { catId: 'archaeology' },
   'places':            { catId: 'places' },
+  // 6.0.0 — מסכת ערכין; param: { section: 'arachin', daf: 'יג:' } פותח מסונן לדף
+  'arachin':           { catId: 'arachin' },
+  'walled-cities':     { catId: 'places', attr: { tag: 'מוקף חומה מימות יהושע' } },
 };
 // 5.3.0 — entry: שם ערך לפתיחה ישירה של הכרטיס שלו בתוך המדריך, למשל
 //   param: { section: 'places', entry: 'באר שבע' }
-function openSection(section, term, entry){
+function openSection(section, term, entry, daf){
   const s = OPEN_SECTIONS[section] || (typeof CATEGORIES !== 'undefined' && CATEGORIES.some(c => c.id === section) ? { catId: section } : null);
   if (!s) return false;
-  const p = openGuide(s.catId, entry || term || s.term || null);
+  let p = openGuide(s.catId, entry || term || s.term || null);
+  const attr = Object.assign({}, s.attr || {}, daf ? { daf: String(daf) } : {});
+  if (Object.keys(attr).length) p = Promise.resolve(p).then(() => {
+    if (typeof activeGuideAttr === 'undefined') return;
+    activeGuideAttr = attr; renderGuideGrid('');
+  });
   if (entry) Promise.resolve(p).then(() => openEntryCardByName(entry));
   return true;
 }
@@ -408,7 +416,7 @@ function waitForOtzaria(elapsed){
         return;
       }
       // #173 — פתיחה ישירה של חלק מסוים מתוסף אחר (plugin.openOther עם {section}).
-      if (p && p.section && openSection(p.section, p.term, p.entry)) return;
+      if (p && p.section && openSection(p.section, p.term, p.entry, p.daf)) return;
       if (!p || p.kind !== 'identify' || !p.text) return;
       if (p.origin === INSTANCE_ID) return;              // המופע ששלח כבר הציג
       if (p.ts && p.ts <= lastConsumedTs) return;
