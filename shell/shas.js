@@ -221,7 +221,9 @@ function entriesForMishnaPerek(masechet, perek){
 }
 
 function entriesForBavliDaf(masechet, daf){
-  return studyEntriesMatching(entry => studyRefPartsOf(entry).some(p => {
+  // 6.0.0 — ערכי מדריכי מסכת (masechet + daf, ר' shell/arachin.js) נכנסים לפי הדף שלהם
+  return studyEntriesMatching(entry => (entry.masechet === masechet && entry.daf &&
+      gematriaValue(String(entry.daf).replace(/[^א-ת]/g, '')) === daf) || studyRefPartsOf(entry).some(p => {
     const r = parseMidrashRef(p);
     return !!r && r.bookId === masechet && studyRefNumber(r.ref, 'דף ') === daf;
   }));
@@ -729,11 +731,15 @@ async function identifyReaderLocation(loc){
   }
   if (!parashaDataReady()) await ensureAllGuidesLoaded();
   const matches = await identifyWithLiveContext(text.slice(0, LIB_CHUNK), { includePossible: true, source: { book: loc.title || '' } });
+  // 6.0.0 — דף גמרא פתוח: גם הערכים שמראה המקום שלהם הוא הדף (shell/arachin.js)
+  if (typeof dafMatchesForTitle === 'function') dafMatchesForTitle(loc.title || '').forEach(m => {
+    if (!matches.some(x => x.catId === m.catId && x.name === m.name)) matches.unshift(m);
+  });
   // 4.5.0 — הדגשות ומונה הסרגל רק לזיהויים הגלויים (ודאי/סביר), לא ל״אפשרי״ המקופל
   const shown = matches.filter(m => m.confidence !== 'אפשרי');
   closeBookChooser();
   if (!loc.quiet || shown.length) showResults(matches, title);
-  if (shown.length) highlightMatchesInSection(loc.bookId, index, shown);   // 4.2.0
+  if (shown.length) highlightMatchesInSection(loc.bookId, index, shown.filter(m => !m.byDaf));   // 4.2.0
   if (typeof updateToolbarCount === 'function') updateToolbarCount(shown.length);   // 4.4.0
   return true;
 }

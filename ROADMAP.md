@@ -55,6 +55,7 @@
 * [#80 — מ.2 — סריקת 63 מסכתות התלמוד ותיוג מקורות](https://github.com/Hadabadra/madaei-hatanach/issues/80)
 * [#81 — מ.3 — מפרט ותבנית למדריך מסכת (משנה · בבלי · ירושלמי)](https://github.com/Hadabadra/madaei-hatanach/issues/81)
 * [#95 — מדריך מסכת כלים — הפיילוט לתבנית מדריכי המסכתות](https://github.com/Hadabadra/madaei-hatanach/issues/95)
+* ערכין (שארית 6.0.0): בדיקה על אוצריא אמיתית של זיהוי הדף הפתוח, ותמונות ברישיון חופשי לכנור, למצלתים ולמגרפה — ר׳ [docs/מדריך-מסכת-ערכין.md](docs/מדריך-מסכת-ערכין.md)
 
 ### 📥 תוכן ממתין
 * [#82 — ת.11 — סריקת ספרות מחקר וזיהוי (6 תתי-סעיפים)](https://github.com/Hadabadra/madaei-hatanach/issues/82)
