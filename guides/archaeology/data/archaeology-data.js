@@ -1411,11 +1411,9 @@ const DATA = [
     "link": ""
    }
   ],
-  "img": "אבן מגדלא",
-  "gallery": [
-   "אבן מגדלא"
-  ],
-  "credit": "Hanay, ויקישיתוף · CC BY-SA 3.0"
+  "img": null,
+  "gallery": [],
+  "credit": ""
  },
  {
   "name": "כתובות בית שערים",
