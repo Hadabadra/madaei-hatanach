@@ -396,15 +396,19 @@ function wireSettings(){
     if (btn) btn.disabled = true;
     try {
       try { await storageSetJson(PUBLISH_LAST_RUN_KEY, null); } catch(e){}
-      if (typeof publishUpcomingEvents === 'function') await publishUpcomingEvents();
-      if (el) el.textContent = 'היומן עודכן ✓';
+      const r = (typeof publishUpcomingEventsNow === 'function') ? await publishUpcomingEventsNow()
+        : (typeof publishUpcomingEvents === 'function' ? await publishUpcomingEvents() : null);
+      if (el) el.textContent = (r && typeof r.total === 'number')
+        ? (r.total ? 'היומן עודכן ✓ — ' + r.total + ' מאורעות מופיעים ביומן של אוצריא בתאריכים שלהם (אם היומן פתוח — סגרו ופתחו אותו)'
+                   : 'היומן עודכן — אין מאורעות לפרסם לפי ההגדרות שנבחרו')
+        : 'היומן עודכן ✓';
     } catch(e){
       if (el) el.textContent = 'העדכון נכשל';
     } finally {
       pubBusy = false;
       if (btn) btn.disabled = false;
       // ההודעה נעלמת מעצמה — היא חיווי רגעי, לא מצב קבוע
-      setTimeout(() => { const e2 = pubStatus(); if (e2 && e2.textContent !== 'מעדכן את היומן…') e2.textContent = ''; }, 4000);
+      setTimeout(() => { const e2 = pubStatus(); if (e2 && e2.textContent !== 'מעדכן את היומן…') e2.textContent = ''; }, 9000);
     }
   };
   const applyBtn = document.getElementById('setPubApplyBtn');
