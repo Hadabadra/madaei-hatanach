@@ -30,6 +30,9 @@ c.DATA.forEach(e => [e.name, ...(e.aliases || [])].forEach(n => {
   vs.forEach(v => { if (BLOCK_FORMS.has(v)) return; if (forms.has(v) && forms.get(v) !== e.name) dup.add(v); else forms.set(v, e.name); });
 }));
 dup.forEach(v => forms.delete(v));
+// אופציונלי: צורות נוספות (למשל כותרות ״סדר הדורות״) — EXTRA_FORMS=<json {צורה: שם}>; לא דורסות את שמות המדריך
+if (process.env.EXTRA_FORMS) Object.entries(JSON.parse(fs.readFileSync(process.env.EXTRA_FORMS, 'utf8'))).forEach(([f, n]) => {
+  f = norm(f).replace(/"/g, ''); if (f && !forms.has(f) && !dup.has(f) && !BLOCK_FORMS.has(f)) forms.set(f, n); });
 const maxLen = Math.max(...[...forms.keys()].map(k => k.split(' ').length));
 
 // ---- טקסט לפי דפים, מילים ----
