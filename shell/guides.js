@@ -157,8 +157,8 @@ function dafOrder(d){
   const m = String(d || '').match(/^([א-ת]+)([.:])?/);
   return m ? gematriaValue(m[1]) * 2 + (m[2] === ':' ? 1 : 0) : 9999;
 }
-const GUIDE_ATTR_ROWS = [
-  { key: 'daf', label: 'דף', of: e => e.daf ? [e.daf] : [], sort: (a, b) => dafOrder(a) - dafOrder(b) },
+const GUIDE_ATTR_ROWS = [   // 6.2.0: dafs — ערך שנזכר בכמה דפים (חכמי המסכת)
+  { key: 'daf', label: 'דף', of: e => Array.isArray(e.dafs) && e.dafs.length ? e.dafs : (e.daf ? [e.daf] : []), sort: (a, b) => dafOrder(a) - dafOrder(b) },
   { key: 'tag', label: 'מאפיין', of: entryTagsOf, sort: (a, b) => a.localeCompare(b, 'he') },
 ];
 let activeGuideAttr = {};

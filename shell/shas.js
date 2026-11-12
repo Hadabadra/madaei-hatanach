@@ -222,8 +222,10 @@ function entriesForMishnaPerek(masechet, perek){
 
 function entriesForBavliDaf(masechet, daf){
   // 6.0.0 — ערכי מדריכי מסכת (masechet + daf, ר' shell/arachin.js) נכנסים לפי הדף שלהם
-  return studyEntriesMatching(entry => (entry.masechet === masechet && entry.daf &&
-      gematriaValue(String(entry.daf).replace(/[^א-ת]/g, '')) === daf) || studyRefPartsOf(entry).some(p => {
+  // 6.2.0 — dafs: ערך אחד שנזכר בכמה דפים (חכמי המסכת)
+  const dafOk = entry => (Array.isArray(entry.dafs) && entry.dafs.length ? entry.dafs : [entry.daf])
+    .some(d => d && gematriaValue(String(d).replace(/[^א-ת]/g, '')) === daf);
+  return studyEntriesMatching(entry => (entry.masechet === masechet && dafOk(entry)) || studyRefPartsOf(entry).some(p => {
     const r = parseMidrashRef(p);
     return !!r && r.bookId === masechet && studyRefNumber(r.ref, 'דף ') === daf;
   }));

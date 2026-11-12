@@ -123,7 +123,8 @@ function linkCtxHTML(src){
   const cats = (typeof catsCache !== 'undefined' && catsCache[src.__guide]) || [];
   const ctx = (cats.find(c => c.id === src.cat) || {}).label || '';
   const tcat = CATEGORIES.find(c => c.id === src.link.cat);
-  return '<div class="linked-ctx">📜 ' + esc(src.masechet || '') + (src.daf ? ' דף ' + esc(src.daf) : '')
+  const dafs = Array.isArray(src.dafs) && src.dafs.length > 1 ? src.dafs : null;   // 6.2.0 — חכם שבכמה דפים
+  return '<div class="linked-ctx">📜 ' + esc(src.masechet || '') + (dafs ? ' דפים ' + dafs.map(esc).join(', ') : (src.daf ? ' דף ' + esc(src.daf) : ''))
     + (ctx ? ' · ' + esc(ctx) : '') + (src.name !== src.link.entry ? ' · ' + esc(src.name) : '')
     + (src.note ? '<div class="mini-note">' + esc(src.note) + '</div>' : '')
     + ' <button type="button" class="panel-btn secondary linked-goto" data-goto-cat="' + esc(src.link.cat) + '" data-goto-entry="' + esc(src.link.entry) + '">'
