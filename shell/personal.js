@@ -1731,3 +1731,58 @@ document.getElementById('personalBackBtn').addEventListener('click', closePerson
 document.querySelectorAll('#personalTabs .ptab').forEach(btn => {
   btn.addEventListener('click', () => openPersonalArea(btn.dataset.ptab));
 });
+
+// ============================================================
+//  🆕 6.1.0 — חלון ״מה חדש״ בפתיחה הראשונה אחרי עדכון
+//  הגרסה שבה המשתמש עבד בפעם הקודמת נשמרת ב-localStorage (LAST_RUN_KEY). כשהגרסה
+//  המוטבעת (EMBEDDED_PLUGIN_VERSION) חדשה ממנה — מוצגים בלוקי היומן שבין שתיהן, ומדריך
+//  חדש שנוסף בטווח (NEW_GUIDE_HIGHLIGHTS) מודגש בראש החלון עם כפתור פתיחה. התקנה חדשה
+//  (אין שום נתון שמור) — לא מוצג חלון, רק נשמרת הגרסה. משתמש ותיק שעדכן לגרסה הראשונה
+//  שבה החלון קיים (אין גרסה שמורה, אבל יש העדפות) — מוצגות הגרסאות מ-6.0.0.
+// ============================================================
+const LAST_RUN_KEY = 'mh.lastRunVersion';
+const NEW_GUIDE_HIGHLIGHTS = [
+  { since: '6.0.0', cat: 'arachin', title: '📜 חדש: מדריך מסכת ערכין',
+    text: 'לקראת מסכת ערכין בדף היומי: ערכי אדם ושוויים היום, כלי השיר במקדש, שדה אחוזה ומידות, בתי ערי חומה — וכל המקומות, בעלי החיים, הכלים והאישים שבמסכת, עם קישור לכרטיס המלא. סינון לפי דף.' },
+];
+function verOfHeader(h){ const m = String(h || '').match(/^(\d+\.\d+\.\d+)/); return m ? m[1] : ''; }
+function maybeShowWhatsNewPopup(){
+  const cur = (typeof EMBEDDED_PLUGIN_VERSION !== 'undefined') ? EMBEDDED_PLUGIN_VERSION : '';
+  if (!cur || typeof cmpVersion !== 'function') return;
+  let prev = null, veteran = false;
+  try {
+    prev = localStorage.getItem(LAST_RUN_KEY);
+    veteran = !!(localStorage.getItem(PREFS_KEY) || localStorage.getItem('mh.seen'));
+    localStorage.setItem(LAST_RUN_KEY, cur);
+  } catch(e){ return; }
+  if (!prev){ if (!veteran) return; prev = '5.99.99'; }
+  if (cmpVersion(cur, prev) <= 0) return;
+  loadChangelogBlocks().then(blocks => {
+    const fresh = (blocks || []).filter(b => { const v = verOfHeader(b.header); return v && cmpVersion(v, prev) > 0 && cmpVersion(v, cur) <= 0; });
+    if (!fresh.length) return;
+    const hl = NEW_GUIDE_HIGHLIGHTS.filter(h => cmpVersion(h.since, prev) > 0 && cmpVersion(h.since, cur) <= 0
+      && CATEGORIES.some(c => c.id === h.cat));
+    const ov = document.createElement('div');
+    ov.className = 'panel-overlay open'; ov.id = 'whatsNewOverlay';
+    ov.innerHTML = '<div class="panel-box"><h2>🆕 מה חדש בעינים למקרא ' + esc(cur) + '</h2>'
+      + '<p class="mini-note" style="margin-top:0">מאז הגרסה שעבדתם איתה' + (prev === '5.99.99' ? '' : ' (' + esc(prev) + ')') + ':</p>'
+      + hl.map(h => '<div class="wn-highlight"><strong>' + esc(h.title) + '</strong><p>' + esc(h.text) + '</p>'
+        + '<button type="button" class="panel-btn" data-wn-guide="' + esc(h.cat) + '">לפתיחת המדריך ›</button></div>').join('')
+      + '<div class="wn-list"></div>'
+      + '<div class="p-bulk"><button type="button" class="panel-btn secondary" data-wn-close>סגירה</button></div></div>';
+    renderChangelogInto(ov.querySelector('.wn-list'), fresh, null, 3);
+    const first = ov.querySelector('.wn-list details'); if (first) first.open = true;
+    const close = () => ov.remove();
+    ov.addEventListener('click', ev => {
+      if (ev.target === ov || ev.target.closest('[data-wn-close]')) return close();
+      const g = ev.target.closest('[data-wn-guide]');
+      if (g){ close(); if (typeof openGuide === 'function') openGuide(g.dataset.wnGuide, null); }
+    });
+    document.body.appendChild(ov);
+  });
+}
+// אחרי שהעמוד נבנה, ולא מעל מדריך שנפתח ישירות מתוסף אחר (#173) או מהקורא
+setTimeout(() => {
+  const busy = document.querySelector('.panel-overlay.open, #guideView.open, #resultsOverlay.open');
+  if (!busy) maybeShowWhatsNewPopup();   // אחרת — בפתיחה הבאה (הגרסה עוד לא נשמרה)
+}, 1500);

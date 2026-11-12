@@ -708,14 +708,14 @@ html[dir="ltr"] body { direction: ltr; }
 }
 #guideView.open { display: flex; }
 #guideViewBar { flex-wrap: wrap; padding-block: 6px; }
-#guideBackBtn, #guideAddNewBtn, #guideIdentifyBtn, #guideFiltersToggle, #guidePrintBtn, #guideTimelineToggle {
+#guideBackBtn, #guideAddNewBtn, #guideIdentifyBtn, #guideFiltersToggle, #guidePrintBtn, #guideTimelineToggle, #guideTempleBtn {
   border: 1px solid var(--color-outline); background: var(--color-surface);
   border-radius: var(--radius-pill); padding: 6px 14px; cursor: pointer;
   font-family: var(--font-main); font-size: .86em; color: var(--color-on-surface);
   white-space: nowrap; transition: background .15s, border-color .15s;
 }
 #guideBackBtn:hover, #guideAddNewBtn:hover, #guidePrintBtn:hover,
-#guideIdentifyBtn:hover, #guideFiltersToggle:hover, #guideTimelineToggle:hover { background: var(--color-hover); border-color: var(--color-primary); }
+#guideIdentifyBtn:hover, #guideFiltersToggle:hover, #guideTimelineToggle:hover, #guideTempleBtn:hover { background: var(--color-hover); border-color: var(--color-primary); }
 /* ״סינון פעיל״ / ״ציר זמן פעיל״ — הכפתור נצבע כדי שלא ישכחו מה מוצג מתחתיו */
 #guideFiltersToggle.on, #guideTimelineToggle.on {
   background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary);
@@ -806,7 +806,7 @@ html[dir="ltr"] body { direction: ltr; }
 }
 #guideFilters .filter-row.hidden { display: none; }
 #guideFilters .filter-label { font-size: .78em; color: var(--color-on-surface-faint); white-space: nowrap; }
-#guideEraChips, #guideTribeChips { display: flex; flex-wrap: wrap; gap: 8px; }
+#guideEraChips, #guideTribeChips, #guideFilters .attr-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 #guideAlphaBar { display: flex; flex-wrap: wrap; gap: 5px; }
 .alpha-btn {
   width: 26px; height: 26px; border-radius: 50%;
@@ -824,16 +824,16 @@ html[dir="ltr"] body { direction: ltr; }
   padding: 10px 16px;
   flex: 0 0 auto;
 }
-#guideChips .chip, #guideEraChips .chip, #guideTribeChips .chip, #resultsChips .chip {
+#guideChips .chip, #guideEraChips .chip, #guideTribeChips .chip, .attr-chips .chip, #resultsChips .chip {
   border: 1px solid var(--color-outline); background: var(--color-surface); color: var(--color-on-surface-dim);
   padding: 6px 14px; border-radius: var(--radius-pill); font-family: var(--font-main);
   font-size: .83em; font-weight: 600; cursor: pointer; white-space: nowrap;
   transition: background .12s, color .12s, border-color .12s;
 }
-#guideChips .chip:hover, #guideEraChips .chip:hover, #guideTribeChips .chip:hover, #resultsChips .chip:hover {
+#guideChips .chip:hover, #guideEraChips .chip:hover, #guideTribeChips .chip:hover, .attr-chips .chip:hover, #resultsChips .chip:hover {
   border-color: var(--color-primary); background: var(--color-primary-subtle); color: var(--color-primary);
 }
-#guideChips .chip.active, #guideEraChips .chip.active, #guideTribeChips .chip.active, #resultsChips .chip.active {
+#guideChips .chip.active, #guideEraChips .chip.active, #guideTribeChips .chip.active, .attr-chips .chip.active, #resultsChips .chip.active {
   background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary);
 }
 #resultsChips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
@@ -2252,3 +2252,10 @@ body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-heigh
 .jm-full { position: fixed !important; inset: 0; z-index: 9999; width: auto !important; height: auto !important; margin: 0 !important; }
 .jm-full-btn { background: var(--color-surface); color: var(--color-on-surface); border: none; width: 2em; height: 2em; cursor: pointer; font-size: 1em; }
 #entryOverlay.over-panels { z-index: 1260; }
+/* 6.1.0 — כרטיס מקושר ממדריך מסכת: שורת ההקשר מעל הכרטיס המלא של היעד */
+.linked-ctx { margin: 0 0 .8em; padding: .5em .8em; background: var(--color-primary-subtle); border-radius: var(--radius-sm); font-size: .88em; color: var(--color-on-surface-dim); }
+.linked-ctx .linked-goto { margin-inline-start: .4em; padding: .15em .7em; font-size: .9em; }
+/* 6.1.0 — חלון ״מה חדש״ אחרי עדכון */
+#whatsNewOverlay .wn-highlight { margin: 0 0 1em; padding: .8em 1em; background: var(--color-primary-subtle); border-radius: var(--radius-sm); box-shadow: var(--elev-1); }
+#whatsNewOverlay .wn-highlight p { margin: .4em 0 .6em; }
+#whatsNewOverlay .wn-list { max-height: 45vh; overflow-y: auto; }

@@ -126,6 +126,8 @@
     <!-- ציר זמן לפי דורות (2.9): מוצג רק במדריך אישים, שם יש שדה era לקטגוריות -->
     <button id="guideTimelineToggle" type="button" title="תצוגת ציר זמן לפי דורות" style="display:none;">🕰️ ציר זמן</button>
     <!-- ייצוא כרטסת (2.5): מדפיס את התצוגה המסוננת שרואים כרגע, ערך אחרי ערך -->
+    <!-- 6.1.0 — מדריך בית המקדש: פתיחת תוסף ״בית המקדש״ (מודל תלת-ממדי) -->
+    <button id="guideTempleBtn" type="button" title="פתיחת תוסף ״בית המקדש״ — מודל תלת-ממדי של בית ראשון ובית שני" style="display:none;">🏛 בתוסף בית המקדש</button>
     <button id="guidePrintBtn" type="button" title="הדפסת כל הערכים שבתצוגה הנוכחית">🖨 ייצוא כרטסת</button>
     <button id="guideAddNewBtn" type="button">＋ הוספת ערך חדש</button>
   </div>
@@ -452,6 +454,10 @@
     <div class="settings-row toggle-row">
       <div class="settings-row-title">סינון בעמודה בצד (כבוי = למעלה)</div>
       <button type="button" role="switch" aria-checked="false" id="setFiltersSide" class="switch"></button>
+    </div>
+    <div class="settings-row toggle-row">
+      <div class="settings-row-title">הסינון סגור בכניסה למדריך (נפתח בכפתור ״סינון״)</div>
+      <button type="button" role="switch" aria-checked="false" id="setFiltersClosed" class="switch"></button>
     </div>
     <div class="settings-row toggle-row">
       <div class="settings-row-title">תוצאות זיהוי בחלון קופץ (כבוי = עמוד מלא)</div>

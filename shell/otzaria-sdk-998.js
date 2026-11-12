@@ -117,6 +117,40 @@ async function installedPlugins(){
 // מדריכים שיש להם תוסף ייעודי משלים אצל חלק מהמשתמשים
 const COMPANION_PATTERNS = { people: /אישים/, amoraim: /אישים/, places: /מקומות/ };
 
+// 6.1.0 — תוסף ״בית המקדש״ (מאוחד: בית ראשון + בית שני; yoniny/beit-rishon). התוסף מקבל ב-plugin.page_opened
+// מיקום קריאה {bookId, currentRef} — כמו כפתור הספר שלו — ובוחר את הבית לפי הספר (מלכים א 10 ודברי הימים ב 39
+// → בית ראשון; משנה מידות 89 → בית שני) ואת המקום לפי הפרק והפסוק/המשנה. בלי param — מסך הבחירה של התוסף.
+const TEMPLE_PLUGIN_ID = 'com.beit-hamikdash.rishon-3d-model';
+const TEMPLE_BOOKS = [
+  { re: /^(?:משנה\s+)?מי?דות\s+([א-ת]{1,3})\s*,\s*([א-ת]{1,3})\s*$/, house: 'sheni', label: 'בית שני', bookId: 89, title: 'מידות' },
+  { re: /^מלכים א\s+([א-ת]{1,3})\s*,\s*([א-ת]{1,3})\s*$/, house: 'rishon', label: 'בית ראשון', bookId: 10, title: 'מלכים א' },
+  { re: /^דברי הימים ב\s+([א-ת]{1,3})\s*,\s*([א-ת]{1,3})\s*$/, house: 'rishon', label: 'בית ראשון', bookId: 39, title: 'דברי הימים ב' },
+];
+function templeSpotOfRef(ref){
+  const t = String(ref || '').replace(/[\u0591-\u05C7׳״'"]/g, '').replace(/\s+/g, ' ').trim();
+  for (const b of TEMPLE_BOOKS){
+    const m = t.match(b.re);
+    if (m) return { house: b.house, label: b.label, ref: t, param: { bookId: b.bookId, currentRef: b.title + ', ' + m[1] + ', ' + m[2] } };
+  }
+  return null;
+}
+// ערך עם templeRefs (למשל ״שנים עשר לויים על הדוכן״ בערכין) — המקומות שנקבעו לו; בכרטיסי מדריך בית המקדש —
+// מראה המקום הראשון של כל בית מתוך הפסוקים והמקורות של הכרטיס. ערכים אחרים — אין כפתור.
+function templeSpotsOf(entry, catId){
+  if (!entry) return [];
+  const list = Array.isArray(entry.templeRefs) ? entry.templeRefs
+    : catId === 'beithamikdash' ? [...(entry.verses || []), ...(entry.midrash || []), ...(entry.makorot || [])].map(x => x && (x.ref || x.source)) : [];
+  const seen = {}, out = [];
+  list.forEach(r => { const sp = templeSpotOfRef(r); if (sp && !seen[sp.house]){ seen[sp.house] = 1; out.push(sp); } });
+  return out.sort((a, b) => a.house === 'rishon' ? -1 : b.house === 'rishon' ? 1 : 0);
+}
+function openTemplePlugin(param){
+  const p = Object.assign({ source: PLUGIN_DISPLAY_NAME }, param || {});
+  Otzaria.call('plugin.openOther', { pluginId: TEMPLE_PLUGIN_ID, param: p })
+    .then(r => { if (r && r.success === false) throw r; })
+    .catch(() => Otzaria.call('ui.showMessage', { message: 'התוסף ״בית המקדש״ (מודל תלת-ממדי של בית ראשון ובית שני) אינו מותקן. אפשר להתקין אותו מחנות התוספים של אוצריא.' }).catch(() => {}));
+}
+
 async function wireEntryOtzariaActions(container, entry, catId){
   if (!otzOk() || !entry || !entry.name || container.querySelector('.otz-actions')) return;
   const bar = document.createElement('div');
@@ -146,6 +180,15 @@ async function wireEntryOtzariaActions(container, entry, catId){
     });
     bar.appendChild(b);
   }
+  // 6.1.0 — ״בית המקדש״: המקום במודל התלת-ממדי, בבית ראשון ו/או בבית שני
+  templeSpotsOf(entry, catId).forEach(sp => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'panel-btn secondary';
+    b.textContent = '🏛 ' + sp.label + ' — בתוסף ״בית המקדש״ ↗';
+    b.title = 'פתיחת המודל התלת-ממדי במקום של ' + sp.ref;
+    b.addEventListener('click', () => openTemplePlugin(sp.param));
+    bar.appendChild(b);
+  });
   container.appendChild(bar);
   const pat = COMPANION_PATTERNS[catId];
   if (!pat) { if (!bar.children.length) bar.remove(); return; }
