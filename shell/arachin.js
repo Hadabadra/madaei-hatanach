@@ -84,6 +84,17 @@ function linkBoxHTML(entry){
   if (typeof renderEntryDetailHTML !== 'function') return;
   const orig = renderEntryDetailHTML;
   window.renderEntryDetailHTML = renderEntryDetailHTML = function(entry){
+    // 6.1.0 — ערך יעד שנפתח מתוך מדריך מסכת: הכרטיס המלא שלו (עם התמונות, השדות והמקורות
+    // של המדריך שלו), ומעליו שורת ההקשר מהמסכת. העריכה — רק במדריך עצמו.
+    const via = entry && linkedVia(entry);
+    if (via){
+      let full = orig.call(this, entry, via.link.cat);
+      full = full.replace(/ ?<button id="entryEditBtn"[^>]*>[^<]*<\/button>/, '');
+      let extra = '';
+      if (via.erechTable) extra += erechTableHTML();
+      if (via.sadehBox) extra += sadehBoxHTML();
+      return linkCtxHTML(via) + full + extra;
+    }
     let html = orig.apply(this, arguments);
     if (!entry) return html;
     if (entry.erechTable) html += erechTableHTML();
@@ -92,6 +103,50 @@ function linkBoxHTML(entry){
     if (Array.isArray(entry.tags) && entry.tags.length)
       html += '<p class="mini-note" style="margin-top:0.5em;">🏷️ ' + entry.tags.map(esc).join(' · ') + '</p>';
     return html;
+  };
+})();
+
+// ---- 6.1.0: כרטיס מקושר מציג את הכרטיס המלא של היעד, בלי לשכפל טקסט ----
+// ערך במדריך מסכת עם link נפתח ישר כערך היעד עצמו (אותו אובייקט מ-dataCache, לא העתק),
+// כך שכל השדות, התמונות והמקורות באים מהמדריך שלו. LINKED_FROM זוכר מאיזה ערך מסכת הגענו,
+// והוא נבדק רק כשמדריך המסכת פתוח — באותו ערך במדריך שלו לא מופיעה שורת ההקשר.
+const LINKED_FROM = new WeakMap();
+function linkedVia(entry){
+  const v = LINKED_FROM.get(entry);
+  return (v && typeof currentGuideCat !== 'undefined' && currentGuideCat && currentGuideCat.id === v.__guide) ? v : null;
+}
+function findLinkTarget(data, name){
+  const n = normalizeHeb(name);
+  return (data || []).find(e => normalizeHeb(e.name) === n) || null;
+}
+function linkCtxHTML(src){
+  const cats = (typeof catsCache !== 'undefined' && catsCache[src.__guide]) || [];
+  const ctx = (cats.find(c => c.id === src.cat) || {}).label || '';
+  const tcat = CATEGORIES.find(c => c.id === src.link.cat);
+  const dafs = Array.isArray(src.dafs) && src.dafs.length > 1 ? src.dafs : null;   // 6.2.0 — חכם שבכמה דפים
+  return '<div class="linked-ctx">📜 ' + esc(src.masechet || '') + (dafs ? ' דפים ' + dafs.map(esc).join(', ') : (src.daf ? ' דף ' + esc(src.daf) : ''))
+    + (ctx ? ' · ' + esc(ctx) : '') + (src.name !== src.link.entry ? ' · ' + esc(src.name) : '')
+    + (src.note ? '<div class="mini-note">' + esc(src.note) + '</div>' : '')
+    + ' <button type="button" class="panel-btn secondary linked-goto" data-goto-cat="' + esc(src.link.cat) + '" data-goto-entry="' + esc(src.link.entry) + '">'
+    + 'במדריך ' + esc(tcat ? tcat.label : src.link.cat) + ' ›</button></div>';
+}
+(function(){
+  if (typeof openEntryDetail !== 'function') return;
+  const origOpen = openEntryDetail;
+  window.openEntryDetail = openEntryDetail = function(entry){
+    const l = entry && entry.masechet && entry.link;
+    const tcat = l && CATEGORIES.find(c => c.id === l.cat);
+    const guide = typeof currentGuideCat !== 'undefined' && currentGuideCat ? currentGuideCat.id : '';
+    if (!tcat || !guide || guide === l.cat) return origOpen.apply(this, arguments);
+    const show = (data) => {
+      const target = findLinkTarget(data, l.entry);
+      if (!target) return origOpen.call(this, entry);       // יעד שלא נמצא — התקציר, כמו קודם
+      LINKED_FROM.set(target, Object.assign({ __guide: guide }, entry));
+      return origOpen.call(this, target);
+    };
+    if (dataCache[tcat.id] && guideImagesReady(tcat.id)) return show(dataCache[tcat.id]);
+    loadGuideData(tcat).then(d => loadGuideImages(tcat).catch(() => null).then(() => show(d)))
+      .catch(() => origOpen.call(this, entry));
   };
 })();
 

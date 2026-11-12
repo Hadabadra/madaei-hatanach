@@ -456,7 +456,9 @@ const dailyEventBody = document.getElementById('dailyEventBody');
 // לפעול. 🚩 הוא אותו דפוס בדיוק כמו entryReportBtn שבכותרת כרטיס ערך
 // (entry-detail.js): דיווח ממוקד על נתון שגוי, בלי לפתוח עריכה.
 function dateEventRow(ev, monthLabel){
-  const parsed = parseColonVerseRef(ev.source) || parseMidrashRef(ev.source);
+  // 6.0.0 (#305) — מקור בלי ״בבלי,״ (״תענית יח.״) נפתח גם הוא בספרייה
+  const parsed = parseColonVerseRef(ev.source) || parseMidrashRef(ev.source)
+    || (ev.source && !/^(בבלי|משנה|ירושלמי)/.test(ev.source) ? parseMidrashRef('בבלי, ' + ev.source) : null);
   const openAttr = parsed ? ` data-vbook="${esc(parsed.bookId)}" data-vref="${esc(parsed.ref)}"` : '';
   const editAttr = ev.__origKey != null ? ` data-edit-key="${esc(ev.__origKey)}"`
     : (ev.__addedIdx != null ? ` data-edit-idx="${ev.__addedIdx}"` : '');
@@ -560,7 +562,10 @@ function openDateEventForm(ev){
       ${isCustom ? '<button class="nf-btn secondary danger-link" id="dateEvDelete">🗑 מחיקה</button>' : ''}
       ${isBuiltin && ev.__edited ? '<button class="nf-btn secondary" id="dateEvRestore">↺ שחזור למקור</button>' : ''}
     </div>`;
-  entryOverlay.classList.add('open');
+  // 6.0.0 (#305) — הטופס נפתח מתוך חלונית ״ערך היום״, ולכן מעליה (ומתחת להודעות 1300)
+  entryOverlay.classList.add('open', 'over-panels');
+  const overMo = new MutationObserver(() => { if (!entryOverlay.classList.contains('open')){ entryOverlay.classList.remove('over-panels'); overMo.disconnect(); } });
+  overMo.observe(entryOverlay, { attributes: true, attributeFilter: ['class'] });
 
   function liveCheck(){
     const src = document.getElementById('dateEvSource').value.trim();

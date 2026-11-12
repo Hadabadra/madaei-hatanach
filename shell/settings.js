@@ -11,7 +11,7 @@
 const PREFS_KEY = 'madaei_hatanach_ui_prefs_v1';
 // pubEvents/pubChurban/pubAhead/pubBack — פרסום ליומן של אוצריא. ברירות המחדל
 // 4.16.1: כבויות כברירת מחדל (בקשת בעלת הפרויקט — יש למי שזה מפריע); מפעילים בהגדרות.
-const DEFAULT_PREFS = { theme: 'otzaria', font: 'otzaria', scale: 100, density: 'normal', cardImg: true, entrySide: true, filtersSide: false, resultsPopup: false, divineName: 'he',
+const DEFAULT_PREFS = { theme: 'otzaria', font: 'otzaria', scale: 100, density: 'normal', cardImg: true, entrySide: true, filtersSide: false, filtersClosed: false, resultsPopup: false, divineName: 'he',
   pubEvents: false, pubChurban: false, pubAhead: 365, pubBack: 7, shemMode: 'hyphen', shemScope: 'all', shemAggr: true };
 let uiPrefs = Object.assign({}, DEFAULT_PREFS);
 let otzariaTheme = null; // ה-theme האחרון שהתקבל מאוצריא (boot / theme.changed)
@@ -240,6 +240,8 @@ function syncSettingsUI(){
   if (es) setOn(es, uiPrefs.entrySide !== false);
   const fs0 = document.getElementById('setFiltersSide');
   if (fs0) setOn(fs0, !!uiPrefs.filtersSide);
+  const fc0 = document.getElementById('setFiltersClosed');
+  if (fc0) setOn(fc0, !!uiPrefs.filtersClosed);
   const rp0 = document.getElementById('setResultsPopup');
   if (rp0) setOn(rp0, !!uiPrefs.resultsPopup);
 }
@@ -376,6 +378,9 @@ function wireSettings(){
   // 5.4.0 — סינון בעמודה בצד
   const fsb = document.getElementById('setFiltersSide');
   if (fsb) fsb.addEventListener('click', () => { const next = !isOn(fsb); setOn(fsb, next); setPref('filtersSide', next); document.body.classList.toggle('filters-side', next); });
+  // 6.1.0 — הסינון סגור בכניסה למדריך
+  const fcb = document.getElementById('setFiltersClosed');
+  if (fcb) fcb.addEventListener('click', () => { const next = !isOn(fcb); setOn(fcb, next); setPref('filtersClosed', next); });
 
   // 3.2.7 — פרסום ליומן. אחרי כל שינוי חייבים לאפס את חותמת ההרצה היומית
   // ולהריץ מחדש: ה-throttle היומי היה משאיר ביומן את מה שכבר פורסם עד מחר,
@@ -396,15 +401,19 @@ function wireSettings(){
     if (btn) btn.disabled = true;
     try {
       try { await storageSetJson(PUBLISH_LAST_RUN_KEY, null); } catch(e){}
-      if (typeof publishUpcomingEvents === 'function') await publishUpcomingEvents();
-      if (el) el.textContent = 'היומן עודכן ✓';
+      const r = (typeof publishUpcomingEventsNow === 'function') ? await publishUpcomingEventsNow()
+        : (typeof publishUpcomingEvents === 'function' ? await publishUpcomingEvents() : null);
+      if (el) el.textContent = (r && typeof r.total === 'number')
+        ? (r.total ? 'היומן עודכן ✓ — ' + r.total + ' מאורעות מופיעים ביומן של אוצריא בתאריכים שלהם (אם היומן פתוח — סגרו ופתחו אותו)'
+                   : 'היומן עודכן — אין מאורעות לפרסם לפי ההגדרות שנבחרו')
+        : 'היומן עודכן ✓';
     } catch(e){
       if (el) el.textContent = 'העדכון נכשל';
     } finally {
       pubBusy = false;
       if (btn) btn.disabled = false;
       // ההודעה נעלמת מעצמה — היא חיווי רגעי, לא מצב קבוע
-      setTimeout(() => { const e2 = pubStatus(); if (e2 && e2.textContent !== 'מעדכן את היומן…') e2.textContent = ''; }, 4000);
+      setTimeout(() => { const e2 = pubStatus(); if (e2 && e2.textContent !== 'מעדכן את היומן…') e2.textContent = ''; }, 9000);
     }
   };
   const applyBtn = document.getElementById('setPubApplyBtn');

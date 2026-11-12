@@ -222,6 +222,8 @@ window.TRANSLATIONS.en = {
   'קטגוריה:': 'Category:',
   'אות:': 'Letter:',
   '✕ סגירת הסינון': '✕ Close filter',
+  '🏛 בתוסף בית המקדש': '🏛 In the Temple plugin',
+  'הסינון סגור בכניסה למדריך (נפתח בכפתור ״סינון״)': 'Filters closed when a guide opens (open with the Filter button)',
   '☰ תצוגת רשת': '☰ Grid view',
   'מפת המקומות שבסינון': 'Map of filtered places',
   'מפת כל המקומות': 'Map of all places',
