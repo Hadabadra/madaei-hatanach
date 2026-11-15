@@ -45,11 +45,47 @@ function applyStoredEdits(catId, data){
   return data;
 }
 
+// 6.0.0 (#304) — ״בעת עדכון גרסה העריכות במכשיר נמחקות״: ה-localStorage של התוסף עלול
+// להתאפס בעדכון, ואחסון התוסף של אוצריא (storage.set) נשמר. לכן כל שמירה/מחיקה של עריכה
+// משכפלת את כל מפתחות <cat>_edits_v1 למפתח אחד באחסון אוצריא, ובטעינה — מפתח עריכות
+// שחסר ב-localStorage משוחזר ממנו (ומוחל מחדש על מדריך שכבר נטען).
+const EDITS_MIRROR_KEY = 'mh_edits_mirror_v1';
+let editsMirrorTimer = null;
+function mirrorEditsToStorage(){
+  clearTimeout(editsMirrorTimer);
+  editsMirrorTimer = setTimeout(() => {
+    const o = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if (k && /_edits_v1$/.test(k)) o[k] = localStorage.getItem(k);
+      }
+    } catch(e){ return; }
+    if (typeof storageSetJson === 'function') storageSetJson(EDITS_MIRROR_KEY, o);
+  }, 400);
+}
+(async function restoreEditsFromMirror(){
+  if (!(window.Otzaria && typeof Otzaria.call === 'function')) return;
+  const o = await storageGetJson(EDITS_MIRROR_KEY).catch(() => null);
+  if (!o || typeof o !== 'object'){ mirrorEditsToStorage(); return; }
+  const restored = [];
+  Object.keys(o).forEach(k => {
+    try { if (/_edits_v1$/.test(k) && !localStorage.getItem(k) && o[k]){ localStorage.setItem(k, o[k]); restored.push(k); } } catch(e){}
+  });
+  if (!restored.length){ mirrorEditsToStorage(); return; }
+  restored.forEach(k => {
+    const cat = k.replace(/_edits_v1$/, '');
+    if (typeof dataCache !== 'undefined' && dataCache[cat]) dataCache[cat] = applyStoredEdits(cat, dataCache[cat]);
+  });
+  Otzaria.call('notifications.showInApp', { message: 'העריכות שלך במכשיר שוחזרו אחרי העדכון.', type: 'success' }).catch(() => {});
+})();
+
 function saveEntryEdit(catId, origName, entry){
   try {
     const edits = readStoredEdits(catId);
     edits[origName] = { savedAt: new Date().toISOString(), entry: JSON.parse(JSON.stringify(entry)) };
     localStorage.setItem(editsKey(catId), JSON.stringify(edits));
+    mirrorEditsToStorage();
     entry.__edited = true;
     return true;
   } catch(e){
@@ -109,6 +145,7 @@ function restoreEntryToOriginal(catId, entry, origName){
     const edits = readStoredEdits(catId);
     delete edits[origName];
     localStorage.setItem(editsKey(catId), JSON.stringify(edits));
+    mirrorEditsToStorage();
   } catch(e){ /* גם אם המחיקה נכשלה, נשחזר לפחות בזיכרון */ }
   if (pristine){
     Object.keys(entry).forEach(k => { delete entry[k]; });

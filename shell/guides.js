@@ -157,8 +157,8 @@ function dafOrder(d){
   const m = String(d || '').match(/^([א-ת]+)([.:])?/);
   return m ? gematriaValue(m[1]) * 2 + (m[2] === ':' ? 1 : 0) : 9999;
 }
-const GUIDE_ATTR_ROWS = [
-  { key: 'daf', label: 'דף', of: e => e.daf ? [e.daf] : [], sort: (a, b) => dafOrder(a) - dafOrder(b) },
+const GUIDE_ATTR_ROWS = [   // 6.2.0: dafs — ערך שנזכר בכמה דפים (חכמי המסכת)
+  { key: 'daf', label: 'דף', of: e => Array.isArray(e.dafs) && e.dafs.length ? e.dafs : (e.daf ? [e.daf] : []), sort: (a, b) => dafOrder(a) - dafOrder(b) },
   { key: 'tag', label: 'מאפיין', of: entryTagsOf, sort: (a, b) => a.localeCompare(b, 'he') },
 ];
 let activeGuideAttr = {};
@@ -171,7 +171,7 @@ function renderGuideAttrRows(){
       row = document.createElement('div');
       row.className = 'filter-row hidden';
       row.id = 'guideAttrRow-' + r.key;
-      row.innerHTML = '<span class="filter-label">' + esc(r.label) + ':</span><div></div>';
+      row.innerHTML = '<span class="filter-label">' + esc(r.label) + ':</span><div class="attr-chips"></div>';
       anchor.after(row);
     }
     if (!row) return;
@@ -301,10 +301,15 @@ function updateGuideFiltersSummary(){
   } catch(_){}
 }
 
+function setGuideFiltersOpen(open){
+  guideFilters.classList.toggle('collapsed', !open);
+  guideFiltersToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  guideFiltersToggle.textContent = open ? '✕ סגירת הסינון' : '☰ סינון';
+}
+{ const tb = document.getElementById('guideTempleBtn');
+  if (tb) tb.addEventListener('click', () => { if (typeof openTemplePlugin === 'function') openTemplePlugin(null); }); }
 guideFiltersToggle.addEventListener('click', () => {
-  const nowOpen = guideFilters.classList.toggle('collapsed') === false;
-  guideFiltersToggle.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
-  guideFiltersToggle.textContent = nowOpen ? '✕ סגירת הסינון' : '☰ סינון';
+  setGuideFiltersOpen(guideFilters.classList.contains('collapsed'));
   updateGuideFiltersSummary();
 });
 
@@ -559,7 +564,11 @@ async function openGuide(catId, term){
     guideTimelineToggle.classList.remove('on');
     guideTimelineToggle.textContent = '🕰️ ציר זמן';
   }
+  const templeBtn = document.getElementById('guideTempleBtn');
+  if (templeBtn) templeBtn.style.display = (cat.id === 'beithamikdash' && window.Otzaria && Otzaria.call) ? '' : 'none';
   currentGuideCat = cat;
+  // 6.1.0 — הגדרה: הסינון סגור בכניסה למדריך (ברירת מחדל: פתוח, כמו קודם)
+  setGuideFiltersOpen(!(typeof uiPrefs !== 'undefined' && uiPrefs.filtersClosed));
   currentGuideData = await loadGuideData(cat);
   // 5.4.0 — זכירת הסינון האחרון לכל מדריך (נשמר בהעדפות)
   try {

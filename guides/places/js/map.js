@@ -482,6 +482,7 @@ function initWorldMap(){
   if(worldMap || !leafletReady()) return;
   const el = document.getElementById('worldMap');
   if(!el) return;
+  guardLeafletPanes();
   worldMap = L.map(el, {minZoom:2, maxZoom:MAP_MAX_ZOOM, zoomControl:true,
     maxBounds:[[-65,-180],[82,180]], maxBoundsViscosity:.8});
   worldMap.attributionControl.setPrefix('');
@@ -536,6 +537,7 @@ function renderMiniMap(item, mi){
   const m = item.methods[mi];
   if(!el || !m.geo || !leafletReady()) return;
   const z = Math.min(m.geo[2], zoomCap());
+  guardLeafletPanes();
   miniMapInst = L.map(el, {minZoom:2, maxZoom:zoomCap(), scrollWheelZoom:false, zoomControl:true});
   miniMapInst.attributionControl.setPrefix('');
   miniMapInst.setView([m.geo[0], m.geo[1]], z);
@@ -565,3 +567,18 @@ function renderMiniMap(item, mi){
 }
 
 
+
+// #316: Leaflet קורס (‎_leaflet_pos של undefined) כשאנימציית זום/גלילה מסתיימת אחרי שהמפה הוסרה
+// (סגירת הכרטיס/החלון באמצע תנועה). מחזירים נקודת 0 במקום לקרוס, ומבטלים אנימציה ב-remove.
+function guardLeafletPanes() {
+  if (!window.L || L.Map.prototype.__mhPaneGuard) return;
+  L.Map.prototype.__mhPaneGuard = true;
+  const getPos = L.Map.prototype._getMapPanePos, rm = L.Map.prototype.remove;
+  L.Map.prototype._getMapPanePos = function () {
+    return this._mapPane ? getPos.call(this) : new L.Point(0, 0);
+  };
+  L.Map.prototype.remove = function () {
+    try { this.stop(); } catch (e) {}
+    return rm.apply(this, arguments);
+  };
+}

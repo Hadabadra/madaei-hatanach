@@ -134,7 +134,7 @@ const DISAMBIG_SKIP  = new Set(['מלך','בן','בת','אבי','אשת','אחי
 // עצמה היא בדרך כלל המשמעות הנכונה, וסיומת רבים מותרת.
 const NAME_GUIDES = new Set(['people', 'places', 'amoraim']);
 // 5.6.1 #247 — שמות שהם גם מילה שכיחה מאוד (״בני ישראל״): לא מזוהים כמילה בודדת
-const COMMON_WORD_NAMES = new Set(['בני']);
+const COMMON_WORD_NAMES = new Set(['בני', 'לבני', 'מבני', 'שמע', 'ימימה']);   // 6.0.0: #275 #280–#285 #292
 const isNameGuide = (catId) => NAME_GUIDES.has(catId);
 
 // מפתח שמופיע בניקוד אחר ב-AMBIG_VOCAL_MIN פסוקים לפחות במאגר של אותו מדריך

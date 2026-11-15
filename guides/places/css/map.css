@@ -823,3 +823,6 @@ body.map-fullscreen-open #settingsBtn { display: none !important; }
   color: var(--color-on-surface);
 }
 .map-fs-btn:hover { background: var(--color-hover); }
+
+/* 6.0.0 (#300) — שכבות Leaflet (z-index 400–1000) לא יוצאות מגבולות המפה ולא עולות על שורת הכפתורים */
+.leaflet-container { isolation: isolate; z-index: 0; }

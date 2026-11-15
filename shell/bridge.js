@@ -634,8 +634,18 @@ setTimeout(() => { if (runMode !== 'background') checkForUpdate(); }, UPDATE_CHE
 (function(){
   if (!(window.Otzaria && typeof Otzaria.call === 'function')) return;
   let asked = false;
+  // 6.0.0 — מתג בהגדרות (ברירת מחדל: פעיל). localStorage — כדי שיהיה זמין מיד בשגיאה
+  const CRASH_OFF_KEY = 'mh_crash_report_off';
+  const crashOn = () => { try { return localStorage.getItem(CRASH_OFF_KEY) !== '1'; } catch(e){ return true; } };
+  const wireCrashToggle = () => {
+    const cb = document.getElementById('optCrashReport');
+    if (!cb) return;
+    cb.checked = crashOn();
+    cb.addEventListener('change', () => { try { localStorage.setItem(CRASH_OFF_KEY, cb.checked ? '0' : '1'); } catch(e){} });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireCrashToggle); else wireCrashToggle();
   function report(msg, stack){
-    if (asked) return;
+    if (asked || !crashOn()) return;
     const sig = String(msg || '').slice(0, 120);
     try { if (sessionStorage.getItem('mh_crash_sig') === sig) return; sessionStorage.setItem('mh_crash_sig', sig); } catch(e){}
     asked = true;

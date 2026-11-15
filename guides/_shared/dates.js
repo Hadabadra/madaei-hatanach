@@ -676,6 +676,16 @@ async function publishUpcomingEventsInner(){
     }
   }
   await saveState(true);
+  return { total: kept.length };
+}
+
+// 6.0.0 (#279) — ״החל כעת״ בהגדרות: בלי השהיית ההפעלה (20–30 שניות), ואם ריצת רקע
+// כבר באמצע — מחכים לה במקום לחזור מיד ולהציג ״עודכן ✓״ כשבפועל לא קרה כלום.
+async function publishUpcomingEventsNow(){
+  for (let i = 0; _publishInFlight && i < 120; i++) await new Promise(r => setTimeout(r, 500));
+  _publishInFlight = true;
+  try { return await publishUpcomingEventsInner(); }
+  finally { _publishInFlight = false; }
 }
 
 // ---- 4.3.0 — ״ערך היום״ לפי תאריך נתון (התאריך שנבחר ביומן של אוצריא,
