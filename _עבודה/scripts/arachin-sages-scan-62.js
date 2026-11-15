@@ -29,7 +29,8 @@ c.DATA.forEach(e => [e.name, ...(e.aliases || [])].forEach(n => {
   const vs = [f]; if (/^ר /.test(f)) vs.push(f.replace(/^ר /, 'רבי '));
   vs.forEach(v => { if (BLOCK_FORMS.has(v)) return; if (forms.has(v) && forms.get(v) !== e.name) dup.add(v); else forms.set(v, e.name); });
 }));
-dup.forEach(v => forms.delete(v));
+// צורה שבשני ערכים — לא מנחשים: נרשמת כ-DUP:<צורה>, ו-arachin-sages-62.js מקשר לשני הערכים עם הערת ספק
+dup.forEach(v => forms.set(v, 'DUP:' + v));
 // אופציונלי: צורות נוספות (למשל כותרות ״סדר הדורות״) — EXTRA_FORMS=<json {צורה: שם}>; לא דורסות את שמות המדריך
 if (process.env.EXTRA_FORMS) Object.entries(JSON.parse(fs.readFileSync(process.env.EXTRA_FORMS, 'utf8'))).forEach(([f, n]) => {
   f = norm(f).replace(/"/g, ''); if (f && !forms.has(f) && !dup.has(f) && !BLOCK_FORMS.has(f)) forms.set(f, n); });

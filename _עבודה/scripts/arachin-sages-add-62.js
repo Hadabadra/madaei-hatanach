@@ -5,11 +5,12 @@
 // לוקח רק התאמות לחכמים (רשימת PERSON_SKIP למטה מסננת מושגים/מקומות ושמות שזוהו לא נכון), ובונה ערך לכל אחד.
 // אחריו מריצים שוב את arachin-sages-62.js, שמקשר את החכמים החדשים בהקשר ״חכמי המסכת״.
 //   node _עבודה/scripts/arachin-sages-add-62.js "<…/אוצריא/ספרות עזר/תולדות עם ישראל/סדר הדורות.txt>" "<…/אוצריא/תלמוד בבלי/סדר קדשים/ערכין.txt>"
-// ריצה חוזרת — מחליפה את הערכים שהסקריפט הוסיף (מסומנים ב-src: 'arachin-62'), בלי כפילויות.
+// ריצה חוזרת — מחליפה את הערכים שהסקריפט הוסיף (מסומנים ב-src: SRC_TAG), בלי כפילויות.
 'use strict';
 const fs = require('fs'), os = require('os'), path = require('path'), { execFileSync } = require('child_process');
 const { load, save } = require('./data-io.js');
-const [SD, ARACHIN] = process.argv.slice(2);
+const [SD, ARACHIN, MASECHET = 'ערכין'] = process.argv.slice(2);   // מסכת אחרת: הארגומנט השלישי (ר׳ docs/סריקת-חכמי-מסכת.md)
+const SRC_TAG = MASECHET === 'ערכין' ? 'arachin-62' : 'sages-' + MASECHET;
 if (!SD || !ARACHIN) { console.error('usage: arachin-sages-add-62.js <סדר הדורות.txt> <ערכין.txt>'); process.exit(1); }
 
 // ---- כותרות הערכים בחלק ״סדר תנאים ואמוראים״ ----
@@ -29,16 +30,24 @@ for (const h of sdEntries.keys()) { const f = formOf(h); if (f.split(' ').length
   if (extra[f] && extra[f] !== 'SD:' + h) amb.add(f); else extra[f] = 'SD:' + h; }
 amb.forEach(f => delete extra[f]);
 // צורה שבערכין שונה מכותרת סדר הדורות (״רבי חייא בר אבין״ — בסדר הדורות ״רב חייא בר אבין״)
-const MAP = { 'בר אבין': 'רב חייא בר אבין' };
+const MAP = { 'בר אבין': 'רב חייא בר אבין',
+  "ר' עוקבא": 'מר עוקבא' };   // בערכין ״אמר רב חסדא אמר רבי עוקבא״; בסדר הדורות (ערך מר עוקבא) ״רב חסדא בשמו״ — ר׳ עוקבא שבסדר הדורות הוא חכם אחר
+// כינויים נוספים לערך החדש (הצורה שבמסכת) והערה בראש התיאור
+const NEW_ALIASES = { 'מר עוקבא': ['רבי עוקבא'] };
+const NEW_NOTE = { 'מר עוקבא': 'בבבלי ערכין נזכר ״אמר רב חסדא אמר רבי עוקבא״ — רב חסדא אומר בשם מר עוקבא (ר׳ סדר הדורות כאן). בסדר הדורות יש גם ״ר׳ עוקבא״ אחר, מחכמי ארץ ישראל (אומר בשם ר׳ פרנך) — שני חכמים שונים. הזיהוי בערכין לא אומת. ' };
+// ספק שאין להכריע — ערך ״ספק״ אחד עם כל המופעים, וההסבר מהמקורות (לא ניחוש)
+const DOUBT = { 'רבי אלעזר': { name: 'רבי אלעזר (סתם)', text: 'בבבלי ערכין נזכר ״רבי אלעזר״ בלי שם אב, ולא הוכרע בכל מופע מי הוא. במדריך: ״סתם ר׳ אלעזר במשנה או ברייתא״ הוא רבי אלעזר בן שמוע (רש״י שבת יט ע״ב). בסדר הדורות (סדר תנאים ואמוראים) הספק מפורש: ״סתם ר״א אולי הוא ר״א הגדול או ר״א בן שמוע״, ובמקום אחר: ״ר״א זה סתם הוא ר״א בן פדת״. ראו רבי אלעזר בן שמוע ורבי אליעזר בן הורקנוס (ר״א הגדול) במדריך זה. (סדר הדורות, סדר תנאים ואמוראים)' } };
+// כינוי לערך קיים, כשהמקור כתוב בערך עצמו (רבי אליעזר בן הורקנוס: ״או רבי אליעזר הגדול (גיטין נ״ז ע״א)״)
+const EXISTING_ALIASES = { 'רבי אליעזר בן הורקנוס': ['רבי אליעזר הגדול'] };
 // לא חכמים, או זיהוי שגוי של הצורה הקצרה — לא נכנסים
 const PERSON_SKIP = new Set(['אהל מועד', 'בית אל', 'בעל הלשון', 'דברי הימים', 'לב אהרן', 'לחם הפנים', 'מנחת כהן', 'מרפא לשון',
   'עיני הכהן', 'צורבא מרבנן', 'קדש קדשים', 'שלחו מתם',
   'רבי לא',               // ״בית רבי לא הוו״ — לא שם
   'בן בתירא',             // = רבי יהודה בן בתירא; במדריך שני ערכים בשם זה — לא מקושר (ROADMAP)
-  "ר' עוקבא",             // בערכין ״רב חסדא אמר מר עוקבא״; ערך סדר הדורות הוא חכם אחר (ר׳ עוקבא א״ר פרנך)
   "ר' אליעזר הגדול"]);    // כבר במדריך (רבי אליעזר בן הורקנוס) — לא ערך כפול
 const AF = 'guides/amoraim/data/amoraim-data.js', a = load(AF);
-a.data = a.data.filter(e => e.src !== 'arachin-62'); save(AF, a);   // ריצה חוזרת: הסריקה רואה את המדריך בלי ערכי הריצה הקודמת
+a.data = a.data.filter(e => e.src !== SRC_TAG); save(AF, a);   // ריצה חוזרת: הסריקה רואה את המדריך בלי ערכי הריצה הקודמת
+Object.keys(DOUBT).forEach(f => { extra[f] = 'SD:@' + f; });
 const tmp = path.join(os.tmpdir(), 'sd-forms-62.json'); fs.writeFileSync(tmp, JSON.stringify(extra));
 const tsv = execFileSync(process.execPath, [path.join(__dirname, 'arachin-sages-scan-62.js'), ARACHIN],
   { encoding: 'utf8', env: { ...process.env, EXTRA_FORMS: tmp }, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 26 });
@@ -52,12 +61,12 @@ tsv.trim().split('\n').forEach(l => {
 });
 // קטגוריה במדריך: תנאים — מי שדבריו בערכין במשנה/בברייתא; השאר — אמוראים, לפי הדור הידוע (הדור עצמו לא נכתב בערך)
 const TANNA = new Set(['בן בג בג', 'בן בוכרי', "ר' אלעזר בן עזריה", "ר' אלעזר בן פרטא", "ר' יוחנן בן גודגדא", "ר' ישמעאל בר יוסי"]);
-const EARLY = new Set(["ר' שמעון בן יהוצדק", 'רב גידל', "ר' חמא ברבי חנינא", "ר' יהודה נשיאה", 'רב מתנה', 'רב המנונא']);
+const EARLY = new Set(['מר עוקבא', "ר' שמעון בן יהוצדק", 'רב גידל', "ר' חמא ברבי חנינא", "ר' יהודה נשיאה", 'רב מתנה', 'רב המנונא']);
 const LATE = new Set(['רב זביד מנהרדעא', 'רב יוסף בריה דרבא', 'רב שימי בר אשי', 'רב דימי אחוה דרב ספרא', 'רב יוסף בריה דרב סלא חסידא']);
 const MID = new Set(["ר' יצחק נפחא", "ר' שמואל בר נחמני", "ר' אבא בר ממל", "ר' אילא", "ר' אבין", "ר' חנינא בר פפא", "ר' שמואל בר נדב",
   'רמי בר חמא', 'רבה בר מרי', 'רב הונא בר יהודה', 'רב אויא', 'רב חייא בר אבין']);
 const catOf = h => TANNA.has(h) ? 'tannaim' : EARLY.has(h) ? 'amoraim-early' : MID.has(h) ? 'amoraim-mid' : LATE.has(h) ? 'amoraim-late' : 'other';
-const dafRef = d => 'בבלי, ערכין ' + d.replace(/\.$/, ' ע"א').replace(/:$/, ' ע"ב');
+const dafRef = d => 'בבלי, ' + MASECHET + ' ' + d.replace(/\.$/, ' ע"א').replace(/:$/, ' ע"ב');
 const clean = s => s.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 const summary = h => { let t = clean(sdEntries.get(h) || ''); if (t.length > 700) { const cut = t.lastIndexOf('. ', 700); t = t.slice(0, cut > 300 ? cut + 1 : 700) + ' …'; }
   return t + ' (סדר הדורות, סדר תנאים ואמוראים)'; };
@@ -66,7 +75,13 @@ const dafOrd = d => { const m = String(d).match(/^([א-ת]+)([.:])?/); const v =
 
 const have = new Set(a.data.flatMap(e => [e.name, ...(e.aliases || [])]));
 const added = [], skipped = [];
+for (const [ek, al] of Object.entries(EXISTING_ALIASES)) { const e = a.data.find(x => x.name === ek);
+  if (e) al.forEach(f => { if (!(e.aliases || []).includes(f)) (e.aliases = e.aliases || []).push(f); }); }
 for (const [h, m] of hits) {
+  if (h.startsWith('@')) { const d = DOUBT[h.slice(1)], dafs = [...m.keys()].sort((x, y) => dafOrd(x) - dafOrd(y));
+    a.data.push({ name: d.name, cat: 'other', aliases: [h.slice(1)], role: '', dor: '', place: '', methods: [{ explanation: d.text }],
+      midrash: dafs.map(x => ({ ref: dafRef(x), text: m.get(x) })), src: SRC_TAG });
+    added.push(d.name + ' (ספק, ' + dafs.length + ')'); continue; }
   const name = formOf(h);
   if (have.has(name)) {   // ערך קיים — רק מוסיפים לו את הצורה שבערכין ככינוי (למשל ״רבי חייא בר אבין״)
     const e = a.data.find(x => x.name === name || (x.aliases || []).includes(name));
@@ -75,9 +90,9 @@ for (const [h, m] of hits) {
     skipped.push(name + (forms.length ? ' (+כינוי ' + forms.join(', ') + ')' : '')); continue; }
   const cat = catOf(h), dafs = [...m.keys()].sort((x, y) => dafOrd(x) - dafOrd(y));
   const aliases = [h].filter(x => formOf(x) !== name);
-  a.data.push({ name, cat, aliases, role: cat === 'tannaim' ? 'תנא' : cat === 'other' ? '' : 'אמורא', dor: '', place: '',
-    methods: [{ explanation: summary(h) }],
-    midrash: dafs.map(d => ({ ref: dafRef(d), text: m.get(d) })), src: 'arachin-62' });
+  a.data.push({ name, cat, aliases: [...aliases, ...(NEW_ALIASES[name] || [])], role: cat === 'tannaim' ? 'תנא' : cat === 'other' ? '' : 'אמורא', dor: '', place: '',
+    methods: [{ explanation: (NEW_NOTE[name] || '') + summary(h) }],
+    midrash: dafs.map(d => ({ ref: dafRef(d), text: m.get(d) })), src: SRC_TAG });
   added.push(name + ' (' + cat + ', ' + dafs.length + ')');
 }
 save(AF, a);

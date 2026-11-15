@@ -19,6 +19,7 @@ tsv.trim().split('\n').forEach(l => {
   if (!per.has(name)) per.set(name, new Map());
   if (!per.get(name).has(daf)) per.get(name).set(daf, ctx);
 });
+const AM = load('guides/amoraim/data/amoraim-data.js');
 const AF = 'guides/arachin/data/arachin-data.js';
 { let t = fs.readFileSync(AF, 'utf8');
   if (!t.includes('"id": "chachamim"')) {
@@ -33,6 +34,14 @@ const rows = [...per.entries()].map(([name, m]) => {
   const dafs = [...m.keys()].sort((x, y) => dafOrd(x) - dafOrd(y));
   const al = viaAlias.has(name) ? [...viaAlias.get(name)] : [];
   const note = al.length ? 'נמצא גם בכינוי הסתמי ' + al.map(x => '״' + x + '״').join(', ') + ' — הזיהוי עם ' + name + ' לפי הכלל המקובל; לא אומת בכל מופע.' : '';
+  if (name.startsWith('DUP:')) {   // שם שיש לו שני ערכים במדריך (רבי יהודה בן בתירא) — לא מנחשים
+    const form = name.slice(4), cands = AM.data.filter(e => normName(e.name) === form).map(e => e.name);
+    return { masechet: 'ערכין', aliases: [], name: form, cat: 'chachamim', daf: dafs[0], dafs,
+      note: 'במדריך שני ערכים בשם זה: ' + cands.join(' ו') + '. סדר הדורות (ערך ר׳ יהודה בן בתירא) מסתפק: ״ושמא שנים היו״ — אחד בזמן הבית ואחד אחריו. מי מהם נזכר בערכין — לא הוכרע.',
+      makorot: dafs.map(d => ({ ref: 'בבלי, ערכין ' + d, text: m.get(d) })),
+      explanation: 'נזכר בבבלי ערכין ' + (dafs.length > 1 ? 'בדפים ' + dafs.join(', ') : 'בדף ' + dafs[0]) + '. הקישור לערך הראשון; הערך השני: ' + cands.slice(1).join(', ') + '.',
+      link: { cat: 'amoraim', entry: cands[0] } };
+  }
   return { masechet: 'ערכין', aliases: [], note, name, cat: 'chachamim', daf: dafs[0], dafs,
     makorot: dafs.map(d => ({ ref: 'בבלי, ערכין ' + d, text: m.get(d) })),
     explanation: 'נזכר בבבלי ערכין ' + (dafs.length > 1 ? 'בדפים ' + dafs.join(', ') : 'בדף ' + dafs[0]) + '. הערך המלא — במדריך אנשים מהתלמוד.',
