@@ -115,7 +115,8 @@ async function installedPlugins(){
   return installedPluginsCache;
 }
 // מדריכים שיש להם תוסף ייעודי משלים אצל חלק מהמשתמשים
-const COMPANION_PATTERNS = { people: /אישים/, amoraim: /אישים/, places: /מקומות/ };
+// 6.2.0 — גם תוסף ״ביוגרפיות״ (יאיר דניאל): כפתור ״פתיחה בביוגרפיות״ בכרטיסי אישים וחכמים, כשהוא מותקן
+const COMPANION_PATTERNS = { people: /אישים|ביוגרפיות|biograph/i, amoraim: /אישים|ביוגרפיות|biograph/i, places: /מקומות/ };
 
 // 6.1.0 — תוסף ״בית המקדש״ (מאוחד: בית ראשון + בית שני; yoniny/beit-rishon). התוסף מקבל ב-plugin.page_opened
 // מיקום קריאה {bookId, currentRef} — כמו כפתור הספר שלו — ובוחר את הבית לפי הספר (מלכים א 10 ודברי הימים ב 39
