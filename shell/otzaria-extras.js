@@ -61,10 +61,13 @@ function biographyHtml(b){
 // ---- "היכן עוד מוזכר" — חיפוש מלא באוצריא ----
 // 5.9.0 — הטקסט מהחיפוש של אוצריא מגיע עם ישויות HTML (&#x27; &quot;); מפענחים לפני esc כדי שלא יוצגו כקודים
 function decodeEntities(s){ const t = document.createElement('textarea'); t.innerHTML = String(s == null ? '' : s); return t.value; }
-async function searchMentions(query, max){
+async function searchMentions(query, max, categories){
   const out = [];
   let total = 0;
-  let chunks = Otzaria.call('search.query', { query, mode: 'exact', limit: max || 30, order: 'relevance' });
+  // 6.3.0 — categories: היקף לפי נתיב קטגוריה (למשל ['/תלמוד בבלי'] לכפתור ״רק בבלי״)
+  const params = { query, mode: 'exact', limit: max || 30, order: 'relevance' };
+  if (categories && categories.length) params.categories = categories;
+  let chunks = Otzaria.call('search.query', params);
   if (chunks && typeof chunks.then === 'function' && !chunks[Symbol.asyncIterator]) chunks = await chunks;
   if (!chunks || !chunks[Symbol.asyncIterator]) return { total: 0, results: [] };
   // אוספים למערך ומרנדרים אחרי הלולאה — צרכן איטי קוטע את הזרם (API_REFERENCE).
@@ -83,19 +86,18 @@ function wireMentionsSearch(container, entry){
   const box = document.createElement('div');
   box.className = 'otz-mentions';
   box.style.marginTop = '12px';
-  box.innerHTML = `<button type="button" class="panel-btn secondary">🔎 היכן עוד מוזכר "${esc(name)}" בספרייה</button> <button type="button" class="panel-btn secondary otz-open-search">פתיחה בחיפוש של אוצריא ↗</button><div class="otz-mentions-list"></div>`;
+  box.innerHTML = `<button type="button" class="panel-btn secondary otz-mentions-all">🔎 היכן עוד מוזכר "${esc(name)}" בספרייה</button> <button type="button" class="panel-btn secondary otz-mentions-bavli" title="חיפוש בתלמוד הבבלי בלבד">רק בבלי</button> <button type="button" class="panel-btn secondary otz-open-search">פתיחה בחיפוש של אוצריא ↗</button><div class="otz-mentions-list"></div>`;
   // 4.2.0 — reader.openSearchTab: מעבר למסך החיפוש המלא עם השם, לעריכה לפני ההרצה
   box.querySelector('.otz-open-search').addEventListener('click', () => {
     Otzaria.call('reader.openSearchTab', { query: name, autoSearch: false }).catch(() => {});
   });
   container.appendChild(box);
-  const btn = box.querySelector('button');
   const list = box.querySelector('.otz-mentions-list');
-  btn.addEventListener('click', async () => {
+  const runSearch = async (btn, categories) => {
     btn.disabled = true;
     list.innerHTML = '<p class="mini-note">מחפש…</p>';
     try {
-      const { total, results } = await searchMentions(name, 30);
+      const { total, results } = await searchMentions(name, 30, categories);
       if (!results.length){ list.innerHTML = '<p class="mini-note">לא נמצאו מופעים.</p>'; return; }
       list.innerHTML = `<p class="mini-note">${total} מופעים${total > results.length ? ' — מוצגים ' + results.length + ' הראשונים' : ''}</p>` +
         results.map((r, i) => `<div class="src-item clickable" data-hit="${i}"><button type="button" class="tool-btn" data-bm="${i}" title="הוספה לסימניות של אוצריא" style="float:inline-end;">🔖</button><b>${esc(decodeEntities(r.reference || r.book || ''))}</b> — ${esc(decodeEntities(String(r.text || '').replace(/<[^>]*>/g, '')).slice(0, 140))}</div>`).join('');
@@ -128,7 +130,11 @@ function wireMentionsSearch(container, entry){
     } catch(e){
       list.innerHTML = '<p class="mini-note">החיפוש אינו זמין כרגע.</p>';
     } finally { btn.disabled = false; }
-  });
+  };
+  const bAll = box.querySelector('.otz-mentions-all');
+  const bBavli = box.querySelector('.otz-mentions-bavli');
+  bAll.addEventListener('click', () => runSearch(bAll));
+  bBavli.addEventListener('click', () => runSearch(bBavli, ['/תלמוד בבלי']));
 }
 
 // 4.4.0 — bookmarks.list: אילו מהמופעים כבר שמורים בסימניות של אוצריא
