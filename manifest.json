@@ -1,9 +1,9 @@
 {
   "id": "com.chadbedera.madaeihatanach",
   "name": "עינים למקרא",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "description": "מדריך מאוחד לתנ״ך ומשנה/תלמוד: אישים, מקומות, בע״ח, צומח, דומם, בית המקדש, אנשים מהתלמוד ומסכתות — זיהוי אחיד בלחיצה ימנית, תמונות ומפה בלי אינטרנט.",
-  "author": "חד בדרא",
+  "author": "Hadabadra",
   "homepage": "https://github.com/Hadabadra/madaei-hatanach",
   "schemaVersion": 1,
   "sdkVersion": "1.x",
@@ -49,7 +49,8 @@
     "fs.user_files.read",
     "fs.user_files.write",
     "events.subscribe:workspace.changed",
-    "search.field_actions"
+    "search.field_actions",
+    "plugin.storage.write"
   ],
   "network": {
     "enabled": true,
@@ -99,7 +100,15 @@
           "icon": "search_24_regular",
           "contexts": [
             "reader-selection"
-          ]
+          ],
+          "when": {
+            "not": {
+              "storage": {
+                "key": "hb.hide.madaei-hatanach-identify",
+                "equals": true
+              }
+            }
+          }
         }
       ],
       "toolbarItems": [
@@ -113,10 +122,22 @@
           ],
           "openPlugin": true,
           "when": {
-            "storage": {
-              "key": "mh_hide_toolbar_button",
-              "notEquals": true
-            }
+            "all": [
+              {
+                "storage": {
+                  "key": "mh_hide_toolbar_button",
+                  "notEquals": true
+                }
+              },
+              {
+                "not": {
+                  "storage": {
+                    "key": "hb.hide.madaei-hatanach-open",
+                    "equals": true
+                  }
+                }
+              }
+            ]
           }
         }
       ],
@@ -161,7 +182,15 @@
             "exact",
             "advanced"
           ],
-          "resultsAction": "הצגה בעינים למקרא"
+          "resultsAction": "הצגה בעינים למקרא",
+          "when": {
+            "not": {
+              "storage": {
+                "key": "hb.hide.madaei-hatanach-search",
+                "equals": true
+              }
+            }
+          }
         }
       ],
       "searchFieldActions": [
