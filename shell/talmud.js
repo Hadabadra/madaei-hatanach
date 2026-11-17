@@ -61,7 +61,7 @@ function masechetCardHtml(name, page){
   // כל מדריך/כלי-עזר חדש שנכנס מקבל את אותה מסגרת, עד שרוב המסכתות מכוסות
   // ואפשר להסיר את ההדגשה (ר' מפרט 4.0, ד.3).
   const hasContent = (tool && tool.guideId) || page;
-  const stateClass = hasContent ? ' tool-has-content' : ' tool-placeholder';
+  const stateClass = ' tool-has-content';   // 6.5.0 — כל המסכתות פעילות (כרטיסים מקושרים מהאינדקס)
   return `<div class="card${stateClass}" data-masechet="${esc(name)}">` +
     `<img class="icon-img" src="${esc(icon)}" alt="" onerror="this.src='icon/icon.png'">` +
     `<span class="label">${esc(name)}${badge}</span></div>`;
@@ -100,6 +100,13 @@ async function renderMasechtot(){
       if (tool && tool.guideId){ closeTalmudView(); openGuide(tool.guideId, null); }
       else if (tool) openExternalGuide(tool.path, tool.title);
       else if (page) openCustomHtmlPage(page.name);
+      // 6.5.0 — כל מסכת פעילה: כרטיסים מקושרים לכל הערכים שבמסכת (בבלי, או משנה כשאין גמרא), עם סינון לפי מדריך,
+      // ובפאנל אפשר לבחור דף/פרק או ירושלמי. ״אודות המסכת״ נשאר בכפתור נפרד בפאנל התוצאות של אוצריא.
+      else if (typeof openStudyGate === 'function'){
+        const hasBavli = typeof BAVLI_DAPIM !== 'undefined' && BAVLI_DAPIM.some(m => m.name === name);
+        closeTalmudView();
+        openStudyGate(hasBavli ? 'bavli' : 'mishna', { name, unit: -1, run: true });
+      }
       else showMasechetAbout(name);   // 3.8.0: library.getBookDetails (shell/otzaria-extras.js)
     });
   });

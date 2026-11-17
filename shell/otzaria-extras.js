@@ -250,6 +250,7 @@ function enrichEntryDetail(container, entry){
     });
   }
   wireMentionsSearch(container, entry);
+  if (typeof wireMentionsList === 'function') wireMentionsList(container, entry, catId);   // 6.5.0 — היכן נזכר (אינדקס)
   wireVerseCommentaries(container, entry);
   if (typeof wireVersePrintRange === 'function') wireVersePrintRange(container, entry);   // 4.7.0, אוצריא 0.9.99
   wireVerseNotes(container, entry);
