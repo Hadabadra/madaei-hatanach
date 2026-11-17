@@ -12,7 +12,7 @@
 //   node commentaries-items-670.js <…/אוצריא> [--dry]
 'use strict';
 const fs=require('fs'),path=require('path'),vm=require('vm');const ROOT=process.argv[2];const DRY=process.argv.includes('--dry');
-const norm=s=>String(s||'').replace(/[֑-ׇ]/g,'').replace(/[־]/g,' ').replace(/<[^>]*>/g,' ').replace(/\[[^\]]*\]/g,' ').replace(/\(.*?\)/g,' ').replace(/[׳״'"]/g,'').replace(/[^א-ת ]/g,' ').replace(/\s+/g,' ').trim();
+const norm=s=>String(s||'').replace(/[־]/g,' ').replace(/[֑-ׇ]/g,'').replace(/<[^>]*>/g,' ').replace(/\[[^\]]*\]/g,' ').replace(/\(.*?\)/g,' ').replace(/[׳״'"]/g,'').replace(/[^א-ת ]/g,' ').replace(/\s+/g,' ').trim();
 const strip=s=>String(s||'').replace(/<[^>]+>/g,'').replace(/[֑-ׇ]/g,'').replace(/\s+/g,' ').trim();
 const LAAZ=/בלע״ז|בלע"ז|בלעז|בל״ע|בערבי|בלשון ערבי|קורין|שקורין|קורים אותו/;
 const TYPE={
