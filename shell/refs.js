@@ -98,6 +98,18 @@ function parseMidrashRef(source){
   // כללי: "פרקי דרבי אליעזר, פרק י"
   m = s.match(/^([א-ת" ]+?),\s*פרק\s+([א-ת]{1,3})$/);
   if (m) return { bookId: m[1].trim(), ref: 'פרק ' + m[2] };
+  // 6.5.0 — מדרשים שבספריית אוצריא לפי שם הספר + כותרת (״מדרש תהילים מזמור כז״, ״מדרש תנחומא שמיני סימן ה״,
+  // ״ספרי במדבר פסקה קלב״, ״ספרא, שמיני, פרק ה, ד״). הכותרת נשלחת כמות שהיא; אם אוצריא לא מוצאת אותה
+  // נפתח הספר עצמו (openInReader).
+  m = s.match(/^(אגדת בראשית|מדרש אגדה|מדרש משלי|מדרש שמואל|מדרש תהילים|מדרש תהלים|מדרש תנאים על ספר דברים|מדרש תנחומא|תנחומא בובר|מכילתא דרבי ישמעאל|מכילתא דרבי שמעון בן יוחאי|משנת רבי אליעזר|סדר עולם זוטא|סדר עולם רבה|ספרא|ספרי במדבר|ספרי דאגדתא על מגילת אסתר|ספרי דברים|ספרי זוטא|פסיקתא דרב כהנא|פסיקתא רבתי|פרקי דרבי אליעזר|תנא דבי אליהו זוטא|תנא דבי אליהו רבה|אבות דרבי נתן)(?:\s*,\s*|\s+)(.+)$/);
+  if (m) return { bookId: m[1].replace('מדרש תהלים', 'מדרש תהילים'), ref: m[2].replace(/\s*,\s*/g, ' ').trim() };
+  // 6.5.0 — כתיב ״פרק:משנה״ — ״משנה שבת ט"ז:ג׳״ ו״ירושלמי דמאי פ"ב ה"א״
+  m = s.match(/^משנה\s+([א-ת" ]+?)\s+([א-ת"]{1,4}):[א-ת"']{1,4}$/);
+  if (m) return { bookId: 'משנה ' + m[1].trim(), ref: 'פרק ' + m[2].replace(/"/g, '') };
+  m = s.match(/^ירושלמי\s+([א-ת" ]+?)\s+פ"?([א-ת]{1,3})\s+ה"?[א-ת]{1,3}$/);
+  if (m) return { bookId: 'תלמוד ירושלמי ' + m[1].trim(), ref: 'פרק ' + m[2] };
+  m = s.match(/^(אגדת בראשית|מדרש אגדה|מדרש משלי|מדרש שמואל|מדרש תהילים|מדרש תהלים|מדרש תנאים על ספר דברים|מדרש תנחומא|תנחומא בובר|מכילתא דרבי ישמעאל|מכילתא דרבי שמעון בן יוחאי|משנת רבי אליעזר|סדר עולם זוטא|סדר עולם רבה|ספרא|ספרי במדבר|ספרי דאגדתא על מגילת אסתר|ספרי דברים|ספרי זוטא|פסיקתא דרב כהנא|פסיקתא רבתי|פרקי דרבי אליעזר|תנא דבי אליהו זוטא|תנא דבי אליהו רבה|אבות דרבי נתן)$/);
+  if (m) return { bookId: m[1], ref: '' };
   // שולחן ערוך: "שולחן ערוך, יורה דעה כ, א" (אותה שיטה כמו רמב"ם: bookId = "ספר, חלק")
   // מספר הסימן עד 4 אותיות: סימני אורח חיים מגיעים לתרצ"ז, ו-{1,3} פסל את כולם.
   // הסעיף רשות ("יורה דעה לג"), וגם טווח/רשימת סעיפים ("כג, א-ב" / "נח, א,ג").
@@ -113,9 +125,10 @@ function parseAnyRef(ref){
 
 function openInReader(bookId, ref){
   if (!(window.Otzaria && Otzaria.call)) return;
-  Otzaria.call('reader.openBookAtRef', { bookId, ref, index: 0 }).then(r => {
+  const openBook = () => Otzaria.call('reader.openBook', { bookId, index: 0 }).then(r => { if (!r || !r.success) throw new Error('open failed'); });
+  (ref ? Otzaria.call('reader.openBookAtRef', { bookId, ref, index: 0 }).then(r => {
     if (!r || !r.success) throw new Error('open failed');
-  }).catch(() => {
+  }).catch(openBook) : openBook()).catch(() => {
     Otzaria.call('notifications.showInApp', { message: 'לא ניתן לפתוח את המקור כרגע בספרייה.', type: 'info' }).catch(() => {});
   });
 }
@@ -224,5 +237,58 @@ if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' &
         }
       }
     }
+  }).observe(document.body, { childList: true, subtree: true });
+}
+
+// ---- 6.5.0 — כל קישור לאתר חיצוני לחיץ (כשאוצריא מחוברת) ----
+// (1) קישור <a href="http…"> שלא סומן data-external-link (שיוך מקורות המפה של Leaflet, קרדיט
+//     לתמונה וכו׳) — לא נותנים ל-WebView לנווט; פותחים בדפדפן החיצוני כמו כל קישור אחר.
+// (2) כתובת שכתובה כטקסט בכרטיס (קרדיט, הערה) — הופכת לקישור לחיץ. בלי רשת היא נשארת טקסט.
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function'){
+  document.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a || a.hasAttribute('data-external-link')) return;
+    const href = a.getAttribute('href') || '';
+    if (!/^https?:\/\//i.test(href)) return;
+    e.preventDefault(); e.stopPropagation();
+    if (!isOnline){
+      if (window.Otzaria && Otzaria.call) Otzaria.call('notifications.showInApp', { message: 'הקישור נפתח רק כשאוצריא מחוברת לאינטרנט.', type: 'info' }).catch(() => {});
+      return;
+    }
+    confirmOpenExternal(href);
+  }, true);
+}
+const URL_IN_TEXT = /\bhttps?:\/\/[^\s<>"'״)]+[^\s<>"'״).,;:!?]/g;
+function linkifyExternalUrls(root){
+  if (!root || typeof document === 'undefined' || !document.createTreeWalker) return;
+  const w = document.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
+  const hits = [];
+  for (let n = w.nextNode(); n; n = w.nextNode()){
+    if (!n.nodeValue || n.nodeValue.indexOf('http') === -1) continue;
+    const p = n.parentNode;
+    if (!p || (p.closest && p.closest('a,script,style,textarea,input,.leaflet-control-attribution'))) continue;
+    URL_IN_TEXT.lastIndex = 0;
+    if (URL_IN_TEXT.test(n.nodeValue)) hits.push(n);
+  }
+  hits.forEach(n => {
+    const frag = document.createDocumentFragment();
+    let last = 0; const s = n.nodeValue;
+    s.replace(URL_IN_TEXT, (url, i) => {
+      if (i > last) frag.appendChild(document.createTextNode(s.slice(last, i)));
+      const a = document.createElement('a');
+      a.href = url; a.textContent = url;
+      a.setAttribute('data-external-link', url);
+      a.className = 'inline-ext-link';
+      frag.appendChild(a); last = i + url.length; return url;
+    });
+    if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+    n.parentNode.replaceChild(frag, n);
+  });
+}
+if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.body){
+  let pending = false;
+  new MutationObserver(() => {
+    if (pending) return; pending = true;
+    setTimeout(() => { pending = false; document.querySelectorAll('#entryModalInner, .panel-box').forEach(linkifyExternalUrls); }, 60);
   }).observe(document.body, { childList: true, subtree: true });
 }
