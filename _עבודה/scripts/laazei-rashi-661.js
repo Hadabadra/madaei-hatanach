@@ -1,0 +1,53 @@
+// 6.6.1 — ״אוצר לעזי רש״י״ (משה קטן; ספריית אוצריא, ספרות עזר/מילונים): לכל לעז — המילה בפירוש רש״י, מראה המקום,
+// הלעז, הפירוש העברי והאנגלי. (1) פריט קיים בצומח/בע״ח/דומם בשם הזה — מקור ״רש״י על …״ עם הלעז ופירושו.
+// (2) מילה שאין לה ערך ופירושה האנגלי הוא צמח / בעל חיים / כלי, בגד או חפץ (לא פועל) — ערך חדש, ״לא אומת״.
+//   node laazei-rashi-661.js <…/אוצר לעזי רשי.txt> <…/אוצריא> [--dry]
+const fs=require('fs'),path=require('path'),vm=require('vm');const [FILE,ROOT]=process.argv.slice(2);const DRY=process.argv.includes('--dry');
+const norm=s=>String(s||'').replace(/[֑-ׇ]/g,'').replace(/<[^>]*>/g,' ').replace(/\[[^\]]*\]/g,' ').replace(/\(.*?\)/g,' ').replace(/[׳״'"]/g,'').replace(/[^א-ת ]/g,' ').replace(/\s+/g,' ').trim();
+const strip=s=>String(s||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+// קריאת הספר
+const L=[];let part='',book='';
+for(const l of fs.readFileSync(FILE,'utf8').split('\n')){let h=l.match(/<h2>([^<]+)<\/h2>/);if(h){part=h[1].trim();continue;}h=l.match(/<h3>([^<]+)<\/h3>/);if(h){book=h[1].trim();continue;}
+  const m=l.match(/^\d+\s*\/\s*\(([^)]+)\)\s*\/\s*<b>([^<]+)<\/b><br>([^/]+)\/\s*([^/]+?)\s*\/\s*<b>([^<]+)<\/b>/);if(!m)continue;
+  const en=(l.match(/✭\s*([^<]+)/)||[])[1]||'';
+  L.push({part,book,loc:m[1].trim(),he:m[2].trim(),laaz:m[3].trim(),fr:m[4].trim(),mean:strip(m[5]),en:en.trim()});}
+const refOf=x=>{const loc=x.loc.replace(/\s+/g,' ').replace(/^נידה /,'נדה ').replace(/ ,/g,', ');if(x.part==='תלמוד'){const mm=loc.match(/^(.+?)\s+([א-ת]+)([.:])$/);if(mm)return 'רש"י על '+mm[1]+' '+mm[2]+(mm[3]==='.'?' ע"א':' ע"ב');}
+  return 'רש"י על '+loc;};
+const G={flora:'guides/flora/data/flora-data.js',animal:'guides/animal/data/animal-data.js',domem:'guides/domem/data/domem-data.js'};
+const loadData=f=>{const c={K:new Proxy({},{get:(_,k)=>k})};vm.runInNewContext(fs.readFileSync(f,'utf8').replace(/^(const|let) (DATA|CATS|CARD_IMAGES) =/mg,'this.$2 =').replace(/^const /mg,'var '),c);return c.DATA;};
+const stem=x=>x.replace(/^(וה|וב|ול|ו|ה|ב|ל)(?=[א-ת]{3})/,'').replace(/(ים|ין|ות|יות)$/,'');const fz=x=>stem(x).replace(/[וי]/g,'').replace(/[אה]$/,'');
+const forms=new Map();for(const [g,f] of Object.entries(G))for(const e of loadData(f))for(const n of [e.name,...(e.aliases||[])]){const x=norm(n);if(x.length<2)continue;for(const k of [x,stem(x),'~'+fz(x)]){if(!forms.has(k))forms.set(k,[]);forms.get(k).push([g,e.name]);}}
+const PLANT=/\b(plant|herb|tree|shrub|vegetable|fruit|grass|reed|bean|beans|pea|leek|garlic|onion|cabbage|lettuce|turnip|radish|melon|cucumber|squash|gourd|moss|vine|grape|fig|date|nut|almond|walnut|olive|pomegranate|apple|pear|quince|plum|cherry|thorn|thistle|weed|flower|lily|rose|saffron|mint|cumin|coriander|dill|mustard|lentil|wheat|barley|oat|rye|spelt|millet|rice|flax|hemp|cotton|clover|fennel|sage|hyssop|myrtle|willow|poplar|cedar|cypress|oak|pine|sycamore|acacia|carob|lupine|chicory|endive|nettle|mushroom|bulb|root|bark|seed|seeds|blossom|bud|branch|stalk|husk|pod)s?\b/i;
+const ANIMAL=/\b(bird|fowl|fish|insect|worm|beast|animal|dog|cat|wolf|fox|bear|lion|deer|goat|sheep|ox|cow|horse|mule|donkey|ass|camel|pig|boar|rat|mouse|mole|weasel|hare|rabbit|snake|serpent|lizard|frog|toad|snail|bee|wasp|fly|flea|louse|lice|gnat|moth|locust|grasshopper|ant|spider|scorpion|eagle|hawk|falcon|vulture|owl|raven|crow|dove|pigeon|sparrow|swallow|stork|crane|heron|duck|goose|hen|cock|rooster|peacock|ostrich|quail|partridge|bat|hedgehog|squirrel|ape|monkey|leech|crab|eel|whale|tortoise|turtle|beetle|caterpillar|larva)s?\b/i;
+const OBJECT=/\b(tool|vessel|pot|pan|jar|jug|pitcher|cup|bowl|dish|plate|basket|box|chest|bag|sack|purse|bottle|flask|barrel|cask|keg|ladle|spoon|fork|knife|axe|hatchet|hammer|saw|chisel|drill|awl|needle|pin|nail|hook|chain|rope|cord|thread|net|sieve|mill|millstone|mortar|pestle|oven|stove|lamp|lantern|candle|wick|torch|key|lock|bolt|hinge|bell|whistle|drum|harp|flute|trumpet|sword|spear|lance|arrow|bow|shield|helmet|armor|garment|cloak|coat|cape|tunic|shirt|robe|veil|scarf|hat|cap|hood|belt|girdle|shoe|sandal|boot|sock|stocking|glove|ring|earring|necklace|bracelet|brooch|buckle|button|comb|mirror|razor|scissors|shears|tongs|bellows|anvil|plough|plow|yoke|harness|saddle|bridle|whip|spindle|loom|distaff|shuttle|bed|mattress|pillow|cushion|blanket|sheet|mat|carpet|chair|stool|bench|table|cradle|ladder|wheel|cart|wagon|boat|ship|oar|anchor|sail|tent|cage|trap|snare|pen|quill|inkwell|ink|parchment|tablet|coin|weight|scale|scales|balance|measure|cauldron|kettle|griddle|spit|grill|funnel|pipe|tube|sponge|brush|broom|shovel|spade|hoe|rake|sickle|scythe|pick|mattock|wedge|lever|pulley|bucket|pail|trough|tub|basin|cauldron|crate|case|sheath|scabbard|quiver|sling|club|staff|rod|stick|cane|crutch|stopper|lid|cover|plug|seal|stamp|brick|tile|beam|plank|board|pillar|column|nail)s?\b/i;
+const VERB=/^to\s/i;
+// נבדקו בעין: לא פריט, או מילה כללית מדי
+const EXCL=new Set(['ניצוצות','פירזומא','צרדא','צדרייתא','עיר של זהב','דוקרנים','ברזנייתא','לחי','לימודים','אפריזא','רצועה','משיחה','עמודים','כלונסות','טפויין']);
+const add={flora:new Map(),animal:new Map(),domem:new Map()};const src={};
+for(const x of L){const k=norm(x.he);if(!k||k.split(' ').length>2)continue;const ref=refOf(x);
+  const note='לעז רש״י: '+x.laaz+' ('+x.fr+') — '+x.mean+(x.en?' ['+x.en.replace(/\s*\[.*?\]\s*/g,' ').trim()+']':'')+' (אוצר לעזי רש״י)';
+  const hit=forms.get(k)||forms.get(stem(k));
+  if(!hit&&forms.get('~'+fz(k)))continue; // דומה בכתיב בלבד (כוס/כיס) — לא מקור ולא פריט חדש
+  if(hit){for(const [g,n] of hit){const key=g+'|'+n;src[key]=src[key]||[];if(src[key].length<2&&!src[key].some(s=>s.ref===ref))src[key].push({ref,note});}continue;}
+  if(VERB.test(x.en)||k.split(' ').length>1||EXCL.has(k)||EXCL.has(norm(x.he.replace(/[()\[\]]/g,''))))continue;
+  // הסיווג לפי ראש ההגדרה האנגלית בלבד (״halter (for a horse)״ — חפץ, לא בעל חיים)
+  const head=x.en.replace(/^(a|an|the|kind of|sort of|type of|species of)\s+/i,'').split(/[,(;\[:]/)[0].trim();x.head=head;
+  if(!head||head.split(' ').length>4)continue;
+  const g=OBJECT.test(head)?'domem':ANIMAL.test(head)?'animal':PLANT.test(head)?'flora':null;if(!g)continue;
+  const nk=fz(k);if(add.flora.has(nk)||add.animal.has(nk)||add.domem.has(nk))continue;add[g].set(nk,{x,ref,note,name:x.he.replace(/[()\[\]]/g,'').replace(/^ו?ה(?=[א-ת]{3})/,'').trim()});}
+function addToFile(file,name,s,field){let t=fs.readFileSync(file,'utf8');let at=-1,kk;for(const k of ['{"name":'+JSON.stringify(name)+',','{name:'+JSON.stringify(name)+',']){at=t.indexOf(k);if(at>=0){kk=k;break;}}if(at<0)return false;
+  const next=t.indexOf('\n{',at+5);const seg=t.slice(at,next<0?undefined:next);if(seg.includes(s.ref||s.source)&&seg.includes('לעז רש'))return false;const fk=seg.search(new RegExp('"?'+field+'"?\\s*:\\s*\\['));
+  if(fk<0){const q=kk.startsWith('{"')?'"':'';t=t.slice(0,at+kk.length)+q+field+q+':['+JSON.stringify(s)+'],'+t.slice(at+kk.length);}
+  else{const br=t.indexOf('[',at+fk)+1;const empty=/^\s*\]/.test(t.slice(br));t=t.slice(0,br)+JSON.stringify(s)+(empty?'':',')+t.slice(br);}fs.writeFileSync(file,t);return true;}
+const st={lexicon:L.length};
+for(const [key,list] of Object.entries(src)){const [g,n]=key.split('|');for(const s of list){const o=g==='domem'?{ref:s.ref,text:s.note}:{source:s.ref,note:s.note};if(DRY||addToFile(G[g],n,o,g==='domem'?'makorot':'midrash'))st[g+'-src']=(st[g+'-src']||0)+1;}}
+const CAT={flora:x=>/tree|fruit|nut|fig|date|olive|apple|pear|grape|vine|pomegranate|almond|quince|plum|carob/i.test(x.en)?'fruit-trees':/wheat|barley|bean|pea|lentil|rice|millet|oat|rye|spelt|seed|lupine/i.test(x.en)?'grains':/thorn|thistle|weed|nettle/i.test(x.en)?'thorns-wild':/flower|lily|rose/i.test(x.en)?'flowers':/saffron|mint|cumin|coriander|dill|spice|myrtle/i.test(x.en)?'spices':'vegetables',
+  animal:x=>/bird|fowl|eagle|hawk|falcon|vulture|owl|raven|crow|dove|pigeon|sparrow|swallow|stork|crane|heron|duck|goose|hen|cock|peacock|ostrich|quail|partridge/i.test(x.en)?'birds':/fish|eel|whale|crab/i.test(x.en)?'water':/insect|worm|bee|wasp|fly|flea|louse|lice|gnat|moth|locust|grasshopper|ant|spider|beetle|caterpillar|larva|leech/i.test(x.en)?'insects':/snake|serpent|lizard|frog|toad|snail|tortoise|turtle|mole|weasel|rat|mouse/i.test(x.en)?'shratzim':'mammals-other',
+  domem:x=>/garment|cloak|coat|cape|tunic|shirt|robe|veil|scarf|hat|cap|hood|belt|girdle|shoe|sandal|boot|sock|stocking|glove/i.test(x.en)?'clothing':/ring|earring|necklace|bracelet|brooch/i.test(x.en)?'jewelry':/sword|spear|lance|arrow|bow|shield|helmet|armor|sling|quiver|scabbard/i.test(x.en)?'weapons':/pot|pan|oven|stove|cauldron|kettle|griddle|spit|grill|ladle/i.test(x.en)?'cooking':/jar|jug|pitcher|cup|bowl|dish|plate|basket|box|chest|bag|sack|purse|bottle|flask|barrel|cask|bucket|pail|trough|tub|basin|crate/i.test(x.en)?'containers':/lamp|lantern|candle|wick|torch/i.test(x.en)?'lighting':/bed|mattress|pillow|cushion|blanket|chair|stool|bench|table|cradle|mat|carpet/i.test(x.en)?'furniture':/mill|millstone|mortar|pestle|sieve/i.test(x.en)?'milling':/key|lock|bolt|hinge|wheel/i.test(x.en)?'closures':/pen|quill|ink|parchment|tablet/i.test(x.en)?'writing':/harp|flute|trumpet|drum|bell|whistle/i.test(x.en)?'instruments':/axe|hatchet|hammer|saw|chisel|drill|awl|needle|plough|plow|yoke|sickle|scythe|hoe|rake|spade|shovel|mattock|pick|tongs|anvil|bellows|spindle|loom|shears|scissors|razor/i.test(x.en)?'tools':'objects'};
+const out={};for(const g of ['flora','animal','domem']){const arr=[];
+  for(const [,v] of add[g]){const expl='לפי אוצר לעזי רש״י: '+v.x.mean+' (לעז: '+v.x.laaz+', '+v.x.fr+'); '+v.x.en+'. נזכר ברש״י ('+v.x.loc+'). פריט שנוסף מתוך האוצר; הזיהוי לא אומת — הצעות עריכה יתקבלו בברכה.';
+    if(g==='domem')arr.push({name:v.name,cat:CAT.domem(v.x),img:null,aliases:[],tribe:null,explanation:expl,identification:v.x.mean,note:'',gallery:[],makorot:[{ref:v.ref,text:v.note}],src:'laazei-rashi-661'});
+    else arr.push({name:v.name,cat:CAT[g](v.x),aliases:[],methods:[{label:'לפי לעזי רש״י',confidence:'לא אומת',explanation:expl}],verses:[],midrash:[{source:v.ref,note:v.note}],src:'laazei-rashi-661'});}
+  out[g]=arr;if(!DRY&&arr.length){let t=fs.readFileSync(G[g],'utf8');const at=t.search(/^(?:const|let) DATA\s*=\s*\[/m);const br=t.indexOf('[',at)+1;t=t.slice(0,br)+'\n'+arr.map(x=>JSON.stringify(x)).join(',\n')+',\n'+t.slice(br);fs.writeFileSync(G[g],t);}}
+console.log({...st,newFlora:out.flora.length,newAnimal:out.animal.length,newDomem:out.domem.length});
+for(const g of ['flora','animal','domem'])console.log(g+': '+out[g].map(x=>x.name+'='+(add[g].get(fz(norm(x.name)))||{x:{}}).x.head).join(', ').slice(0,1800));
