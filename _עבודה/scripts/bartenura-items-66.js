@@ -23,7 +23,7 @@ for(const s of fs.readdirSync(md)){if(!/^סדר /.test(s))continue;for(const f o
 const G={flora:'guides/flora/data/flora-data.js',animal:'guides/animal/data/animal-data.js',domem:'guides/domem/data/domem-data.js'};
 const loadData=f=>{const c={K:new Proxy({},{get:(_,k)=>k})};vm.runInNewContext(fs.readFileSync(f,'utf8').replace(/^(const|let) (DATA|CATS|CARD_IMAGES) =/mg,'this.$2 =').replace(/^const /mg,'var '),c);return c.DATA;};
 // מילים שכיחות בבבלי (6,000 הראשונות) — לא פריט חדש
-const freq=new Map();for(const s of fs.readdirSync(path.join(ROOT,'תלמוד בבלי')))for(const f of fs.readdirSync(path.join(ROOT,'תלמוד בבלי',s)))for(const w of norm(fs.readFileSync(path.join(ROOT,'תלמוד בבלי',s,f),'utf8')).split(' '))freq.set(w,(freq.get(w)||0)+1);
+const freq=new Map();for(const s of fs.readdirSync(path.join(ROOT,'תלמוד בבלי')).filter(x=>/^סדר /.test(x)))for(const f of fs.readdirSync(path.join(ROOT,'תלמוד בבלי',s)))for(const w of norm(fs.readFileSync(path.join(ROOT,'תלמוד בבלי',s,f),'utf8')).split(' '))freq.set(w,(freq.get(w)||0)+1);
 const COMMON=new Set([...freq].sort((a,b)=>b[1]-a[1]).slice(0,6000).map(x=>x[0]));
 const fz=x=>stem(x).replace(/[וי]/g,'').replace(/[אה]$/,'');
 const stem=x=>x.replace(/^(וה|וב|ול|ו|ה|ב|ל)(?=[א-ת]{3})/,'').replace(/(ים|ין|ות|יות)$/,'');
