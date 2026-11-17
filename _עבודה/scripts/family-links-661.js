@@ -12,7 +12,7 @@ for(const e of o.data){byName.set(e.name,e);const b=base(e.name);if(!byBase.has(
 const resolve=s=>{if(byName.has(s))return byName.get(s);const b=base(s);const l=byBase.get(b)||[];return l.length===1?l[0]:null;};
 // פסוקי התנ״ך (לאימות קשר הורה–ילד בערך חדש): node family-links-661.js <…/אוצריא/תנך>
 const path=require('path');const TD=process.argv[2];const V=[];
-const strip=s=>String(s||'').replace(/[֑-ׇ]/g,'').replace(/[־]/g,' ').replace(/<[^>]+>/g,'').replace(/[^א-ת ]/g,' ').replace(/\s+/g,' ').trim();
+const strip=s=>String(s||'').replace(/[־]/g,' ').replace(/[֑-ׇ]/g,'').replace(/<[^>]+>/g,'').replace(/[^א-ת ]/g,' ').replace(/\s+/g,' ').trim();
 if(TD)for(const d of fs.readdirSync(TD))for(const f of fs.readdirSync(path.join(TD,d))){const b=f.replace(/\.txt$/,'');let ch='';
   for(const l of fs.readFileSync(path.join(TD,d,f),'utf8').split('\n')){const h=l.match(/<h2>פרק ([א-ת]+)<\/h2>/);if(h){ch=h[1];continue;}const m=l.match(/^\(([א-ת]+)\)\s*(.*)$/);
     if(m&&ch)V.push({ref:b+' '+ch+', '+m[1],text:m[2].replace(/<[^>]+>/g,'').trim(),s:' '+strip(m[2])+' '});}}
