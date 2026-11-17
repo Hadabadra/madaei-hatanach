@@ -120,24 +120,34 @@ const guideEraRow = document.getElementById('guideEraRow');
 const guideEraChips = document.getElementById('guideEraChips');
 const guideAlphaBar = document.getElementById('guideAlphaBar');
 const ALEPH_BET = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+// 6.5.0 — Ctrl/⌘+לחיצה על צ׳יפ מוסיפה אותו לסינון (״או״) במקום להחליף. ערך מרובה נשמר כמחרוזת עם מפריד.
+const MULTI_SEP = '\u0001';
+const multiHas = (cur, v) => cur === 'all' || String(cur).split(MULTI_SEP).includes(v);
+const multiOn = (cur, v) => cur !== 'all' && String(cur).split(MULTI_SEP).includes(v);
+function multiPick(cur, v, ev){
+  if (v === 'all' || !(ev && (ev.ctrlKey || ev.metaKey)) || cur === 'all') return v;
+  const s = new Set(String(cur).split(MULTI_SEP));
+  if (s.has(v)) s.delete(v); else s.add(v);
+  return s.size ? [...s].join(MULTI_SEP) : 'all';
+}
 let activeGuideEra = 'all';
 // #76: סינון לפי שבט — רק לערכים שיש להם tribes (שיוך מפורש בפסוקי יהושע יג–כא)
 let activeGuideTribe = 'all';
 const guideTribeRow = document.getElementById('guideTribeRow');
 const guideTribeChips = document.getElementById('guideTribeChips');
 const TRIBE_ORDER = ['ראובן','שמעון','יהודה','יששכר','זבולון','דן','נפתלי','גד','אשר','בנימין','אפרים','מנשה'];
-const tribeOk = (e) => activeGuideTribe === 'all' || (e.tribes || []).includes(activeGuideTribe);
+const tribeOk = (e) => activeGuideTribe === 'all' || (e.tribes || []).some(t => multiHas(activeGuideTribe, t));
 function renderGuideTribeChips(){
   if (!guideTribeRow) return;
   const have = new Set(); (currentGuideData || []).forEach(e => (e.tribes || []).forEach(t => have.add(t)));
-  const list = TRIBE_ORDER.filter(t => have.has(t));
+  const list = have.size ? TRIBE_ORDER.slice() : [];
   if (!list.length){ guideTribeRow.classList.add('hidden'); guideTribeChips.innerHTML = ''; activeGuideTribe = 'all'; return; }
   guideTribeRow.classList.remove('hidden');
   guideTribeChips.innerHTML = `<button class="chip${activeGuideTribe==='all'?' active':''}" data-tribe="all">הכל</button>` +
-    list.map(t => `<button class="chip${activeGuideTribe===t?' active':''}" data-tribe="${esc(t)}">${esc(t)}</button>`).join('');
-  guideTribeChips.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
-    activeGuideTribe = btn.dataset.tribe;
-    guideTribeChips.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+    list.map(t => `<button class="chip${multiOn(activeGuideTribe,t)?' active':''}" data-tribe="${esc(t)}">${esc(t)}</button>`).join('');
+  guideTribeChips.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', (ev) => {
+    activeGuideTribe = multiPick(activeGuideTribe, btn.dataset.tribe, ev);
+    guideTribeChips.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b.dataset.tribe === 'all' ? activeGuideTribe === 'all' : multiOn(activeGuideTribe, b.dataset.tribe)));
     renderGuideGrid(guideSearchBox.value);
   }));
 }
@@ -162,7 +172,7 @@ const GUIDE_ATTR_ROWS = [   // 6.2.0: dafs — ערך שנזכר בכמה דפי
   { key: 'tag', label: 'מאפיין', of: entryTagsOf, sort: (a, b) => a.localeCompare(b, 'he') },
 ];
 let activeGuideAttr = {};
-const attrOk = (e) => GUIDE_ATTR_ROWS.every(r => !activeGuideAttr[r.key] || r.of(e).includes(activeGuideAttr[r.key]));
+const attrOk = (e) => GUIDE_ATTR_ROWS.every(r => !activeGuideAttr[r.key] || r.of(e).some(v => multiHas(activeGuideAttr[r.key], v)));
 function renderGuideAttrRows(){
   let anchor = guideTribeRow;
   GUIDE_ATTR_ROWS.forEach(r => {
@@ -184,9 +194,10 @@ function renderGuideAttrRows(){
     row.classList.remove('hidden');
     const cur = activeGuideAttr[r.key] || 'all';
     box.innerHTML = `<button class="chip${cur==='all'?' active':''}" data-v="all">הכל</button>` +
-      list.map(v => `<button class="chip${cur===v?' active':''}" data-v="${esc(v)}">${esc(v)}</button>`).join('');
-    box.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
-      if (btn.dataset.v === 'all') delete activeGuideAttr[r.key]; else activeGuideAttr[r.key] = btn.dataset.v;
+      list.map(v => `<button class="chip${multiOn(cur,v)?' active':''}" data-v="${esc(v)}">${esc(v)}</button>`).join('');
+    box.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', (ev) => {
+      const nv = multiPick(activeGuideAttr[r.key] || 'all', btn.dataset.v, ev);
+      if (nv === 'all') delete activeGuideAttr[r.key]; else activeGuideAttr[r.key] = nv;
       renderGuideGrid(guideSearchBox.value);
     }));
   });
@@ -212,8 +223,8 @@ function guideFirstLetter(name){
 }
 // הסינון שאינו הצ׳יפים: תקופה ואות פותחת. משמש גם ברשימה וגם בספירות שבצ׳יפים.
 function matchesGuideFilters(entry){
-  if (activeGuideEra !== 'all' && guideEraOf(entry) !== activeGuideEra) return false;
-  if (activeGuideLetter !== 'all' && guideFirstLetter(entry.name) !== activeGuideLetter) return false;
+  if (!multiHas(activeGuideEra, guideEraOf(entry))) return false;
+  if (!multiHas(activeGuideLetter, guideFirstLetter(entry.name))) return false;
   if (!tribeOk(entry)) return false;
   if (!attrOk(entry)) return false;
   return true;
@@ -235,10 +246,10 @@ function renderGuideEraChips(){
   }
   guideEraRow.classList.remove('hidden');
   guideEraChips.innerHTML = `<button class="chip${activeGuideEra==='all'?' active':''}" data-era="all">הכל</button>` +
-    eras.map(e => `<button class="chip${activeGuideEra===e?' active':''}" data-era="${esc(e)}">${esc(e)}</button>`).join('');
+    eras.map(e => `<button class="chip${multiOn(activeGuideEra,e)?' active':''}" data-era="${esc(e)}">${esc(e)}</button>`).join('');
   guideEraChips.querySelectorAll('.chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeGuideEra = btn.dataset.era;
+    btn.addEventListener('click', (ev) => {
+      activeGuideEra = multiPick(activeGuideEra, btn.dataset.era, ev);
       renderGuideGrid(guideSearchBox.value);
     });
   });
@@ -249,18 +260,18 @@ function renderGuideAlphaBar(){
   const letters = new Set();
   currentGuideData.forEach(e => {
     if (!chipSelected(e.cat)) return;
-    if (activeGuideEra !== 'all' && guideEraOf(e) !== activeGuideEra) return;
+    if (!multiHas(activeGuideEra, guideEraOf(e))) return;
     if (!tribeOk(e)) return;
     const l = guideFirstLetter(e.name);
     if (l) letters.add(l);
   });
-  if (activeGuideLetter !== 'all' && !letters.has(activeGuideLetter)) activeGuideLetter = 'all';
+  if (activeGuideLetter !== 'all' && !String(activeGuideLetter).split(MULTI_SEP).some(l => letters.has(l))) activeGuideLetter = 'all';
   guideAlphaBar.innerHTML = `<button class="alpha-btn${activeGuideLetter==='all'?' active':''}" data-letter="all" title="הכל">*</button>` +
     ALEPH_BET.filter(l => letters.has(l))
-      .map(l => `<button class="alpha-btn${activeGuideLetter===l?' active':''}" data-letter="${l}">${l}</button>`).join('');
+      .map(l => `<button class="alpha-btn${multiOn(activeGuideLetter,l)?' active':''}" data-letter="${l}">${l}</button>`).join('');
   guideAlphaBar.querySelectorAll('.alpha-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeGuideLetter = btn.dataset.letter;
+    btn.addEventListener('click', (ev) => {
+      activeGuideLetter = multiPick(activeGuideLetter, btn.dataset.letter, ev);
       renderGuideGrid(guideSearchBox.value);
     });
   });
@@ -272,9 +283,9 @@ function updateGuideFiltersSummary(){
     const labels = [...activeGuideChips].map(id => { const c = guideCatOf(id); return c ? c.label : id; });
     parts.push((labels.length > 1 ? 'קטגוריות: ' : 'קטגוריה: ') + labels.join(', '));
   }
-  if (activeGuideEra !== 'all') parts.push('תקופה: ' + activeGuideEra);
-  if (activeGuideTribe !== 'all') parts.push('שבט: ' + activeGuideTribe);
-  if (activeGuideLetter !== 'all') parts.push('אות: ' + activeGuideLetter);
+  if (activeGuideEra !== 'all') parts.push('תקופה: ' + String(activeGuideEra).split('\u0001').join(' או '));
+  if (activeGuideTribe !== 'all') parts.push('שבט: ' + String(activeGuideTribe).split('\u0001').join(' או '));
+  if (activeGuideLetter !== 'all') parts.push('אות: ' + String(activeGuideLetter).split('\u0001').join(' או '));
   GUIDE_ATTR_ROWS.forEach(r => { if (activeGuideAttr[r.key]) parts.push(r.label + ': ' + activeGuideAttr[r.key]); });
   const open = !guideFilters.classList.contains('collapsed');
   const n = guideGrid ? guideGrid.querySelectorAll('.entry-card').length : 0;

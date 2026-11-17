@@ -206,18 +206,43 @@ function studyEntriesMatching(hit){
   return out;
 }
 
+// 6.5.0 — מאחדים עם ״היכן נזכר״ (shell/mentions.js): ערך שנזכר ביחידה לפי שמו נכנס גם בלי מראה מקום בשדות שלו
+function mergeStudyMatches(a, b){
+  const seen = new Set(a.map(m => m.catId + '|' + m.name));
+  return a.concat((b || []).filter(m => !seen.has(m.catId + '|' + m.name)));
+}
+const unitPerek = u => gematriaValue(String(u || '').split(':')[0].replace(/[^א-ת]/g, ''));
 function entriesForTanakhChapter(book, chapter){
   const prefix = book + '|' + chapter + '|';
-  return studyEntriesMatching(entry => (entry.verses || entry.makorot || []).some(v =>
-    verseKeysOfRef(v && v.ref).some(k => k.indexOf(prefix) === 0)));
+  const all = chapter < 0;
+  return mergeStudyMatches(studyEntriesMatching(entry => (entry.verses || entry.makorot || []).some(v =>
+    verseKeysOfRef(v && v.ref).some(k => all ? k.indexOf(book + '|') === 0 : k.indexOf(prefix) === 0))),
+    (typeof entriesFromMentions === 'function') ? entriesFromMentions('תנ״ך ' + book, all ? null : u => unitPerek(u) === chapter) : []);
 }
 
 function entriesForMishnaPerek(masechet, perek){
   const bookId = 'משנה ' + masechet;
-  return studyEntriesMatching(entry => studyRefPartsOf(entry).some(p => {
+  const all = perek < 0;
+  return mergeStudyMatches(studyEntriesMatching(entry => studyRefPartsOf(entry).some(p => {
     const r = parseMidrashRef(p);
-    return !!r && r.bookId === bookId && studyRefNumber(r.ref, 'פרק ') === perek;
-  }));
+    return !!r && r.bookId === bookId && (all || studyRefNumber(r.ref, 'פרק ') === perek);
+  })), (typeof entriesFromMentions === 'function') ? entriesFromMentions(bookId, all ? null : u => unitPerek(u) === perek) : []);
+}
+// 6.5.0 — ירושלמי: לפי מסכת ופרק (מראי מקום בשדות + היכן נזכר)
+function entriesForYerushalmiPerek(masechet, perek){
+  const bookId = 'תלמוד ירושלמי ' + masechet;
+  const all = perek < 0;
+  return mergeStudyMatches(studyEntriesMatching(entry => studyRefPartsOf(entry).some(p => {
+    const r = parseMidrashRef(p);
+    return !!r && r.bookId === bookId && (all || studyRefNumber(r.ref, 'פרק ') === perek);
+  })), (typeof entriesFromMentions === 'function') ? entriesFromMentions('ירושלמי ' + masechet, all ? null : u => unitPerek(u) === perek) : []);
+}
+// 6.5.0 — מדרש: לפי ספר (וכותרת, אם נבחרה)
+function entriesForMidrash(book, unitLabel){
+  return mergeStudyMatches(studyEntriesMatching(entry => studyRefPartsOf(entry).some(p => {
+    const r = parseMidrashRef(p);
+    return !!r && r.bookId === book && (!unitLabel || String(r.ref || '').indexOf(unitLabel) === 0);
+  })), (typeof entriesFromMentions === 'function') ? entriesFromMentions('מדרש ' + book, unitLabel ? u => u.indexOf(unitLabel) === 0 : null) : []);
 }
 
 function entriesForBavliDaf(masechet, daf){
@@ -225,10 +250,11 @@ function entriesForBavliDaf(masechet, daf){
   // 6.2.0 — dafs: ערך אחד שנזכר בכמה דפים (חכמי המסכת)
   const dafOk = entry => (Array.isArray(entry.dafs) && entry.dafs.length ? entry.dafs : [entry.daf])
     .some(d => d && gematriaValue(String(d).replace(/[^א-ת]/g, '')) === daf);
-  return studyEntriesMatching(entry => (entry.masechet === masechet && dafOk(entry)) || studyRefPartsOf(entry).some(p => {
+  const all = daf < 0;
+  return mergeStudyMatches(studyEntriesMatching(entry => (entry.masechet === masechet && (all || dafOk(entry))) || studyRefPartsOf(entry).some(p => {
     const r = parseMidrashRef(p);
-    return !!r && r.bookId === masechet && studyRefNumber(r.ref, 'דף ') === daf;
-  }));
+    return !!r && r.bookId === masechet && (all || studyRefNumber(r.ref, 'דף ') === daf);
+  })), (typeof entriesFromMentions === 'function') ? entriesFromMentions('בבלי ' + masechet, all ? null : u => gematriaValue(String(u).replace(/[^א-ת]/g, '')) === daf) : []);
 }
 
 // ---- שלושת השערים: הגדרה אחת לכל שער, ופאנל אחד משותף ----
@@ -247,19 +273,17 @@ const STUDY_GATES = {
     unitsOf: name => {
       const b = TANAKH_CHAPTERS.find(x => x.book === name);
       if (!b) return [];
-      const list = [];
+      const list = [{ value: -1, label: 'כל הספר' }];
       for (let i = 1; i <= b.chapters; i++) list.push({ value: i, label: 'פרק ' + numToHeb(i) });
       return list;
     },
-    run: (name, unit) => ({ matches: entriesForTanakhChapter(name, unit), title: name + ' ' + numToHeb(unit),
-      mapScope: (typeof chapterScopeForTanakh === 'function') ? chapterScopeForTanakh(name, unit) : null }),
+    run: (name, unit) => ({ matches: entriesForTanakhChapter(name, unit), title: unit < 0 ? name : name + ' ' + numToHeb(unit), 
+      mapScope: (unit > 0 && typeof chapterScopeForTanakh === 'function') ? chapterScopeForTanakh(name, unit) : null }),
   },
   mishna: {
     cardId: 'mishnaCard',
     title: '📕 משנה — מה יש בפרק',
-    hint: 'בחרו מסכת ופרק במשנה כדי לראות את כל הערכים שיש להם מקור בתוך הפרק. '
-      + 'כרגע נאסף תוכן משנה מתויג רק עבור מסכת בכורות (לטובת לומדי הדף היומי) — '
-      + 'ואי״ה יורחב למסכתות נוספות. יש ברשותכם תיוג למסכת נוספת? מוזמנים להצטרף.',
+    hint: 'בחרו מסכת ופרק במשנה, או ״כל המסכת״ — כל הערכים שיש להם מקור בפרק, וגם ערכים שנמצאו לפי שמם בטקסט (זיהוי אוטומטי).',
     labelA: 'בחרו מסכת…',
     labelB: 'בחרו פרק…',
     groups: () => SEDER_ORDER.map(seder => ({
@@ -269,18 +293,16 @@ const STUDY_GATES = {
     unitsOf: name => {
       const m = MISHNA_MASECHTOT.find(x => x.name === name);
       if (!m) return [];
-      const list = [];
+      const list = [{ value: -1, label: 'כל המסכת' }];
       for (let i = 1; i <= m.chapters; i++) list.push({ value: i, label: 'פרק ' + numToHeb(i) });
       return list;
     },
-    run: (name, unit) => ({ matches: entriesForMishnaPerek(name, unit), title: 'משנה ' + name + ', פרק ' + numToHeb(unit) }),
+    run: (name, unit) => ({ matches: entriesForMishnaPerek(name, unit), title: 'משנה ' + name + (unit < 0 ? '' : ', פרק ' + numToHeb(unit)) }),
   },
   bavli: {
     cardId: 'bavliCard',
     title: '📚 בבלי — מה יש בדף',
-    hint: 'בחרו מסכת ודף בתלמוד הבבלי כדי לראות את כל הערכים שיש להם מקור בתוך הדף. '
-      + 'כרגע נאסף תוכן בבלי מתויג רק עבור מסכת בכורות (לטובת לומדי הדף היומי) — '
-      + 'ואי״ה יורחב למסכתות נוספות. יש ברשותכם תיוג למסכת נוספת? מוזמנים להצטרף.',
+    hint: 'בחרו מסכת ודף בתלמוד הבבלי, או ״כל המסכת״ — כל הערכים שיש להם מקור בדף, וגם ערכים שנמצאו לפי שמם בטקסט (זיהוי אוטומטי), כולל חכמי המסכת.',
     labelA: 'בחרו מסכת…',
     labelB: 'בחרו דף…',
     groups: () => SEDER_ORDER.map(seder => ({
@@ -290,16 +312,63 @@ const STUDY_GATES = {
     unitsOf: name => {
       const m = BAVLI_DAPIM.find(x => x.name === name);
       if (!m) return [];
-      const list = [];
+      const list = [{ value: -1, label: 'כל המסכת' }];
       for (let i = (m.from || 2); i <= m.to; i++){
         const onlyA = (i === m.to && m.lastAmud === 'א');
         list.push({ value: i, label: 'דף ' + numToHeb(i) + (onlyA ? ' (ע״א)' : '') });
       }
       return list;
     },
-    run: (name, unit) => ({ matches: entriesForBavliDaf(name, unit), title: name + ' דף ' + numToHeb(unit) }),
+    run: (name, unit) => ({ matches: entriesForBavliDaf(name, unit), title: unit < 0 ? 'בבלי ' + name : name + ' דף ' + numToHeb(unit) }),
+  },
+  // 6.5.0 — ירושלמי ומדרשים (מראי מקום + היכן נזכר)
+  yerushalmi: {
+    cardId: 'yerushalmiCard',
+    title: '📗 ירושלמי — מה יש בפרק',
+    hint: 'בחרו מסכת ופרק בתלמוד הירושלמי, או ״כל המסכת״. כולל ערכים שנמצאו לפי שמם בטקסט (זיהוי אוטומטי).',
+    labelA: 'בחרו מסכת…',
+    labelB: 'בחרו פרק…',
+    groups: () => SEDER_ORDER.map(seder => ({
+      label: 'סדר ' + seder,
+      items: MISHNA_MASECHTOT.filter(m => m.seder === seder).map(m => m.name).filter(n => yerushalmiHas(n)),
+    })).filter(g => g.items.length),
+    unitsOf: name => {
+      const m = MISHNA_MASECHTOT.find(x => x.name === name);
+      if (!m) return [];
+      const list = [{ value: -1, label: 'כל המסכת' }];
+      for (let i = 1; i <= m.chapters; i++) list.push({ value: i, label: 'פרק ' + numToHeb(i) });
+      return list;
+    },
+    run: (name, unit) => ({ matches: entriesForYerushalmiPerek(name, unit), title: 'ירושלמי ' + name + (unit < 0 ? '' : ', פרק ' + numToHeb(unit)) }),
+  },
+  midrash: {
+    cardId: 'midrashCard',
+    title: '📜 מדרשים — מה יש בספר',
+    hint: 'בחרו ספר מדרש מספריית אוצריא — כל הערכים שנזכרים בו (לפי מראי המקום שבמדריכים ולפי השם בטקסט).',
+    labelA: 'בחרו ספר…',
+    labelB: 'בחרו חלק…',
+    groups: () => [{ label: 'מדרשי חז״ל', items: midrashBooks() }],
+    unitsOf: name => {
+      const d = (typeof mentionsData === 'function') && mentionsData();
+      const b = d && d.books && d.books['מדרש ' + name];
+      const heads = b ? [...new Set(b.u.map(u => String(u).split(' ')[0] === 'פרק' || String(u).split(' ')[0] === 'פרשה' || String(u).split(' ')[0] === 'מזמור' ? String(u).split(' ').slice(0, 2).join(' ') : String(u).split(' ')[0]).filter(Boolean))] : [];
+      return [{ value: -1, label: 'כל הספר' }].concat(heads.slice(0, 400).map((h, i) => ({ value: i + 1, label: h })));
+    },
+    run: (name, unit) => {
+      const opt = studySelectB && studySelectB.selectedOptions && studySelectB.selectedOptions[0];
+      const lbl = unit < 0 ? '' : (opt ? opt.textContent : '');
+      return { matches: entriesForMidrash(name, lbl), title: name + (lbl ? ' — ' + lbl : '') };
+    },
   },
 };
+function yerushalmiHas(name){
+  const d = (typeof mentionsData === 'function') && mentionsData();
+  return !d || !d.books || !!d.books['ירושלמי ' + name];
+}
+function midrashBooks(){
+  const d = (typeof mentionsData === 'function') && mentionsData();
+  return d && d.books ? Object.keys(d.books).filter(k => k.indexOf('מדרש ') === 0).map(k => k.slice(5)).sort() : [];
+}
 
 const studyPanelOverlay = document.getElementById('studyPanelOverlay');
 const studyPanelTitle = document.getElementById('studyPanelTitle');
@@ -317,8 +386,9 @@ function studyFillSelectB(gate, name){
   studySelectB.disabled = !units.length;
 }
 
-function openStudyGate(key){
+async function openStudyGate(key, preselect){
   const gate = STUDY_GATES[key];
+  if (typeof loadMentions === 'function') { try { await loadMentions(); } catch(_){} }
   studyActiveGate = gate;
   studyPanelTitle.textContent = gate.title;
   studyPanelHint.textContent = gate.hint;
@@ -326,12 +396,19 @@ function openStudyGate(key){
     gate.groups().map(g => `<optgroup label="${esc(g.label)}">` +
       g.items.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('') + '</optgroup>').join('');
   studyFillSelectB(gate, null);
+  if (preselect && preselect.name){
+    studySelectA.value = preselect.name;
+    studyFillSelectB(gate, preselect.name);
+    if (preselect.unit) studySelectB.value = String(preselect.unit);
+  }
   studyPanelOverlay.classList.add('open');
+  if (preselect && preselect.run && studySelectA.value && studySelectB.value) runStudyGate();
 }
 
 async function runStudyGate(){
   const gate = studyActiveGate;
   const name = studySelectA.value, unit = parseInt(studySelectB.value, 10);
+  if (typeof loadMentions === 'function') { try { await loadMentions(); } catch(_){} }
   if (!gate || !name || !unit) return;
   studyPanelOverlay.classList.remove('open');
   let label = null;

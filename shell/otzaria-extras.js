@@ -91,6 +91,18 @@ function wireMentionsSearch(container, entry){
   box.querySelector('.otz-open-search').addEventListener('click', () => {
     Otzaria.call('reader.openSearchTab', { query: name, autoSearch: false }).catch(() => {});
   });
+  // 6.5.0 — הערך של החכם בסדר הדורות (sdIndex = מספר השורה בספר, ר' _עבודה/scripts/sd-links-65.js)
+  if (entry && typeof entry.sdIndex === 'number'){
+    const sdb = document.createElement('button');
+    sdb.type = 'button'; sdb.className = 'panel-btn secondary otz-sd-btn';
+    sdb.textContent = '📜 בסדר הדורות' + (entry.sdTitle ? ': ' + entry.sdTitle : '');
+    sdb.addEventListener('click', () => {
+      Otzaria.call('reader.openBook', { bookId: 'סדר הדורות', index: entry.sdIndex }).then(r => {
+        if (!r || !r.success) throw new Error('open');
+      }).catch(() => Otzaria.call('reader.openBookAtRef', { bookId: 'סדר הדורות', ref: 'סדר תנאים ואמוראים', index: 0 }).catch(() => {}));
+    });
+    box.insertBefore(sdb, box.firstChild);
+  }
   container.appendChild(box);
   const list = box.querySelector('.otz-mentions-list');
   const runSearch = async (btn, categories) => {
@@ -238,6 +250,7 @@ function enrichEntryDetail(container, entry){
     });
   }
   wireMentionsSearch(container, entry);
+  if (typeof wireMentionsList === 'function') wireMentionsList(container, entry, catId);   // 6.5.0 — היכן נזכר (אינדקס)
   wireVerseCommentaries(container, entry);
   if (typeof wireVersePrintRange === 'function') wireVersePrintRange(container, entry);   // 4.7.0, אוצריא 0.9.99
   wireVerseNotes(container, entry);

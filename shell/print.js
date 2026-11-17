@@ -254,9 +254,9 @@ function guidePrintLabel(){
   if (!chipsAreAll()){
     parts.push([...activeGuideChips].map(id => { const c = guideCatOf(id); return c ? c.label : id; }).join(', '));
   }
-  if (activeGuideEra !== 'all') parts.push('תקופה: ' + activeGuideEra);
-  if (typeof activeGuideTribe !== 'undefined' && activeGuideTribe !== 'all') parts.push('שבט: ' + activeGuideTribe);
-  if (activeGuideLetter !== 'all') parts.push('אות: ' + activeGuideLetter);
+  if (activeGuideEra !== 'all') parts.push('תקופה: ' + String(activeGuideEra).split('\u0001').join(' או '));
+  if (typeof activeGuideTribe !== 'undefined' && activeGuideTribe !== 'all') parts.push('שבט: ' + String(activeGuideTribe).split('\u0001').join(' או '));
+  if (activeGuideLetter !== 'all') parts.push('אות: ' + String(activeGuideLetter).split('\u0001').join(' או '));
   const q = (guideSearchBox && guideSearchBox.value || '').trim();
   if (q) parts.push('חיפוש: ' + q);
   return parts.join(' · ');
