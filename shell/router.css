@@ -2259,3 +2259,15 @@ body.entry-in-guide .side-nav .entry-tool-btn { padding: .15em .35em; line-heigh
 #whatsNewOverlay .wn-highlight { margin: 0 0 1em; padding: .8em 1em; background: var(--color-primary-subtle); border-radius: var(--radius-sm); box-shadow: var(--elev-1); }
 #whatsNewOverlay .wn-highlight p { margin: .4em 0 .6em; }
 #whatsNewOverlay .wn-list { max-height: 45vh; overflow-y: auto; }
+
+/* 6.8.0 — קישור לערך אחר בתוך הכרטיס (shell/xlinks.js) */
+.xlink { color: var(--color-primary); text-decoration: none; border-bottom: 0.06em dotted var(--color-primary); cursor: pointer; }
+.xlink:hover { background: var(--color-primary-subtle); }
+
+/* 6.8.0 — #397: בסינון בצד הרשת לא נגללה (בתוך grid אין לה גובה מוגבל). כל העמוד נגלל, הסרגל נשאר למעלה */
+@media (min-width: 52em) {
+  body.filters-side #guideView.open:not(:has(#guideFilters.collapsed)) { overflow-y: auto; }
+  body.filters-side #guideView.open:not(:has(#guideFilters.collapsed)) #guideGrid { overflow: visible; }
+  body.filters-side #guideView.open:not(:has(#guideFilters.collapsed)) #guideViewBar { position: sticky; top: 0; z-index: 3; background: var(--color-bg); }
+  body.filters-side #guideView.open:not(:has(#guideFilters.collapsed)) #guideFilters { top: 4em; max-height: calc(100vh - 5em); }
+}

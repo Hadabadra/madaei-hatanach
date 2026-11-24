@@ -3,7 +3,7 @@
 //
 //  נבנה על relIds (ת.1ב, #67) ולא על שמות — לכן לא מחבר אנשים לא נכונים.
 //  קשר שלא הוכרע (null ב-relIds) מוצג כשם אפור בלי קישור.
-//  שורות: סבים · הורים · [אחים · האדם · בני זוג] · ילדים.
+//  שורות: סבים · הורים · [אחים · האדם · בני זוג] · ילדים · נכדים (6.8.0, #402).
 //  לחיצה על אדם מרכזת את העץ עליו; כפתור ״לכרטיס״ פותח את הכרטיס שלו.
 // =====================================================================
 
@@ -39,11 +39,18 @@ function familyTreeInner(entry){
   const sibs = ftRel(entry, 'siblings').map(i => ftNode(i, 'ft-sib')).join('');
   const sps = ftRel(entry, 'spouses').map(i => ftNode(i, 'ft-spouse')).join('');
   const kids = ftRel(entry, 'children');
+  // 6.8.0 — #402: נכדים (ילדי הילדים שיש להם קישור ודאי)
+  const gkids = [], seenG = new Set();
+  kids.forEach(k => {
+    const p = k.pid && ftPerson(k.pid);
+    if (p) ftRel(p, 'children').forEach(g => { const key = g.pid || g.name; if (!seenG.has(key)){ seenG.add(key); gkids.push(g); } });
+  });
   return ftRow('סבים', grand)
     + ftRow('הורים', parents)
     + `<div class="ft-row ft-center"><div class="ft-row-title">${sibs ? 'אחים · ' : ''}${esc(entry.name)}${sps ? ' · בני זוג' : ''}</div>`
     +   `<div class="ft-row-nodes">${sibs}${self}${sps ? '<span class="ft-sep">♥</span>' + sps : ''}</div></div>`
     + ftRow('ילדים', kids)
+    + ftRow('נכדים', gkids)
     + `<div class="ft-foot">${entry.id ? `<button type="button" class="ft-open" data-pid="${esc(entry.id)}">לכרטיס של ${esc(entry.name)} ←</button>` : ''}`
     + `<span class="mini-note">לחיצה על שם מרכזת עליו את העץ. שם אפור = אין קישור ודאי (כמה אנשים בשם זה).</span></div>`;
 }

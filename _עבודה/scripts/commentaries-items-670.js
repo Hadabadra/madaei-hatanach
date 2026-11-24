@@ -22,7 +22,8 @@ const TYPE={
   places:/(?:^|[ .:,;])שם (?:מקום|עיר|ארץ|הר|נהר|מדינה|מדבר|עמק|נחל|כפר|מעין|המקום|העיר|הארץ|ההר|הנהר|המדינה|המדבר)/};
 const PCAT=ex=>/שם (?:ה?עיר|כפר)/.test(ex)?(/כפר/.test(ex)?'villages':'cities'):/שם ה?הר/.test(ex)?'mountains':/שם (?:ה?נהר|נחל|מעין)/.test(ex)?'water':/שם (?:ה?ארץ|ה?מדינה)/.test(ex)?'lands':/שם ה?מדבר/.test(ex)?'deserts':/שם עמק/.test(ex)?'valleys':'regions';
 const GENERIC=new Set(['נגב','הר','עמק','ארץ','נחל','ערי','עיר','מדבר','ים','נהר','בקעת','מי','אלוני','אלון','ככר','גבול','מעלה','מעלות','שדה','שדות']);
-const NAME=s=>s.replace(/^[וה](?=[א-ת]{3})/,'').replace(/^[ובלמכה]{1,2}(?=[א-ת]{3})/,'');
+// 6.8.0: רק ו/ה בתחילת המילה. ב-6.7.0 הוסרו גם ב/ל/מ/כ — ו״בכפירים״ נהיה ״פירים״ (תוקן ב-fix-670-names-680.js)
+const NAME=s=>s.replace(/^ו(?=[א-ת]{3})/,'').replace(/^ה(?=[א-ת]{3})/,'');
 const variants=w=>{const out=new Set([w]);let x=w;for(let i=0;i<2;i++){const m=x.match(/^[ובלמכהש](?=[א-ת]{3,})/);if(!m)break;x=x.slice(1);out.add(x);}return [...out];};
 // ספרים
 const files=[];const walk=d=>{for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(fs.statSync(p).isDirectory())walk(p);else if(f.endsWith('.txt'))files.push(p);}};

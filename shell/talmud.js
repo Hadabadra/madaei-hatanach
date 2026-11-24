@@ -102,6 +102,8 @@ async function renderMasechtot(){
       else if (page) openCustomHtmlPage(page.name);
       // 6.5.0 — כל מסכת פעילה: כרטיסים מקושרים לכל הערכים שבמסכת (בבלי, או משנה כשאין גמרא), עם סינון לפי מדריך,
       // ובפאנל אפשר לבחור דף/פרק או ירושלמי. ״אודות המסכת״ נשאר בכפתור נפרד בפאנל התוצאות של אוצריא.
+      // 6.8.0 — עמוד מסכת מסודר (כמו ערכין): חכמי המסכת, מקומות, בע״ח, צומח וכלים, עם סינון לפי דף
+      else if (typeof openMasechetPage === 'function') openMasechetPage(name);
       else if (typeof openStudyGate === 'function'){
         const hasBavli = typeof BAVLI_DAPIM !== 'undefined' && BAVLI_DAPIM.some(m => m.name === name);
         closeTalmudView();

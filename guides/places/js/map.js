@@ -581,4 +581,11 @@ function guardLeafletPanes() {
     try { this.stop(); } catch (e) {}
     return rm.apply(this, arguments);
   };
+  // #371 #395: Canvas renderer מצייר מחדש (‎_redraw → _clear) אחרי שהמפה הוסרה ו-_ctx כבר undefined
+  if (L.Canvas && L.Canvas.prototype._clear && !L.Canvas.prototype.__mhCtxGuard) {
+    L.Canvas.prototype.__mhCtxGuard = true;
+    const clr = L.Canvas.prototype._clear, rd = L.Canvas.prototype._redraw;
+    L.Canvas.prototype._clear = function () { if (!this._ctx) return; return clr.apply(this, arguments); };
+    L.Canvas.prototype._redraw = function () { if (!this._ctx || !this._map) return; return rd.apply(this, arguments); };
+  }
 }
