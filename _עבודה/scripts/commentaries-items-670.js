@@ -27,9 +27,14 @@ const NAME=s=>s.replace(/^ו(?=[א-ת]{3})/,'').replace(/^ה(?=[א-ת]{3})/,'');
 const variants=w=>{const out=new Set([w]);let x=w;for(let i=0;i<2;i++){const m=x.match(/^[ובלמכהש](?=[א-ת]{3,})/);if(!m)break;x=x.slice(1);out.add(x);}return [...out];};
 // ספרים
 const files=[];const walk=d=>{for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(fs.statSync(p).isDirectory())walk(p);else if(f.endsWith('.txt'))files.push(p);}};
-for(const d of ['תנך/ראשונים/רשי','תנך/ראשונים/רדק','תנך/אחרונים/מלבים','תנך/אחרונים/מצודת ציון','תנך/אחרונים/מצודת דוד'])walk(path.join(ROOT,d));
-const tanachN=files.length;
-const mwalk=d=>{for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(!fs.statSync(p).isDirectory())continue;if(f==='מפרשים')walk(p);else mwalk(p);}};mwalk(path.join(ROOT,'מדרש'));
+// 6.8.0 — --shas: שאר הראשונים על הש״ס (תוספות, ר״ח, רבינו גרשום, רשב״ם, מאירי, רמב״ן, רשב״א, ריטב״א, ר״ן, תוספות רי״ד,
+// רי מיגאש, יד רמה, רב ניסים גאון, תוספות ישנים), פירוש המשניות לרמב״ם, ר״ש משאנץ וראב״ד על המשנה, פני משה ומראה הפנים על הירושלמי
+const SHAS=process.argv.includes('--shas');
+const SHAS_DIRS=['תלמוד בבלי/ראשונים/'+'תוספות','תלמוד בבלי/ראשונים/רבינו חננאל','תלמוד בבלי/ראשונים/רבינו גרשום','תלמוד בבלי/ראשונים/רשבם','תלמוד בבלי/ראשונים/מאירי','תלמוד בבלי/ראשונים/רמבן','תלמוד בבלי/ראשונים/רשבא','תלמוד בבלי/ראשונים/ריטבא','תלמוד בבלי/ראשונים/רן','תלמוד בבלי/ראשונים/תוספות ריד','תלמוד בבלי/ראשונים/רי מיגאש','תלמוד בבלי/ראשונים/יד רמה','תלמוד בבלי/ראשונים/רב ניסים גאון','תלמוד בבלי/ראשונים/תוספות ישנים','משנה/ראשונים/רמבם','משנה/ראשונים/רש משאנץ','תלמוד ירושלמי/מפרשים/פני משה על תלמוד ירושלמי','תלמוד ירושלמי/מפרשים/מראה הפנים על תלמוד ירושלמי'];
+if(SHAS){for(const d of SHAS_DIRS){const p=path.join(ROOT,d);if(fs.existsSync(p))walk(p);}for(const f of fs.readdirSync(path.join(ROOT,'משנה/ראשונים')).filter(x=>/^ראבד על/.test(x)))files.push(path.join(ROOT,'משנה/ראשונים',f));}
+else for(const d of ['תנך/ראשונים/רשי','תנך/ראשונים/רדק','תנך/אחרונים/מלבים','תנך/אחרונים/מצודת ציון','תנך/אחרונים/מצודת דוד'])walk(path.join(ROOT,d));
+const tanachN=SHAS?0:files.length;
+const mwalk=d=>{for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(!fs.statSync(p).isDirectory())continue;if(f==='מפרשים')walk(p);else mwalk(p);}};if(!SHAS)mwalk(path.join(ROOT,'מדרש'));
 // פסוקי התנ״ך — לבדיקה שהמילה בפסוק ולציטוט
 const V=new Map();for(const part of ['תורה','נביאים','כתובים'])for(const f of fs.readdirSync(path.join(ROOT,'תנך',part))){const b=f.replace(/\.txt$/,'');let p='';
   for(const l of fs.readFileSync(path.join(ROOT,'תנך',part,f),'utf8').split('\n')){const h=l.match(/<h2>פרק ([^<]+)<\/h2>/);if(h){p=h[1].trim();continue;}const m=l.match(/^\(([א-ת]{1,3})\)\s*(.*)$/);if(m)V.set(b+'|'+p+'|'+m[1],strip(m[2]).replace(/&[a-z]+;/g,' ').replace(/\{[פס]\}/g,'').trim());}}
@@ -37,9 +42,9 @@ const DH=[];
 files.forEach((f,i)=>{const isT=i<tanachN;let h1='',h2='',h3='',book='';
   for(const l of fs.readFileSync(f,'utf8').split('\n')){let h=l.match(/<h1>([^<]+)<\/h1>/);if(h){h1=strip(h[1]);book=(h1.match(/ על (.+)$/)||[])[1]||'';continue;}
     h=l.match(/<h2>([^<]+)<\/h2>/);if(h){h2=strip(h[1]);h3='';continue;}h=l.match(/<h3>([^<]+)<\/h3>/);if(h){h3=strip(h[1]);continue;}
-    const d=l.match(/^<b>([^<]+)<\/b>\s*(.*)$/);if(!d||!h1)continue;const dh=norm(d[1]);if(!dh||dh.split(' ').length>2)continue;const ex=strip(d[2]);
+    const d=l.match(/^<b>([^<]+)<\/b>\s*(.*)$/)||(SHAS?l.match(/^([^<\-–.:]{2,30}?) [-–] (.*)$/):null);if(!d||!h1)continue;const dh=norm(d[1]);if(!dh||dh.split(' ').length>2)continue;const ex=strip(d[2]);
     const types=Object.keys(TYPE).filter(g=>TYPE[g].test(ex.slice(0,160)));const head=Object.keys(TYPE).filter(g=>TYPE[g].test(ex.slice(0,40).replace(/^(?:[^.:,]{0,25}?)(?=שם|מין|אבן)/,'')))&&Object.keys(TYPE).filter(g=>{const m=ex.match(TYPE[g]);return m&&m.index<=30;});const near=Object.keys(TYPE).filter(g=>{const m=ex.match(TYPE[g]);return m&&m.index<=60;});const lm=ex.match(LAAZ);const laaz=!!lm&&lm.index<=80;if(!near.length&&!laaz)continue;
-    let ref,vkey=null;if(isT){const c=h2.replace(/^פרק /,''),v=h3.replace(/^פסוק /,'');ref=h1+' '+c+', '+v;vkey=book+'|'+c+'|'+v;}else ref=h1+(h2?' '+h2:'')+(h3?', '+h3:'');
+    let ref,vkey=null;if(isT){const c=h2.replace(/^פרק /,''),v=h3.replace(/^פסוק /,'');ref=h1+' '+c+', '+v;vkey=book+'|'+c+'|'+v;}else ref=h1+(h2?' '+h2:'')+(h3&&!/^שורה /.test(h3)?', '+h3:'');
     DH.push({ref,vkey,isT,dh,dhRaw:strip(d[1]).replace(/[.:]+$/,'').trim(),ex:ex.slice(0,400),types,near,head,laaz,who:h1.replace(/ על .*$/,'')});}});
 // מדריכים
 const G={flora:'guides/flora/data/flora-data.js',animal:'guides/animal/data/animal-data.js',domem:'guides/domem/data/domem-data.js',places:'guides/places/data/places.js'};
@@ -50,10 +55,10 @@ for(const f of ['guides/people/data/people-data.js','guides/amoraim/data/amoraim
 const freq=new Map();for(const s of fs.readdirSync(path.join(ROOT,'תלמוד בבלי')).filter(x=>/^סדר /.test(x)))for(const f of fs.readdirSync(path.join(ROOT,'תלמוד בבלי',s)))for(const w of norm(fs.readFileSync(path.join(ROOT,'תלמוד בבלי',s,f),'utf8')).split(' '))freq.set(w,(freq.get(w)||0)+1);
 const COMMON=new Set([...freq].sort((a,b)=>b[1]-a[1]).slice(0,6000).map(x=>x[0]));
 // מילים בטקסטים של המדרשים — פריט חדש ממפרש מדרש רק אם המילה כתובה במדרש עצמו
-const MW=new Set();(function w(d){for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(fs.statSync(p).isDirectory()){if(!/מפרשים|הערות/.test(f))w(p);}else if(f.endsWith('.txt'))for(const x of norm(fs.readFileSync(p,'utf8')).split(' '))MW.add(x);}})(path.join(ROOT,'מדרש'));
+const MW=new Set();if(!SHAS)(function w(d){for(const f of fs.readdirSync(d)){const p=path.join(d,f);if(fs.statSync(p).isDirectory()){if(!/מפרשים|הערות/.test(f))w(p);}else if(f.endsWith('.txt'))for(const x of norm(fs.readFileSync(p,'utf8')).split(' '))MW.add(x);}})(path.join(ROOT,'מדרש'));
 const SUFF=/(יך|יו|יה|יהם|יכם|יהן|יהון|יהן|תי|ני|נו|כם|הם|תם|ך|יהו)$/;
 // נבדקו בעין: צורה נטויה → שם הערך (null = לא ערך: הסבר לשוני, שוק, מקום שאינו גאוגרפי, כפילות)
-const RENAME={'אגרטלי':'אגרטל','רדידי':'רדיד','שעלו':'שעל','עכברי':'עכבר','תרשישה':'תרשיש','צרפתה':'צרפת','קירה':'קיר','שעירתה':'שעירה','בכד':'כד','איפת':'איפה','אשישי':null,'סלה':null,'יות':null,'אבוס':null,'אגם':null,'סדקי':null,'סירקי':null,'סוגיא':null,'ספירה':null,'אסיטון':null,'יספר':null,'יקרה':null,'פצו':null,'פיץ':null,'נגינת':null,'רמש':null,'חיתו':null,'אילי':null,'סרה':null,'תקועים':null,'נכון':null};
+const RENAME={'אגרטלי':'אגרטל','רדידי':'רדיד','שעלו':'שעל','עכברי':'עכבר','תרשישה':'תרשיש','צרפתה':'צרפת','קירה':'קיר','שעירתה':'שעירה','בכד':'כד','איפת':'איפה','אשישי':null,'סלה':null,'יות':null,'אבוס':null,'אגם':null,'סדקי':null,'סירקי':null,'סוגיא':null,'ספירה':null,'אסיטון':null,'יספר':null,'יקרה':null,'פצו':null,'פיץ':null,'נגינת':null,'רמש':null,'חיתו':null,'אילי':null,'סרה':null,'תקועים':null,'נכון':null,'במסכת':null,'כובש':null,'חבילי':null,'קידה':null,'פסקינן':null,'גילדנא':null,'חילק':null,'בעץ':null};
 // נבדקו בעין ונפסלו (לא פריט/מקום, או שם כללי)
 const EXCL=new Set(['מקום','עיר','ארץ','הר','נהר','מדבר','כלי','אבן','עוף','חיה','בהמה','עשב','אילן','שם','זה','הוא','מין','בגד','מדינה','מלבוש','שדה','בית','נחל','עמק','ים','גבול','דרך']);
 const inVerse=(dh,vkey)=>{const v=V.get(vkey);if(!v)return null;const t=' '+norm(v)+' ';return dh.split(' ').every(w=>t.includes(w))?v:null;};
@@ -67,7 +72,7 @@ for(const b of DH){const words=b.dh.split(' ');const cands=new Set([b.dh]);if(wo
   if(ok.length){for(const [g,n] of ok){const k=g+'|'+n;src[k]=src[k]||[];if(src[k].length<3&&!src[k].some(x=>x.ref===b.ref||x.who===b.who))src[k].push(b);}continue;}
   if(hits.length||!b.types.length)continue;
   // פריט חדש
-  if(b.head.length!==1||/באור המילות/.test(b.ref))continue;const g=b.head[0];if(!b.isT&&(g==='places'||!MW.has(words[words.length-1])))continue;
+  if(b.head.length!==1||/באור המילות/.test(b.ref))continue;const g=b.head[0];if(!b.isT&&(g==='places'||!(SHAS?freq.has(words[words.length-1]):MW.has(words[words.length-1]))))continue;
   if(SUFF.test(words[words.length-1])||(g!=='places'&&/(ים|ין|ות|יות)$/.test(words[words.length-1])))continue;
   const nameWords=words.length===2&&!(g==='places'&&GENERIC.has(NAME(words[0])))?null:words;if(!nameWords)continue;
   let nm=words.length===1?NAME(words[0]):b.dh;if(RENAME[nm]===null)continue;if(RENAME[nm])nm=RENAME[nm];const key=norm(nm);
@@ -87,12 +92,12 @@ const DC=ex=>/מלבוש|בגד/.test(ex)?'clothing':/תכשיט/.test(ex)?'jewe
 const out={};for(const g of Object.keys(NEW)){const arr=[];
   for(const [,it] of NEW[g]){const srcs=[];for(const b of it.list){if(b.vq)srcs.push({r:b.ref.replace(/^.+? על /,''),t:b.vq.slice(0,300)});srcs.push({r:b.ref,t:b.dhRaw+'. '+b.ex});}
     const uniq=srcs.filter((s,i,a)=>a.findIndex(x=>x.r===s.r)===i);const b0=it.list[0];
-    const expl='לפי '+it.list.map(b=>b.ref).join('; ')+': '+b0.ex.slice(0,220)+' — נוסף מתוך סריקת מפרשי התנ״ך והמדרשים; הזיהוי לא אומת, הצעות עריכה יתקבלו בברכה.';
-    if(g==='domem')arr.push({name:it.name,cat:DC(b0.ex),img:null,aliases:[],tribe:null,explanation:expl,identification:'לא אומת',note:'',gallery:[],makorot:uniq.map(s=>({ref:s.r,text:s.t})),src:'commentaries-670'});
-    else if(g==='places')arr.push({name:it.name,cat:PCAT(b0.ex),aliases:[],methods:[{label:'לפי המפרשים',explanation:expl,modern:'לא אומת',confidence:'לא אומת'}],verses:[],midrash:uniq.map(s=>({source:s.r,note:s.t})),academic:[],src:'commentaries-670'});
-    else arr.push({name:it.name,cat:(g==='flora'?FC:AC)(b0.ex),aliases:[],methods:[{label:'לפי המפרשים',confidence:'לא אומת',explanation:expl}],verses:[],midrash:uniq.map(s=>({source:s.r,note:s.t})),src:'commentaries-670'});}
+    const expl='לפי '+it.list.map(b=>b.ref).join('; ')+': '+b0.ex.slice(0,220)+' — '+(SHAS?'נוסף מתוך סריקת הראשונים על הש״ס;':'נוסף מתוך סריקת מפרשי התנ״ך והמדרשים;')+' הזיהוי לא אומת, הצעות עריכה יתקבלו בברכה.';
+    if(g==='domem')arr.push({name:it.name,cat:DC(b0.ex),img:null,aliases:[],tribe:null,explanation:expl,identification:'לא אומת',note:'',gallery:[],makorot:uniq.map(s=>({ref:s.r,text:s.t})),src:SHAS?'rishonim-680':'commentaries-670'});
+    else if(g==='places')arr.push({name:it.name,cat:PCAT(b0.ex),aliases:[],methods:[{label:'לפי המפרשים',explanation:expl,modern:'לא אומת',confidence:'לא אומת'}],verses:[],midrash:uniq.map(s=>({source:s.r,note:s.t})),academic:[],src:SHAS?'rishonim-680':'commentaries-670'});
+    else arr.push({name:it.name,cat:(g==='flora'?FC:AC)(b0.ex),aliases:[],methods:[{label:'לפי המפרשים',confidence:'לא אומת',explanation:expl}],verses:[],midrash:uniq.map(s=>({source:s.r,note:s.t})),src:SHAS?'rishonim-680':'commentaries-670'});}
   out[g]=arr;if(!DRY&&arr.length){let t=fs.readFileSync(G[g],'utf8');const at=t.search(/^(?:const|let) DATA\s*=\s*\[/m);const br=t.indexOf('[',at)+1;t=t.slice(0,br)+'\n'+arr.map(x=>JSON.stringify(x)).join(',\n')+',\n'+t.slice(br);fs.writeFileSync(G[g],t);}
   for(const x of arr)rep.push([g,x.name+' (חדש)',x.explanation?x.explanation.slice(0,140):x.methods[0].explanation.slice(0,140),(x.midrash||x.makorot).map(s=>s.source||s.ref).join('; '),'','לא אומת'].join('\t'));}
-fs.mkdirSync('_עבודה/out',{recursive:true});fs.writeFileSync('_עבודה/out/commentaries-items-670.tsv',rep.join('\n')+'\n');
+fs.mkdirSync('_עבודה/out',{recursive:true});fs.writeFileSync((SHAS?'_עבודה/out/shas-rishonim-680.tsv':'_עבודה/out/commentaries-items-670.tsv'),rep.join('\n')+'\n');
 console.log({...st,newFlora:out.flora.length,newAnimal:out.animal.length,newDomem:out.domem.length,newPlaces:out.places.length});
 for(const g of Object.keys(out))console.log(g+': '+out[g].map(x=>x.name).join(', ').slice(0,900));
