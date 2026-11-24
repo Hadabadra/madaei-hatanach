@@ -57,7 +57,7 @@ async function openMasechetPage(name){
       masechet: name, name: m.entry.name, aliases: m.entry.aliases || [], cat: ctx.id,
       daf: units[0] || '', dafs: units, link: { cat: m.catId, entry: m.entry.name },
       role: m.entry.role, dor: m.entry.dor,
-      explanation: (units.length ? (hasBavli ? 'דפים ' : 'פרקים ') + units.slice(0, 12).join(', ') + (units.length > 12 ? '…' : '') + ' · ' : '')
+      explanation: (units.length ? 'נזכר ב-' + units.length + (hasBavli ? (units.length === 1 ? ' עמוד (' + units[0] + ')' : ' עמודים') : (units.length === 1 ? ' פרק' : ' פרקים')) + ' · ' : '')
         + String(desc).slice(0, 160),
     });
   });

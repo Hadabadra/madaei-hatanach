@@ -8,7 +8,7 @@
 // אין להפוך ל-type="module" — scope גלובלי משותף. נטען אחרי entry-detail.js ו-mentions.js.
 
 const XLINK_SKIP = 'a,button,summary,h1,h2,h3,h4,input,textarea,select,script,style,.mentions-where,.linked-ctx,.ftree,.family-tree,.entry-edit,.leaflet-container,.xlink';
-const XLINK_PFX1 = /^(ו|ה|וה|ד|וד|ל|ול|ב|וב|מ|ומ|כ|ש)/;
+const XLINK_PFX1 = /^(וה|וד|ול|ו|ה|ד|ל)/;   // כמו באינדקס (PFX1): לא ב/מ/כ/ש — ״שמעון״ אינו ״מעון״
 let xlinkMaxLen = 1;
 
 function xlinkForms(){
