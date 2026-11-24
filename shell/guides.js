@@ -38,6 +38,11 @@ let currentGuideCat = null;
 // ב-imagesCache. לא כל מדריך משתמש בזה (מקומות למשל - יש לו מפה בפני עצמה; צומח - היה
 // מביא תמונות חי מוויקיפדיה, לא הוטמע כאן).
 function lookupEntryImage(entry, catId){
+  // 6.8.0 — ערך קישור בעמוד מסכת: התמונה של ערך היעד במדריך שלו
+  if (entry && entry.masechet && entry.link && entry.link.cat !== catId && dataCache[entry.link.cat]){
+    const t = dataCache[entry.link.cat].find(e => e.name === entry.link.entry);
+    if (t) return lookupEntryImage(t, entry.link.cat);
+  }
   const images = imagesCache[catId] || {};
   if (entry.img && images[entry.img]) return images[entry.img];
   const wiki = entry.methods && entry.methods[0] && entry.methods[0].wiki;
@@ -552,7 +557,8 @@ guideAddNewBtn.addEventListener('click', () => openGenericProposeForm(''));
 
 // מציג מדריך ישירות בעמוד השער (בלי iframe) - הנתונים כבר נטענים דרך loadGuideData.
 async function openGuide(catId, term){
-  const cat = CATEGORIES.find(c => c.id === catId);
+  // 6.8.0 — catId יכול להיות גם אובייקט קטגוריה וירטואלי (עמוד מסכת, shell/masechet.js)
+  const cat = (catId && typeof catId === 'object') ? catId : CATEGORIES.find(c => c.id === catId);
   if (!cat) return;
   landing.style.display = 'none';
   frameWrap.classList.remove('open');
@@ -562,7 +568,7 @@ async function openGuide(catId, term){
   // אמוראים (ר' docs/בלוק-סריקת-אישים-בכורות.md) - קרדיט קצר, כמו ב"ערך היום" (home.js).
   const credit = (cat.id === 'amoraim')
     ? ' <span class="mini-note" style="font-weight:400;">— בעזרת תוסף ״ביוגרפיות״ מאת יאיר דניאל</span>' : '';
-  guideViewTitle.innerHTML = catIconHtml(cat.id, 26) + ' ' + esc(cat.label) + credit;
+  guideViewTitle.innerHTML = (cat.virtual ? '<span class="cat-icon-emoji">' + esc(cat.icon || '') + '</span>' : catIconHtml(cat.id, 26)) + ' ' + esc(cat.label) + credit;
   guideSearchBox.value = '';
   activeGuideChips.clear();
   activeGuideEra = 'all';

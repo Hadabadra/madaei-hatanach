@@ -62,6 +62,11 @@ for(const rel of files){const f=path.join(ROOT,rel.replace(/^אוצריא\//,'')
   const byEnt={};for(const [,{i,s}] of map)for(const id of s){(byEnt[id]=byEnt[id]||[]).push(i);pairs++;}
   OUT[key]={u:units,e:byEnt};
 }
+// 6.8.0 — f: צורה ← ערך אחד, לקישורים בתוך הכרטיסים (shell/xlinks.js). צורה שמשותפת לכמה מדריכים —
+// לפי סדר העדיפות (מקומות קודם); כמה ערכים באותו מדריך — רק מי ששמו הוא הצורה עצמה, אחרת בלי קישור.
+const PRIO=['places','people','amoraim','domem','animal','flora','beithamikdash','archaeology'];const F={};
+for(const [f,ids] of forms){const byG={};ids.forEach(id=>(byG[ents[id][0]]=byG[ents[id][0]]||[]).push(id));
+  const g=PRIO.find(x=>byG[x]);if(!g)continue;let l=byG[g];if(l.length>1)l=l.filter(id=>norm(ents[id][1])===f);if(l.length===1)F[f]=l[0];}
 const header='/* אינדקס ״היכן נזכר״ — נוצר ע״י tools/build-mentions-index.js מספריית אוצריא. זיהוי אוטומטי לפי השם בלבד. */\n';
-fs.writeFileSync('guides/_mentions/mentions-data.js',header+'const DATA = '+JSON.stringify({ents,books:OUT})+';\n');
+fs.writeFileSync('guides/_mentions/mentions-data.js',header+'const DATA = '+JSON.stringify({ents,f:F,books:OUT})+';\n');
 console.log({entities:ents.length,forms:forms.size,books:Object.keys(OUT).length,pairs,sizeMB:(fs.statSync('guides/_mentions/mentions-data.js').size/1e6).toFixed(1)});

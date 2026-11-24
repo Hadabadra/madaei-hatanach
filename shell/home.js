@@ -346,6 +346,8 @@ function attachLiveSearch(opts){
   }
 
   function render(){
+    // 6.8.0 — בתוך מדריך: החיפוש מסנן את המדריך בלבד (guides.js), בלי השלמה מכל המדריכים ובלי זיהוי
+    if (opts.filterOnly && opts.filterOnly()){ close(); return; }
     let hits = searchEntriesByName(input.value.trim(), 12);
     const prefer = opts.preferCat && opts.preferCat();
     if (prefer && hits.length){
@@ -377,9 +379,10 @@ function attachLiveSearch(opts){
     openGuide(h.catId, h.name);
   }
 
-  async function runIdentify(){
+  async function runIdentify(ev){
     const text = input.value.trim();
     if (!text) return;
+    if (!ev && opts.filterOnly && opts.filterOnly()){ close(); return; }   // Enter במדריך = סינון בלבד; כפתור הזיהוי — זיהוי
     close();
     let label = null;
     if (btn){ btn.disabled = true; label = btn.textContent; btn.textContent = '…'; }
@@ -415,7 +418,7 @@ function attachLiveSearch(opts){
     }
     if (ev.key === 'Escape') close();
   });
-  if (btn) btn.addEventListener('click', runIdentify);
+  if (btn) btn.addEventListener('click', (ev) => runIdentify(ev || true));
   document.addEventListener('click', (ev) => {
     if (!ev.target.closest(opts.wrapSel)) close();
   });
@@ -433,7 +436,8 @@ attachLiveSearch({
   drop: document.getElementById('guideSearchDrop'),
   btn: document.getElementById('guideIdentifyBtn'),
   wrapSel: '#guideSearchWrap, #guideIdentifyBtn',
-  preferCat: () => currentGuideCat && currentGuideCat.id
+  preferCat: () => currentGuideCat && currentGuideCat.id,
+  filterOnly: () => !!(currentGuideCat && document.getElementById('guideView') && document.getElementById('guideView').classList.contains('open'))
 });
 
 // ============================================================
