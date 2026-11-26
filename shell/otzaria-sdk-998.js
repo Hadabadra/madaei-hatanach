@@ -116,7 +116,28 @@ async function installedPlugins(){
 }
 // מדריכים שיש להם תוסף ייעודי משלים אצל חלק מהמשתמשים
 // 6.2.0 — גם תוסף ״ביוגרפיות״ (יאיר דניאל): כפתור ״פתיחה בביוגרפיות״ בכרטיסי אישים וחכמים, כשהוא מותקן
-const COMPANION_PATTERNS = { people: /אישים|ביוגרפיות|biograph/i, amoraim: /אישים|ביוגרפיות|biograph/i, places: /מקומות/ };
+// 6.9.0 — גם ״מראות תורה״ (המחשות בתלת-ממד ותרשימים) בכרטיסי מדריך בית המקדש
+const MAROT_TORAH_RE = /מראות\s*תורה|marot[\s-]*torah/i;
+const COMPANION_PATTERNS = { people: /אישים|ביוגרפיות|biograph/i, amoraim: /אישים|ביוגרפיות|biograph/i, places: /מקומות/, beithamikdash: MAROT_TORAH_RE };
+
+// 6.9.0 — ״מראות תורה״: מזהה התוסף אינו ידוע מראש, ולכן הוא נמצא לפי השם ברשימת התוספים המותקנים
+async function marotTorahPlugin(){
+  if (!otzOk()) return null;
+  return (await installedPlugins()).find(p => p && p.enabled !== false
+    && OWN_PLUGIN_IDS.indexOf(p.pluginId) === -1 && MAROT_TORAH_RE.test(String(p.name || '') + ' ' + String(p.pluginId || ''))) || null;
+}
+async function openMarotTorah(cat){
+  const p = await marotTorahPlugin();
+  if (!p){
+    Otzaria.call('ui.showMessage', { message: 'התוסף ״מראות תורה״ אינו מותקן. אפשר להתקין אותו מחנות התוספים של אוצריא.' }).catch(() => {});
+    return;
+  }
+  const midot = cat && cat.id === 'masechet:מידות';
+  const param = midot ? { query: 'מסכת מידות', bookId: 'משנה מידות', currentRef: 'מידות, א, א', source: PLUGIN_DISPLAY_NAME }
+                      : { query: 'בית המקדש', source: PLUGIN_DISPLAY_NAME };
+  Otzaria.call('plugin.openOther', { pluginId: p.pluginId, param: param })
+    .catch(() => Otzaria.call('ui.showError', { message: 'לא ניתן לפתוח את "' + p.name + '" כרגע.' }).catch(() => {}));
+}
 
 // 6.1.0 — תוסף ״בית המקדש״ (מאוחד: בית ראשון + בית שני; yoniny/beit-rishon). התוסף מקבל ב-plugin.page_opened
 // מיקום קריאה {bookId, currentRef} — כמו כפתור הספר שלו — ובוחר את הבית לפי הספר (מלכים א 10 ודברי הימים ב 39
