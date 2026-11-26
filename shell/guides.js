@@ -323,7 +323,14 @@ function setGuideFiltersOpen(open){
   guideFiltersToggle.textContent = open ? '✕ סגירת הסינון' : '☰ סינון';
 }
 { const tb = document.getElementById('guideTempleBtn');
-  if (tb) tb.addEventListener('click', () => { if (typeof openTemplePlugin === 'function') openTemplePlugin(null); }); }
+  // 6.9.0 — בעמוד מסכת מידות: ישר לבית שני, בתחילת המסכת (התוסף בוחר את הבית לפי bookId 89)
+  if (tb) tb.addEventListener('click', () => {
+    if (typeof openTemplePlugin !== 'function') return;
+    const midot = currentGuideCat && currentGuideCat.id === 'masechet:מידות';
+    openTemplePlugin(midot ? { bookId: 89, currentRef: 'מידות, א, א' } : null);
+  });
+  const mb = document.getElementById('guideMarotBtn');
+  if (mb) mb.addEventListener('click', () => { if (typeof openMarotTorah === 'function') openMarotTorah(currentGuideCat); }); }
 guideFiltersToggle.addEventListener('click', () => {
   setGuideFiltersOpen(guideFilters.classList.contains('collapsed'));
   updateGuideFiltersSummary();
@@ -582,7 +589,16 @@ async function openGuide(catId, term){
     guideTimelineToggle.textContent = '🕰️ ציר זמן';
   }
   const templeBtn = document.getElementById('guideTempleBtn');
-  if (templeBtn) templeBtn.style.display = (cat.id === 'beithamikdash' && window.Otzaria && Otzaria.call) ? '' : 'none';
+  const templeCat = cat.id === 'beithamikdash' || cat.id === 'masechet:מידות';
+  if (templeBtn) templeBtn.style.display = (templeCat && window.Otzaria && Otzaria.call) ? '' : 'none';
+  // 6.9.0 — ״מראות תורה״: הכפתור מופיע רק כשהתוסף מותקן
+  const marotBtn = document.getElementById('guideMarotBtn');
+  if (marotBtn){
+    marotBtn.style.display = 'none';
+    if (templeCat && typeof marotTorahPlugin === 'function') marotTorahPlugin().then(p => {
+      if (p && currentGuideCat === cat) marotBtn.style.display = '';
+    }).catch(() => {});
+  }
   currentGuideCat = cat;
   // 6.1.0 — הגדרה: הסינון סגור בכניסה למדריך (ברירת מחדל: פתוח, כמו קודם)
   setGuideFiltersOpen(!(typeof uiPrefs !== 'undefined' && uiPrefs.filtersClosed));
