@@ -824,7 +824,7 @@ function buildReportPanel(){
     // + '<a href="#" class="panel-btn secondary" id="reportMailto">📧 שליחה במייל</a>'
     + '</div>'
     + '<p class="panel-hint" style="margin-top:8px;font-size:.8em;opacity:.75;">'
-    +   'מנגנון השליחה כאן מבוסס על הדפוס של התוספים ״ביוגרפיות״ ו״דיווח באגים״ — תודה למפתחיהם.'
+    +   'הדיווח נשלח דרך מנגנון הדיווח הרשמי של אוצריא.'
     + '</p></div>';
   document.body.appendChild(ov);
   // הפאנל נוצר בזמן ריצה ולכן אינו נתפס במאזין הכללי של .panel-overlay ב-results-ui.js
